@@ -1,6 +1,23 @@
 # Terraform Configuration for GitHub Repository
 
-This directory contains Terraform configuration to set up the GitHub repository with branch protection rules.
+This directory contains Terraform configuration to set up branch protection rules for the GitHub repository.
+
+## Quick Start
+
+```bash
+cd terraform
+
+# 1. Copy the example configuration
+cp terraform.tfvars.example terraform.tfvars
+
+# 2. Edit with your GitHub token and username
+vim terraform.tfvars
+
+# 3. Run the setup script
+./setup-branch-protection.sh
+```
+
+That's it! The script will initialize Terraform, show you the planned changes, and apply them.
 
 ## Prerequisites
 
@@ -10,14 +27,27 @@ This directory contains Terraform configuration to set up the GitHub repository 
    ```
 
 2. Create a GitHub Personal Access Token:
-   - Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+   - Go to: https://github.com/settings/tokens
    - Click "Generate new token (classic)"
    - Select scopes: `repo` (full control of private repositories)
    - Copy the token (you won't see it again)
 
-## Usage
+## Manual Usage (Alternative)
 
-### 1. Initialize Terraform
+### 1. Create Configuration File
+
+```bash
+cp terraform.tfvars.example terraform.tfvars
+```
+
+Edit `terraform.tfvars` with your values:
+```hcl
+github_token    = "ghp_your_token_here"
+github_owner    = "bryanstevensacosta"
+repository_name = "voice-clone"
+```
+
+### 2. Initialize Terraform
 
 ```bash
 cd terraform
@@ -26,33 +56,25 @@ terraform init
 
 This will download the GitHub provider plugin.
 
-### 2. Plan Changes
+### 3. Plan Changes
 
 Preview what Terraform will create:
 
 ```bash
-terraform plan \
-  -var="github_token=YOUR_GITHUB_TOKEN" \
-  -var="github_owner=YOUR_GITHUB_USERNAME"
+terraform plan
 ```
 
-Replace:
-- `YOUR_GITHUB_TOKEN` with your GitHub personal access token
-- `YOUR_GITHUB_USERNAME` with your GitHub username
+### 4. Apply Configuration
 
-### 3. Apply Configuration
-
-Create the repository and branch protection rules:
+Create the branch protection rules:
 
 ```bash
-terraform apply \
-  -var="github_token=YOUR_GITHUB_TOKEN" \
-  -var="github_owner=YOUR_GITHUB_USERNAME"
+terraform apply
 ```
 
 Type `yes` when prompted to confirm.
 
-### 4. Verify
+### 5. Verify
 
 After applying, Terraform will output:
 - `repository_url`: The HTTPS URL of your repository
@@ -60,7 +82,7 @@ After applying, Terraform will output:
 
 Visit your repository on GitHub and check:
 - Settings → Branches → Branch protection rules
-- Verify that `master` branch has protection enabled
+- Verify that `master`, `main`, and `develop` branches have protection enabled
 
 ## Configuration Details
 
@@ -85,28 +107,15 @@ The configuration sets up the following protection for the `master`, `main`, and
 - **Auto-delete branches**: Enabled after merge
 - **Topics**: voice-cloning, text-to-speech, tts, xtts-v2, coqui, python, cli, machine-learning
 
-## Using Environment Variables (Recommended)
+## Using Environment Variables (Alternative)
 
-Instead of passing variables on the command line, you can use environment variables:
+Instead of using `terraform.tfvars`, you can use environment variables:
 
 ```bash
 export TF_VAR_github_token="YOUR_GITHUB_TOKEN"
-export TF_VAR_github_owner="YOUR_GITHUB_USERNAME"
+export TF_VAR_github_owner="bryanstevensacosta"
+export TF_VAR_repository_name="voice-clone"
 
-terraform plan
-terraform apply
-```
-
-Or create a `terraform.tfvars` file (DO NOT commit this file):
-
-```hcl
-github_token = "YOUR_GITHUB_TOKEN"
-github_owner = "YOUR_GITHUB_USERNAME"
-repository_name = "voice-clone-cli"
-```
-
-Then run:
-```bash
 terraform plan
 terraform apply
 ```
@@ -114,42 +123,43 @@ terraform apply
 ## Important Notes
 
 1. **Security**: Never commit your GitHub token to version control
-2. **State file**: The `terraform.tfstate` file contains sensitive information. Add it to `.gitignore`
-3. **Existing repository**: If the repository already exists, you may need to import it first:
-   ```bash
-   terraform import github_repository.voice_clone voice-clone-cli
-   ```
+2. **State file**: The `terraform.tfstate` file contains sensitive information. It's already in `.gitignore`
+3. **Repository**: This configuration uses the existing `voice-clone` repository
 
 ## Cleanup
 
-To destroy all resources created by Terraform:
+To destroy all branch protection rules created by Terraform:
 
 ```bash
-terraform destroy \
-  -var="github_token=YOUR_GITHUB_TOKEN" \
-  -var="github_owner=YOUR_GITHUB_USERNAME"
+terraform destroy
 ```
 
-**Warning**: This will delete the repository and all its contents!
+**Warning**: This will remove all branch protection rules!
 
 ## Troubleshooting
 
-### Error: Repository already exists
-
-If you get an error that the repository already exists, you have two options:
-
-1. Import the existing repository:
-   ```bash
-   terraform import github_repository.voice_clone voice-clone-cli
-   ```
-
-2. Or remove the `github_repository` resource from `main.tf` and only manage branch protection
-
 ### Error: Branch protection requires status checks that don't exist
 
-The status checks (`test`, `lint`, `type-check`) must exist before branch protection can require them. You may need to:
+The status checks (`test`, `lint`, `type-check`) must exist before branch protection can require them.
 
-1. Push code and trigger the CI workflow first
-2. Or temporarily comment out the `required_status_checks` block in `main.tf`
-3. Apply Terraform
-4. After CI runs once, uncomment and apply again
+**Solution**: You have two options:
+
+1. **Push code first, then apply Terraform** (Recommended):
+   ```bash
+   # Push your code to trigger CI
+   git push origin feat/initial-setup
+
+   # Wait for CI to run once
+   # Then apply Terraform
+   cd terraform
+   ./setup-branch-protection.sh
+   ```
+
+2. **Temporarily disable status checks**:
+   - Comment out the `required_status_checks` block in `main.tf`
+   - Apply Terraform
+   - After CI runs once, uncomment and apply again
+
+### Error: Authentication failed
+
+Make sure your GitHub token has the `repo` scope and is still valid.
