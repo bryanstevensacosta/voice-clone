@@ -12,40 +12,19 @@ provider "github" {
   owner = var.github_owner
 }
 
-resource "github_repository" "voice_clone" {
-  name        = var.repository_name
-  description = "Personal voice cloning CLI tool using XTTS-v2"
-  visibility  = "public"
-
-  has_issues      = true
-  has_projects    = false
-  has_wiki        = false
-  has_downloads   = true
-
-  allow_merge_commit     = false
-  allow_squash_merge     = false
-  allow_rebase_merge     = true
-  delete_branch_on_merge = true
-
-  topics = [
-    "voice-cloning",
-    "text-to-speech",
-    "tts",
-    "xtts-v2",
-    "coqui",
-    "python",
-    "cli",
-    "machine-learning"
-  ]
+# Repository already exists, so we import it instead of creating
+# To import: terraform import github_repository.voice_clone voice-clone
+data "github_repository" "voice_clone" {
+  full_name = "${var.github_owner}/${var.repository_name}"
 }
 
 resource "github_branch_default" "master" {
-  repository = github_repository.voice_clone.name
+  repository = data.github_repository.voice_clone.name
   branch     = "master"
 }
 
 resource "github_branch_protection" "master_protection" {
-  repository_id = github_repository.voice_clone.node_id
+  repository_id = data.github_repository.voice_clone.node_id
   pattern       = "master"
 
   required_pull_request_reviews {
@@ -69,7 +48,7 @@ resource "github_branch_protection" "master_protection" {
 }
 
 resource "github_branch_protection" "main_protection" {
-  repository_id = github_repository.voice_clone.node_id
+  repository_id = data.github_repository.voice_clone.node_id
   pattern       = "main"
 
   required_pull_request_reviews {
@@ -93,7 +72,7 @@ resource "github_branch_protection" "main_protection" {
 }
 
 resource "github_branch_protection" "develop_protection" {
-  repository_id = github_repository.voice_clone.node_id
+  repository_id = data.github_repository.voice_clone.node_id
   pattern       = "develop"
 
   required_pull_request_reviews {
@@ -116,14 +95,15 @@ resource "github_branch_protection" "develop_protection" {
   required_linear_history = true
 }
 
-resource "github_repository_file" "code_of_conduct" {
-  repository = github_repository.voice_clone.name
-  file       = "CODE_OF_CONDUCT.md"
-  content    = file("${path.module}/../CODE_OF_CONDUCT.md")
-}
+# Repository files will be managed via git, not Terraform
+# resource "github_repository_file" "code_of_conduct" {
+#   repository = data.github_repository.voice_clone.name
+#   file       = "CODE_OF_CONDUCT.md"
+#   content    = file("${path.module}/../CODE_OF_CONDUCT.md")
+# }
 
-resource "github_repository_file" "contributing" {
-  repository = github_repository.voice_clone.name
-  file       = "CONTRIBUTING.md"
-  content    = file("${path.module}/../CONTRIBUTING.md")
-}
+# resource "github_repository_file" "contributing" {
+#   repository = data.github_repository.voice_clone.name
+#   file       = "CONTRIBUTING.md"
+#   content    = file("${path.module}/../CONTRIBUTING.md")
+# }

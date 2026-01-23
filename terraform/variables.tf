@@ -12,5 +12,5 @@ variable "github_owner" {
 variable "repository_name" {
   description = "Repository name"
   type        = string
-  default     = "voice-clone-cli"
+  default     = "voice-clone"
 }
