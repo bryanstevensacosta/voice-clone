@@ -79,6 +79,22 @@ check-branch:  ## Check if current branch needs rebase
 	@echo "🔍 Checking branch status..."
 	@./scripts/check-rebase-before-push.sh || true
 
+check-terraform:  ## Check if Terraform state is in sync with remote
+	@echo "🔍 Checking Terraform state..."
+	@./scripts/check-terraform-sync.sh
+
+terraform-plan:  ## Run terraform plan
+	@echo "📋 Running terraform plan..."
+	@cd terraform && terraform plan
+
+terraform-apply:  ## Apply terraform changes
+	@echo "🚀 Applying terraform changes..."
+	@cd terraform && terraform apply
+
+terraform-init:  ## Initialize terraform
+	@echo "🔧 Initializing terraform..."
+	@cd terraform && terraform init
+
 venv:  ## Create virtual environment
 	@echo "📦 Creating virtual environment..."
 	@python3.10 -m venv venv

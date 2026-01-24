@@ -59,3 +59,11 @@ repos:
         always_run: true
         args: [tests/, --cov=voice_clone, --cov-report=term-missing, --cov-fail-under=70]
         stages: [push]
+
+      - id: check-terraform-sync
+        name: check-terraform-sync
+        entry: scripts/check-terraform-sync.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [manual]
