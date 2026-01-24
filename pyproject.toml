@@ -97,6 +97,14 @@ ignore_missing_imports = true
 module = "librosa.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "numpy.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "soundfile.*"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "-ra -q --strict-markers --cov=voice_clone --cov-report=term-missing"
