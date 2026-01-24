@@ -4,6 +4,9 @@ import sys
 from pathlib import Path
 
 import click
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 from voice_clone.audio.processor import AudioProcessor
 from voice_clone.batch.processor import BatchProcessor
@@ -11,6 +14,8 @@ from voice_clone.config import ConfigManager
 from voice_clone.model.generator import VoiceGenerator
 from voice_clone.model.manager import ModelManager
 from voice_clone.model.profile import VoiceProfile
+
+console = Console()
 
 
 @click.group()
@@ -40,34 +45,45 @@ def validate_samples(samples_dir: Path) -> None:
         wav_files = list(samples_dir.glob("*.wav"))
 
         if not wav_files:
-            click.secho(f"✗ No WAV files found in {samples_dir}", fg="red")
+            console.print(f"[red]✗ No WAV files found in {samples_dir}[/red]")
             sys.exit(1)
 
-        click.secho(f"\nValidating {len(wav_files)} samples...\n", fg="cyan")
+        console.print(f"\n[cyan]Validating {len(wav_files)} samples...[/cyan]\n")
+
+        # Create results table
+        table = Table(show_header=True, header_style="bold cyan")
+        table.add_column("File", style="white")
+        table.add_column("Status", style="white")
+        table.add_column("Issues", style="white")
 
         valid_count = 0
         for wav_file in sorted(wav_files):
             result = processor.validate_sample(wav_file)
 
             if result.is_valid():
-                click.secho(f"✓ {wav_file.name}", fg="green")
+                status = "[green]✓ Valid[/green]"
                 valid_count += 1
             else:
-                click.secho(f"✗ {wav_file.name}", fg="red")
+                status = "[red]✗ Invalid[/red]"
 
-            # Show errors and warnings
+            # Collect issues
+            issues = []
             for error in result.errors:
-                click.secho(f"  ERROR: {error}", fg="red")
+                issues.append(f"[red]ERROR: {error}[/red]")
             for warning in result.warnings:
-                click.secho(f"  WARNING: {warning}", fg="yellow")
+                issues.append(f"[yellow]WARNING: {warning}[/yellow]")
 
-        click.secho(f"\n{valid_count}/{len(wav_files)} samples valid", fg="cyan")
+            issues_text = "\n".join(issues) if issues else "[green]None[/green]"
+            table.add_row(wav_file.name, status, issues_text)
+
+        console.print(table)
+        console.print(f"\n[cyan]{valid_count}/{len(wav_files)} samples valid[/cyan]\n")
 
         if valid_count < len(wav_files):
             sys.exit(1)
 
     except Exception as e:
-        click.secho(f"✗ Error: {str(e)}", fg="red")
+        console.print(f"[red]✗ Error: {str(e)}[/red]")
         sys.exit(1)
 
 
@@ -95,36 +111,59 @@ def validate_samples(samples_dir: Path) -> None:
 def prepare(samples_dir: Path, output_path: Path, profile_name: str) -> None:
     """Create voice profile from audio samples."""
     try:
-        click.secho(f"\nCreating voice profile: {profile_name}", fg="cyan")
+        console.print(f"\n[cyan]Creating voice profile: {profile_name}[/cyan]\n")
 
-        # Create profile
-        profile = VoiceProfile.from_directory(profile_name, samples_dir)
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task("Processing samples...", total=None)
 
-        if not profile.samples:
-            click.secho("✗ No valid samples found", fg="red")
-            sys.exit(1)
+            # Create profile
+            profile = VoiceProfile.from_directory(profile_name, samples_dir)
 
-        # Validate profile
-        is_valid, warnings = profile.validate()
+            if not profile.samples:
+                console.print("[red]✗ No valid samples found[/red]")
+                sys.exit(1)
 
-        if not is_valid:
-            click.secho("✗ Profile validation failed", fg="red")
-            sys.exit(1)
+            progress.update(task, description="Validating profile...")
+
+            # Validate profile
+            is_valid, warnings = profile.validate()
+
+            if not is_valid:
+                console.print("[red]✗ Profile validation failed[/red]")
+                sys.exit(1)
+
+            progress.update(task, description="Saving profile...")
+
+            # Save profile
+            profile.to_json(output_path)
 
         # Show warnings
-        for warning in warnings:
-            click.secho(f"⚠ WARNING: {warning}", fg="yellow")
+        if warnings:
+            console.print("\n[yellow]Warnings:[/yellow]")
+            for warning in warnings:
+                console.print(f"  [yellow]⚠ {warning}[/yellow]")
 
-        # Save profile
-        profile.to_json(output_path)
+        # Show success
+        console.print("\n[green]✓ Voice profile created successfully![/green]\n")
 
-        click.secho("\n✓ Voice profile created:", fg="green")
-        click.secho(f"  Samples: {len(profile.samples)}", fg="cyan")
-        click.secho(f"  Duration: {profile.total_duration:.1f}s", fg="cyan")
-        click.secho(f"  Output: {output_path}", fg="cyan")
+        # Create info table
+        table = Table(show_header=False, box=None)
+        table.add_column("Key", style="cyan")
+        table.add_column("Value", style="white")
+        table.add_row("Samples", str(len(profile.samples)))
+        table.add_row("Duration", f"{profile.total_duration:.1f}s")
+        table.add_row("Language", profile.language)
+        table.add_row("Output", str(output_path))
+
+        console.print(table)
+        console.print()
 
     except Exception as e:
-        click.secho(f"✗ Error: {str(e)}", fg="red")
+        console.print(f"[red]✗ Error: {str(e)}[/red]")
         sys.exit(1)
 
 
@@ -151,37 +190,45 @@ def prepare(samples_dir: Path, output_path: Path, profile_name: str) -> None:
 def generate(profile_path: Path, text: str, output_path: Path) -> None:
     """Generate speech from text using voice profile."""
     try:
-        # Load config
-        config_manager = ConfigManager()
-        config = config_manager.load_config()
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            # Load config
+            task = progress.add_task("Loading configuration...", total=None)
+            config_manager = ConfigManager()
+            config = config_manager.load_config()
 
-        # Load profile
-        click.secho("\nLoading voice profile...", fg="cyan")
-        profile = VoiceProfile.from_json(profile_path)
-        click.secho(f"✓ Loaded profile: {profile.name}", fg="green")
+            # Load profile
+            progress.update(task, description="Loading voice profile...")
+            profile = VoiceProfile.from_json(profile_path)
 
-        # Initialize model
-        click.secho("\nInitializing model...", fg="cyan")
-        model_manager = ModelManager(config)
+            # Initialize model
+            progress.update(
+                task, description="Initializing model (this may take a while)..."
+            )
+            model_manager = ModelManager(config)
 
-        if not model_manager.load_model():
-            click.secho("✗ Failed to load model", fg="red")
-            sys.exit(1)
+            if not model_manager.load_model():
+                console.print("[red]✗ Failed to load model[/red]")
+                sys.exit(1)
 
-        # Generate
-        click.secho("\nGenerating speech...", fg="cyan")
-        generator = VoiceGenerator(model_manager, config)
+            # Generate
+            progress.update(task, description="Generating speech...")
+            generator = VoiceGenerator(model_manager, config)
 
-        success = generator.generate(text, profile, output_path)
+            success = generator.generate(text, profile, output_path)
 
         if success:
-            click.secho(f"\n✓ Audio generated: {output_path}", fg="green")
+            console.print("\n[green]✓ Audio generated successfully![/green]")
+            console.print(f"[cyan]Output: {output_path}[/cyan]\n")
         else:
-            click.secho("\n✗ Generation failed", fg="red")
+            console.print("\n[red]✗ Generation failed[/red]")
             sys.exit(1)
 
     except Exception as e:
-        click.secho(f"✗ Error: {str(e)}", fg="red")
+        console.print(f"[red]✗ Error: {str(e)}[/red]")
         sys.exit(1)
 
 
@@ -210,35 +257,60 @@ def generate(profile_path: Path, text: str, output_path: Path) -> None:
 def batch(profile_path: Path, script_path: Path, output_dir: Path) -> None:
     """Process script file and generate audio for all segments."""
     try:
-        # Load config
-        config_manager = ConfigManager()
-        config = config_manager.load_config()
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            # Load config
+            task = progress.add_task("Loading configuration...", total=None)
+            config_manager = ConfigManager()
+            config = config_manager.load_config()
 
-        # Load profile
-        click.secho("\nLoading voice profile...", fg="cyan")
-        profile = VoiceProfile.from_json(profile_path)
-        click.secho(f"✓ Loaded profile: {profile.name}", fg="green")
+            # Load profile
+            progress.update(task, description="Loading voice profile...")
+            profile = VoiceProfile.from_json(profile_path)
 
-        # Initialize model
-        click.secho("\nInitializing model...", fg="cyan")
-        model_manager = ModelManager(config)
+            # Initialize model
+            progress.update(
+                task, description="Initializing model (this may take a while)..."
+            )
+            model_manager = ModelManager(config)
 
-        if not model_manager.load_model():
-            click.secho("✗ Failed to load model", fg="red")
-            sys.exit(1)
+            if not model_manager.load_model():
+                console.print("[red]✗ Failed to load model[/red]")
+                sys.exit(1)
 
-        # Process batch
-        generator = VoiceGenerator(model_manager, config)
-        processor = AudioProcessor()
-        batch_processor = BatchProcessor(generator, processor)
+            # Process batch
+            progress.update(task, description="Processing script...")
+            generator = VoiceGenerator(model_manager, config)
+            processor = AudioProcessor()
+            batch_processor = BatchProcessor(generator, processor)
 
-        results = batch_processor.process_script(script_path, profile, output_dir)
+            results = batch_processor.process_script(script_path, profile, output_dir)
+
+        # Show results
+        console.print("\n[green]✓ Batch processing complete![/green]\n")
+
+        table = Table(show_header=False, box=None)
+        table.add_column("Key", style="cyan")
+        table.add_column("Value", style="white")
+        table.add_row("Total segments", str(results["total"]))
+        table.add_row("Successful", f"[green]{results['successful']}[/green]")
+        table.add_row(
+            "Failed",
+            f"[red]{results['failed']}[/red]" if results["failed"] > 0 else "0",
+        )
+        table.add_row("Output directory", str(output_dir))
+
+        console.print(table)
+        console.print()
 
         if results["failed"] > 0:
             sys.exit(1)
 
     except Exception as e:
-        click.secho(f"✗ Error: {str(e)}", fg="red")
+        console.print(f"[red]✗ Error: {str(e)}[/red]")
         sys.exit(1)
 
 
@@ -268,39 +340,48 @@ def test(profile_path: Path, text: str, output_path: Path | None) -> None:
         output_path = Path("./test_output.wav")
 
     try:
-        # Load config
-        config_manager = ConfigManager()
-        config = config_manager.load_config()
+        console.print("\n[cyan]Running voice cloning test...[/cyan]\n")
+        console.print(f"[white]Text: {text}[/white]\n")
 
-        # Load profile
-        click.secho("\nLoading voice profile...", fg="cyan")
-        profile = VoiceProfile.from_json(profile_path)
-        click.secho(f"✓ Loaded profile: {profile.name}", fg="green")
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            # Load config
+            task = progress.add_task("Loading configuration...", total=None)
+            config_manager = ConfigManager()
+            config = config_manager.load_config()
 
-        # Initialize model
-        click.secho("\nInitializing model...", fg="cyan")
-        model_manager = ModelManager(config)
+            # Load profile
+            progress.update(task, description="Loading voice profile...")
+            profile = VoiceProfile.from_json(profile_path)
 
-        if not model_manager.load_model():
-            click.secho("✗ Failed to load model", fg="red")
-            sys.exit(1)
+            # Initialize model
+            progress.update(
+                task, description="Initializing model (this may take a while)..."
+            )
+            model_manager = ModelManager(config)
 
-        # Generate
-        click.secho("\nGenerating test audio...", fg="cyan")
-        click.secho(f"Text: {text}", fg="white")
+            if not model_manager.load_model():
+                console.print("[red]✗ Failed to load model[/red]")
+                sys.exit(1)
 
-        generator = VoiceGenerator(model_manager, config)
-        success = generator.generate(text, profile, output_path)
+            # Generate
+            progress.update(task, description="Generating test audio...")
+            generator = VoiceGenerator(model_manager, config)
+            success = generator.generate(text, profile, output_path)
 
         if success:
-            click.secho(f"\n✓ Test audio generated: {output_path}", fg="green")
-            click.secho(f"\nPlay with: afplay {output_path}", fg="cyan")
+            console.print("\n[green]✓ Test audio generated successfully![/green]")
+            console.print(f"[cyan]Output: {output_path}[/cyan]")
+            console.print(f"\n[yellow]Play with: afplay {output_path}[/yellow]\n")
         else:
-            click.secho("\n✗ Generation failed", fg="red")
+            console.print("\n[red]✗ Generation failed[/red]")
             sys.exit(1)
 
     except Exception as e:
-        click.secho(f"✗ Error: {str(e)}", fg="red")
+        console.print(f"[red]✗ Error: {str(e)}[/red]")
         sys.exit(1)
 
 
