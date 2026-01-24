@@ -1,1 +1,1 @@
-"""Batch processing module for voice cloning."""
+"""Batch processing for voice cloning."""
