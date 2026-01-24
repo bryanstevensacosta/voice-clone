@@ -1,1 +1,1 @@
-"""Model management module for voice cloning."""
+"""Voice cloning model management."""
