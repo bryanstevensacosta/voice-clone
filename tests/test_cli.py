@@ -1,6 +1,7 @@
 """Tests for CLI module."""
 
 from click.testing import CliRunner
+
 from voice_clone.cli import cli
 
 
