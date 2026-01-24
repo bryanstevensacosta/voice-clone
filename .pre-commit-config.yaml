@@ -40,9 +40,28 @@ repos:
       - id: check-merge-conflict
       - id: detect-private-key
 
-  # Tests on pre-push
+  # Local hooks
   - repo: local
     hooks:
+      # Pre-commit: Block direct commits to protected branches
+      - id: check-branch
+        name: check-branch-before-commit
+        entry: scripts/check-branch-before-commit.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [commit]
+
+      # Pre-merge-commit: Block merges into protected branches
+      - id: check-merge-to-protected
+        name: check-merge-to-protected-branch
+        entry: scripts/check-merge-to-protected.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [merge-commit]
+
+      # Pre-push: Check rebase status
       - id: check-rebase
         name: check-rebase-before-push
         entry: scripts/check-rebase-before-push.sh
@@ -51,6 +70,7 @@ repos:
         always_run: true
         stages: [push]
 
+      # Pre-push: Run tests
       - id: pytest-check
         name: pytest-check
         entry: pytest
@@ -60,6 +80,7 @@ repos:
         args: [tests/, --cov=voice_clone, --cov-report=term-missing, --cov-fail-under=70]
         stages: [push]
 
+      # Manual: Check terraform sync
       - id: check-terraform-sync
         name: check-terraform-sync
         entry: scripts/check-terraform-sync.sh
