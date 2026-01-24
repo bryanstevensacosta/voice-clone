@@ -1,7 +1,7 @@
 # Voice Clone CLI
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/yourusername/voice-clone-cli/workflows/CI/badge.svg)](https://github.com/yourusername/voice-clone-cli/actions)
+[![CI](https://github.com/bryanstevensacosta/voice-clone/workflows/CI/badge.svg)](https://github.com/bryanstevensacosta/voice-clone/actions)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -40,14 +40,23 @@ The setup script will:
 # Activate the virtual environment
 source venv/bin/activate
 
-# Clone a voice from audio samples
-voice-clone train --samples data/samples/speaker1/ --output data/models/speaker1
+# 1. Validate your audio samples
+voice-clone validate-samples --dir ./data/samples
 
-# Generate speech from text
-voice-clone synthesize --model data/models/speaker1 --text "Hello, world!" --output output.wav
+# 2. Create a voice profile
+voice-clone prepare \
+  --samples ./data/samples \
+  --output ./data/voice_profile.json \
+  --name "my_voice"
 
-# Use interactive mode
-voice-clone interactive --model data/models/speaker1
+# 3. Generate speech from text
+voice-clone generate \
+  --profile ./data/voice_profile.json \
+  --text "Hola, esta es una prueba de mi voz clonada." \
+  --output ./output.wav
+
+# 4. Quick test
+voice-clone test --profile ./data/voice_profile.json
 ```
 
 ## Installation Options
@@ -77,83 +86,155 @@ pre-commit install --hook-type pre-push
 
 ## Usage Examples
 
-### Training a Voice Model
+### Preparing Voice Samples
+
+First, record 6-10 audio samples of your voice (10-20 seconds each):
 
 ```bash
-# Train from a directory of audio samples
-voice-clone train \
-  --samples data/samples/my_voice/ \
-  --output data/models/my_voice \
-  --language en
+# Samples should be:
+# - WAV format, 22050 Hz, mono, 16-bit
+# - Clear speech, no background noise
+# - Different emotions/tones
+# - Named: neutral_01.wav, happy_01.wav, serious_01.wav, etc.
 
-# Train with custom parameters
-voice-clone train \
-  --samples data/samples/my_voice/ \
-  --output data/models/my_voice \
-  --language en \
-  --epochs 100 \
-  --batch-size 32
+# Place samples in data/samples/
+data/samples/
+├── neutral_01.wav
+├── neutral_02.wav
+├── happy_01.wav
+├── serious_01.wav
+└── calm_01.wav
+```
+
+### Validating Samples
+
+```bash
+# Validate all samples in a directory
+voice-clone validate-samples --dir ./data/samples
+
+# Output shows:
+# ✓ neutral_01.wav - Valid
+# ✓ happy_01.wav - Valid
+# ✗ serious_01.wav - ERROR: Stereo (must be mono)
+```
+
+### Creating Voice Profile
+
+```bash
+# Create profile from validated samples
+voice-clone prepare \
+  --samples ./data/samples \
+  --output ./data/voice_profile.json \
+  --name "my_voice"
+
+# Output:
+# ✓ Voice profile created successfully!
+# Samples: 8
+# Duration: 127.3s
+# Language: es
 ```
 
 ### Generating Speech
 
 ```bash
 # Generate from text
-voice-clone synthesize \
-  --model data/models/my_voice \
-  --text "This is a test of voice cloning." \
-  --output output.wav
+voice-clone generate \
+  --profile ./data/voice_profile.json \
+  --text "Bienvenidos a este tutorial sobre inteligencia artificial." \
+  --output ./intro.wav
 
-# Generate from text file
-voice-clone synthesize \
-  --model data/models/my_voice \
-  --text-file script.txt \
-  --output output.wav
-
-# Adjust speech parameters
-voice-clone synthesize \
-  --model data/models/my_voice \
-  --text "Hello!" \
-  --output output.wav \
-  --speed 1.2 \
-  --temperature 0.7
+# Generate from longer text (auto-chunking)
+voice-clone generate \
+  --profile ./data/voice_profile.json \
+  --text "$(cat script.txt)" \
+  --output ./narration.wav
 ```
 
-### Interactive Mode
+### Batch Processing
 
 ```bash
-# Start interactive session
-voice-clone interactive --model data/models/my_voice
+# Create a script file with markers
+cat > script.txt << 'EOF'
+[INTRO]
+Hola a todos, bienvenidos a este nuevo video.
 
-# In interactive mode:
-> Hello, how are you?
-[Generates and plays audio]
-> exit
+[SECTION_1]
+Hoy vamos a hablar sobre inteligencia artificial.
+
+[OUTRO]
+Gracias por ver este video.
+EOF
+
+# Process entire script
+voice-clone batch \
+  --profile ./data/voice_profile.json \
+  --input ./script.txt \
+  --output-dir ./data/outputs/video_001
+
+# Output:
+# ✓ Batch processing complete!
+# Total segments: 3
+# Successful: 3
+# Failed: 0
+```
+
+### Quick Testing
+
+```bash
+# Test with default Spanish phrase
+voice-clone test --profile ./data/voice_profile.json
+
+# Test with custom text
+voice-clone test \
+  --profile ./data/voice_profile.json \
+  --text "Esta es una prueba personalizada" \
+  --output ./test.wav
+
+# Play the result (macOS)
+afplay ./test.wav
 ```
 
 ## Configuration
 
-Create a `config/config.yaml` file to customize settings:
+Create a `config/config.yaml` file to customize settings (see `config/config.yaml.example`):
 
 ```yaml
-# Model settings
+# Model configuration
 model:
-  default_language: en
-  sample_rate: 22050
+  name: "tts_models/multilingual/multi-dataset/xtts_v2"
+  device: "auto"  # auto, mps (M1/M2), cuda, or cpu
 
-# Training settings
-training:
-  epochs: 100
-  batch_size: 32
-  learning_rate: 0.001
+# Generation parameters
+generation:
+  language: "es"  # Spanish
+  temperature: 0.75  # 0.5-1.0 (consistency vs variety)
+  speed: 1.0  # 0.8-1.2 (speaking speed)
+  max_chunk_size: 400  # Characters per generation
 
-# Output settings
-output:
-  format: wav
-  quality: high
+# Audio settings
+audio:
+  sample_rate: 22050  # XTTS-v2 native
+  channels: 1  # Mono
+  bit_depth: 16
+
+# Paths
+paths:
+  samples: "./data/samples"
+  outputs: "./data/outputs"
+  models: "./data/models"
 ```
 
-See `.env.example` for environment variable configuration options.
+### Environment Variables
+
+Create a `.env` file for sensitive settings:
+
+```bash
+# Optional: Custom model cache directory
+TTS_CACHE_DIR=/path/to/cache
+
+# Optional: Logging level
+LOG_LEVEL=INFO
+```
 
 ## Documentation
 
@@ -167,8 +248,39 @@ For detailed documentation, see:
 ## Requirements
 
 - Python 3.9, 3.10, or 3.11
-- 4GB+ RAM recommended
-- GPU recommended for faster processing (optional)
+- 8GB+ RAM (16GB recommended for M1 Pro)
+- GPU recommended for faster processing:
+  - NVIDIA GPU with CUDA (Linux/Windows)
+  - Apple Silicon M1/M2 with MPS (macOS)
+  - CPU-only mode supported (slower)
+
+### Hardware Performance
+
+| Hardware | Generation Speed | Notes |
+|----------|-----------------|-------|
+| M1 Pro (16GB) | ~15-25s per minute | Native MPS acceleration |
+| RTX 3060 (12GB) | ~10-20s per minute | CUDA acceleration |
+| Intel i7 (CPU) | ~2-3 min per minute | CPU-only, slower |
+
+## Audio Sample Requirements
+
+For best results, your audio samples should be:
+
+- **Format**: WAV, 22050 Hz, mono, 16-bit
+- **Duration**: 10-20 seconds per sample
+- **Quantity**: 6-10 samples minimum
+- **Quality**: Clear speech, no background noise
+- **Variety**: Different emotions and tones
+- **Content**: Natural speech, complete sentences
+
+### Sample Recording Tips
+
+1. **Environment**: Record in a quiet room
+2. **Microphone**: Use a decent quality mic (built-in MacBook mic is acceptable)
+3. **Distance**: 15-20cm from microphone
+4. **Volume**: Natural speaking volume (not whispering or shouting)
+5. **Emotions**: Include neutral, happy, serious, calm tones
+6. **Avoid**: Background noise, echo, mouth clicks, breathing sounds
 
 ## Development
 
@@ -304,18 +416,35 @@ The commit-msg hook will validate your commit messages automatically.
 
 ```
 voice-clone-cli/
-├── src/voice_clone/     # Main package
-│   ├── cli.py          # CLI interface
-│   ├── audio.py        # Audio processing
-│   ├── model.py        # Model management
-│   └── synthesizer.py  # Speech synthesis
-├── tests/              # Test suite
-├── docs/               # Documentation
-├── data/               # Data directory (gitignored)
-│   ├── samples/        # Audio samples
-│   ├── models/         # Trained models
-│   └── outputs/        # Generated audio
-└── config/             # Configuration files
+├── src/voice_clone/        # Main package
+│   ├── cli.py             # CLI interface
+│   ├── config.py          # Configuration management
+│   ├── audio/             # Audio processing
+│   │   ├── processor.py   # Audio validation & conversion
+│   │   └── validator.py   # Validation results
+│   ├── model/             # Model management
+│   │   ├── manager.py     # Model loading & caching
+│   │   ├── generator.py   # TTS generation
+│   │   └── profile.py     # Voice profile data
+│   ├── batch/             # Batch processing
+│   │   └── processor.py   # Script processing
+│   └── utils/             # Utilities
+│       ├── logger.py      # Logging setup
+│       └── helpers.py     # Helper functions
+├── tests/                 # Test suite
+│   ├── unit/             # Unit tests
+│   └── property/         # Property-based tests
+├── docs/                  # Documentation
+├── data/                  # Data directory (gitignored)
+│   ├── samples/          # Audio samples
+│   ├── models/           # Cached models
+│   ├── outputs/          # Generated audio
+│   └── scripts/          # Example scripts
+├── config/                # Configuration files
+│   ├── default.yaml      # Default config
+│   └── config.yaml.example  # Example custom config
+└── .kiro/                 # Project steering guides
+    └── steering/         # Workflow documentation
 ```
 
 ## Troubleshooting
@@ -327,14 +456,46 @@ voice-clone-cli/
 source venv/bin/activate
 ```
 
-**CUDA/GPU issues**: The tool works on CPU but is faster with GPU. Install PyTorch with CUDA support if needed.
+**Model download fails**: The XTTS-v2 model (~1.8GB) downloads automatically on first use. Ensure you have:
+- Stable internet connection
+- At least 10GB free disk space
+- Patience (first download takes 5-10 minutes)
 
 **Audio quality issues**: Ensure your input samples are:
-- High quality (16kHz+ sample rate)
+- 22050 Hz sample rate (or will be converted)
+- Mono (single channel)
+- 16-bit depth
 - Clear speech without background noise
-- At least 10 seconds of audio per speaker
+- 10-20 seconds duration each
+- At least 6 samples total
 
-See [docs/development.md](docs/development.md#troubleshooting) for more troubleshooting tips.
+**Generation is slow**:
+- First generation is slower (model loading)
+- CPU-only mode is significantly slower than GPU
+- For M1/M2 Mac: Ensure PyTorch has MPS support
+- For NVIDIA GPU: Install CUDA-enabled PyTorch
+
+**Voice sounds robotic**:
+- Add more samples with emotional variety
+- Ensure samples are high quality
+- Try adjusting temperature (0.7-0.9)
+- Record samples with natural expression
+
+**"Out of memory" errors**:
+- Close other applications
+- Reduce batch size
+- Use shorter text chunks
+- Consider upgrading RAM
+
+### Getting Help
+
+- Check [docs/development.md](docs/development.md#troubleshooting) for detailed troubleshooting
+- Review the [steering guides](.kiro/steering/) for workflow tips
+- Open an issue on GitHub with:
+  - Error message
+  - Python version
+  - Hardware specs
+  - Steps to reproduce
 
 ## License
 
@@ -353,11 +514,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Roadmap
 
-- [ ] Multi-speaker support
-- [ ] Real-time voice conversion
-- [ ] Web interface
-- [ ] Voice mixing and effects
-- [ ] Cloud deployment options
+- [x] Core voice cloning with XTTS-v2
+- [x] CLI interface with all commands
+- [x] Audio validation and conversion
+- [x] Batch processing for scripts
+- [x] Voice profile management
+- [ ] Post-processing (normalization, fade effects)
+- [ ] Format export (MP3, AAC, platform-specific)
+- [ ] Integration tests
+- [ ] Manual testing with real samples
+- [ ] Web interface (future)
+- [ ] Real-time voice conversion (future)
+- [ ] Multi-speaker support (future)
 
 ---
 
