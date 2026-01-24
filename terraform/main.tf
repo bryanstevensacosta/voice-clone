@@ -12,19 +12,50 @@ provider "github" {
   owner = var.github_owner
 }
 
-# Repository already exists, so we import it instead of creating
-# To import: terraform import github_repository.voice_clone voice-clone
-data "github_repository" "voice_clone" {
-  full_name = "${var.github_owner}/${var.repository_name}"
+# Repository already exists, so we manage it with a resource
+# To import: terraform import github_repository.voice_clone_settings voice-clone
+resource "github_repository" "voice_clone_settings" {
+  name        = var.repository_name
+  description = "Personal voice cloning CLI tool using XTTS-v2"
+  visibility  = "public"
+
+  has_issues      = true
+  has_projects    = false
+  has_wiki        = false
+  has_downloads   = true
+
+  allow_merge_commit     = false
+  allow_squash_merge     = false
+  allow_rebase_merge     = true
+  delete_branch_on_merge = true
+
+  topics = [
+    "voice-cloning",
+    "text-to-speech",
+    "tts",
+    "xtts-v2",
+    "coqui",
+    "python",
+    "cli",
+    "machine-learning"
+  ]
+
+  # Security features
+  vulnerability_alerts = true
+
+  lifecycle {
+    # Prevent recreation if repository already exists
+    prevent_destroy = true
+  }
 }
 
 resource "github_branch_default" "master" {
-  repository = data.github_repository.voice_clone.name
+  repository = github_repository.voice_clone_settings.name
   branch     = "master"
 }
 
 resource "github_branch_protection" "master_protection" {
-  repository_id = data.github_repository.voice_clone.node_id
+  repository_id = github_repository.voice_clone_settings.node_id
   pattern       = "master"
 
   required_pull_request_reviews {
@@ -48,7 +79,7 @@ resource "github_branch_protection" "master_protection" {
 }
 
 resource "github_branch_protection" "main_protection" {
-  repository_id = data.github_repository.voice_clone.node_id
+  repository_id = github_repository.voice_clone_settings.node_id
   pattern       = "main"
 
   required_pull_request_reviews {
@@ -72,7 +103,7 @@ resource "github_branch_protection" "main_protection" {
 }
 
 resource "github_branch_protection" "develop_protection" {
-  repository_id = data.github_repository.voice_clone.node_id
+  repository_id = github_repository.voice_clone_settings.node_id
   pattern       = "develop"
 
   required_pull_request_reviews {
