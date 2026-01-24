@@ -5,11 +5,59 @@ name: CI
     branches: [master, main, develop]
   pull_request:
     branches: [master, main, develop]
+  pull_request_review:
+    types: [submitted]
 
 jobs:
+  # Check if CI should run based on approval status
+  check-approval:
+    name: Check approval status
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+
+    steps:
+      - name: Check if PR is from owner or has approval
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prAuthor = context.payload.pull_request.user.login;
+            const owner = 'bryanstevensacosta';
+
+            // If PR is from owner, always run CI
+            if (prAuthor === owner) {
+              console.log('PR is from owner, CI will run');
+              core.setOutput('should_run', 'true');
+              return;
+            }
+
+            // Check if PR has at least one approval
+            const reviews = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+
+            const hasApproval = reviews.data.some(review => review.state === 'APPROVED');
+
+            if (hasApproval) {
+              console.log('PR has approval, CI will run');
+              core.setOutput('should_run', 'true');
+            } else {
+              console.log('PR needs approval before CI runs');
+              core.setOutput('should_run', 'false');
+            }
+
   lint:
     name: lint
     runs-on: ubuntu-latest
+    needs: [check-approval]
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request_review' ||
+      (github.event_name == 'pull_request' && needs.check-approval.outputs.should_run == 'true')
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
@@ -36,6 +84,11 @@ jobs:
   type-check:
     name: type-check
     runs-on: ubuntu-latest
+    needs: [check-approval]
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request_review' ||
+      (github.event_name == 'pull_request' && needs.check-approval.outputs.should_run == 'true')
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
@@ -59,6 +112,11 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-latest
+    needs: [check-approval]
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request_review' ||
+      (github.event_name == 'pull_request' && needs.check-approval.outputs.should_run == 'true')
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
@@ -84,3 +142,39 @@ jobs:
         with:
           file: ./coverage.xml
           fail_ci_if_error: false
+
+  # Job to notify when CI is waiting for approval
+  waiting-for-approval:
+    name: Waiting for approval
+    runs-on: ubuntu-latest
+    needs: [check-approval]
+    if: |
+      github.event_name == 'pull_request' &&
+      needs.check-approval.outputs.should_run == 'false'
+
+    steps:
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number
+            });
+
+            const botComment = comments.data.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('⏳ CI is waiting for approval')
+            );
+
+            if (!botComment) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: '⏳ CI is waiting for approval before running.\n\n' +
+                      'Once this PR receives at least 1 approval, CI checks will run automatically.\n\n' +
+                      '💡 Note: PRs from @bryanstevensacosta run CI immediately without approval.'
+              });
+            }

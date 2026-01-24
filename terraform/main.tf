@@ -61,12 +61,13 @@ resource "github_branch_protection" "master_protection" {
   required_pull_request_reviews {
     dismiss_stale_reviews           = true
     require_code_owner_reviews      = false
-    required_approving_review_count = 0
+    required_approving_review_count = 1
   }
 
   required_status_checks {
     strict = true
     contexts = [
+      "check-approval",
       "lint (3.9)",
       "lint (3.10)",
       "lint (3.11)",
@@ -79,7 +80,7 @@ resource "github_branch_protection" "master_protection" {
     ]
   }
 
-  enforce_admins         = true
+  enforce_admins         = false
   require_signed_commits = false
 
   allows_deletions    = false
@@ -95,12 +96,13 @@ resource "github_branch_protection" "main_protection" {
   required_pull_request_reviews {
     dismiss_stale_reviews           = true
     require_code_owner_reviews      = false
-    required_approving_review_count = 0
+    required_approving_review_count = 1
   }
 
   required_status_checks {
     strict = true
     contexts = [
+      "check-approval",
       "lint (3.9)",
       "lint (3.10)",
       "lint (3.11)",
@@ -113,7 +115,7 @@ resource "github_branch_protection" "main_protection" {
     ]
   }
 
-  enforce_admins         = true
+  enforce_admins         = false
   require_signed_commits = false
 
   allows_deletions    = false
@@ -129,12 +131,13 @@ resource "github_branch_protection" "develop_protection" {
   required_pull_request_reviews {
     dismiss_stale_reviews           = true
     require_code_owner_reviews      = false
-    required_approving_review_count = 0
+    required_approving_review_count = 1
   }
 
   required_status_checks {
     strict = true
     contexts = [
+      "check-approval",
       "lint (3.9)",
       "lint (3.10)",
       "lint (3.11)",
@@ -147,7 +150,7 @@ resource "github_branch_protection" "develop_protection" {
     ]
   }
 
-  enforce_admins         = true
+  enforce_admins         = false
   require_signed_commits = false
 
   allows_deletions    = false

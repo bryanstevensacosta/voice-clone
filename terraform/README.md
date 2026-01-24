@@ -90,15 +90,16 @@ Visit your repository on GitHub and check:
 
 The configuration sets up the following protection for the `master`, `main`, and `develop` branches:
 
-- **Required pull request reviews**: 0 approvals required (solo maintainer)
+- **Required pull request reviews**: 1 approval required
 - **Required status checks**: Must pass before merging
-  - `test`: Test suite must pass
-  - `lint`: Linting must pass
-  - `type-check`: Type checking must pass
-- **Linear history**: Enforced (no merge commits)
+  - `lint`: Linting must pass (Python 3.9, 3.10, 3.11)
+  - `type-check`: Type checking must pass (Python 3.9, 3.10, 3.11)
+  - `test`: Test suite must pass (Python 3.9, 3.10, 3.11)
+- **Linear history**: Enforced (no merge commits, rebase only)
 - **Force pushes**: Disabled
 - **Branch deletions**: Disabled
-- **Enforce admins**: Enabled (even admins must follow these rules)
+- **Enforce admins**: Disabled (admins can bypass if needed)
+- **Dismiss stale reviews**: Enabled (new commits dismiss old approvals)
 
 ### Repository Settings
 
