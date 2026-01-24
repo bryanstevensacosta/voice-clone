@@ -41,7 +41,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "voice-clone=voice_clone.cli:cli",
+            "voice-clone=voice_clone.cli_commands:cli",
         ],
     },
     classifiers=[

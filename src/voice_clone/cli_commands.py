@@ -1,4 +1,9 @@
-"""Command-line interface for voice cloning."""
+"""Command-line interface for voice cloning.
+
+This module provides both:
+1. Traditional CLI commands (voice-clone <command>)
+2. Interactive mode (voice-clone interactive or just voice-clone)
+"""
 
 import sys
 from pathlib import Path
@@ -18,11 +23,29 @@ from voice_clone.model.profile import VoiceProfile
 console = Console()
 
 
-@click.group()
+@click.group(invoke_without_command=True)
+@click.pass_context
 @click.version_option(version="0.1.0")
-def cli() -> None:
-    """Voice cloning CLI tool using XTTS-v2."""
-    pass
+def cli(ctx: click.Context) -> None:
+    """Voice cloning CLI tool using XTTS-v2.
+
+    Run without arguments to start interactive mode.
+    """
+    # If no subcommand is provided, start interactive mode
+    if ctx.invoked_subcommand is None:
+        from voice_clone.cli.app import InteractiveCLI
+
+        app = InteractiveCLI()
+        app.run()
+
+
+@cli.command()
+def interactive() -> None:
+    """Start interactive mode with menu navigation."""
+    from voice_clone.cli.app import InteractiveCLI
+
+    app = InteractiveCLI()
+    app.run()
 
 
 @cli.command()

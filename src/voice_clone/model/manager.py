@@ -18,7 +18,15 @@ class ModelManager:
         """
         self.config = config
         self.model: Any | None = None
-        self.device = self._detect_device()
+        
+        # Check if device is specified in config
+        config_device = config.get("model", {}).get("device", "auto")
+        if config_device == "auto":
+            self.device = self._detect_device()
+        else:
+            self.device = config_device
+            logger.info(f"Using device from config: {self.device}")
+        
         self.model_name = config.get("model", {}).get(
             "name", "tts_models/multilingual/multi-dataset/xtts_v2"
         )
