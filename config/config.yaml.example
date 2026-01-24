@@ -1,0 +1,58 @@
+# Voice Clone CLI Configuration Example
+# Copy this file to config.yaml and customize as needed
+
+# Model configuration
+model:
+  name: "tts_models/multilingual/multi-dataset/xtts_v2"
+  device: "auto"  # auto, mps, cuda, or cpu
+  cache_dir: "./data/models"
+
+# Audio processing configuration
+audio:
+  sample_rate: 22050  # Native XTTS-v2 sample rate
+  channels: 1  # Mono
+  bit_depth: 16
+  format: "wav"
+
+# Generation parameters
+generation:
+  language: "es"  # Spanish
+  temperature: 0.75  # 0.5-1.0 (lower = more consistent, higher = more varied)
+  speed: 1.0  # 0.8-1.2 (speaking speed multiplier)
+  repetition_penalty: 2.0  # Reduce repetition
+  max_chunk_size: 400  # Maximum characters per generation chunk
+
+# Paths
+paths:
+  samples: "./data/samples"
+  outputs: "./data/outputs"
+  models: "./data/models"
+
+# Validation thresholds
+validation:
+  min_duration: 6.0  # Minimum sample duration in seconds
+  max_duration: 30.0  # Maximum sample duration in seconds
+  warn_sample_rate: true  # Warn if not 22050 Hz
+  warn_bit_depth: true  # Warn if not 16-bit
+
+# Post-processing defaults
+post_processing:
+  normalize_loudness: true
+  target_lufs: -16  # Target loudness (EBU R128)
+  apply_fade: true
+  fade_in_duration: 0.5  # seconds
+  fade_out_duration: 1.0  # seconds
+  remove_silence: false  # Remove leading/trailing silence
+
+# Export formats
+export:
+  youtube:
+    sample_rate: 48000
+    channels: 2  # Stereo
+    format: "m4a"
+    bitrate: "192k"
+  podcast:
+    sample_rate: 44100
+    channels: 1  # Mono
+    format: "mp3"
+    bitrate: "128k"
