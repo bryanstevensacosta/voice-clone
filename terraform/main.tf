@@ -65,8 +65,18 @@ resource "github_branch_protection" "master_protection" {
   }
 
   required_status_checks {
-    strict   = true
-    contexts = ["test", "lint", "type-check"]
+    strict = true
+    contexts = [
+      "lint (3.9)",
+      "lint (3.10)",
+      "lint (3.11)",
+      "type-check (3.9)",
+      "type-check (3.10)",
+      "type-check (3.11)",
+      "test (3.9)",
+      "test (3.10)",
+      "test (3.11)"
+    ]
   }
 
   enforce_admins         = true
@@ -89,8 +99,18 @@ resource "github_branch_protection" "main_protection" {
   }
 
   required_status_checks {
-    strict   = true
-    contexts = ["test", "lint", "type-check"]
+    strict = true
+    contexts = [
+      "lint (3.9)",
+      "lint (3.10)",
+      "lint (3.11)",
+      "type-check (3.9)",
+      "type-check (3.10)",
+      "type-check (3.11)",
+      "test (3.9)",
+      "test (3.10)",
+      "test (3.11)"
+    ]
   }
 
   enforce_admins         = true
@@ -113,8 +133,18 @@ resource "github_branch_protection" "develop_protection" {
   }
 
   required_status_checks {
-    strict   = true
-    contexts = ["test", "lint", "type-check"]
+    strict = true
+    contexts = [
+      "lint (3.9)",
+      "lint (3.10)",
+      "lint (3.11)",
+      "type-check (3.9)",
+      "type-check (3.10)",
+      "type-check (3.11)",
+      "test (3.9)",
+      "test (3.10)",
+      "test (3.11)"
+    ]
   }
 
   enforce_admins         = true
