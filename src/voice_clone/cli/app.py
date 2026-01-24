@@ -1,9 +1,7 @@
 """Main interactive CLI application."""
 
 import sys
-from typing import Optional
 
-import questionary
 from rich.console import Console
 
 from voice_clone.cli.menus.main_menu import MainMenu

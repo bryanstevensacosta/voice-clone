@@ -1,0 +1,7 @@
+# Configuración para voz más consistente y clara
+generation:
+  temperature: 0.65          # Menos variación, más predecible
+  repetition_penalty: 2.2    # Evita repeticiones
+  speed: 0.95                # Ligeramente más lento = más claro
+  top_k: 50
+  top_p: 0.85

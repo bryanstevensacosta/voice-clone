@@ -58,5 +58,5 @@ dmypy.json
 # Ruff
 .ruff_cache/
 
-# Private 
+# Private
 recordings-from-iphone

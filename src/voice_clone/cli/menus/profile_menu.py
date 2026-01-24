@@ -1,7 +1,6 @@
 """Voice profile management menu."""
 
 from pathlib import Path
-from typing import Optional
 
 import questionary
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -14,7 +13,7 @@ from voice_clone.model.profile import VoiceProfile
 class ProfileMenu(BaseMenu):
     """Menu for managing voice profiles."""
 
-    def run(self) -> Optional[str]:
+    def run(self) -> str | None:
         """Run profile menu loop."""
         while True:
             choice = questionary.select(
@@ -205,7 +204,9 @@ class ProfileMenu(BaseMenu):
 
         profile = self.state.current_profile
 
-        console.print(f"\n[bold cyan]Current Voice Profile: {profile.name}[/bold cyan]\n")
+        console.print(
+            f"\n[bold cyan]Current Voice Profile: {profile.name}[/bold cyan]\n"
+        )
 
         # General info
         table = Table(show_header=False, box=None)

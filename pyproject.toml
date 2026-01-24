@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "voice-clone-cli"
 version = "0.1.0"
-description = "Personal voice cloning CLI tool using XTTS-v2"
+description = "Personal voice cloning CLI tool using Qwen3-TTS"
 readme = "README.md"
 requires-python = ">=3.9,<3.12"
 license = {text = "MIT"}
 authors = [
     {name = "Bryan Stevens Acosta", email = "bryanstevensacosta@gmail.com"}
 ]
-keywords = ["voice-cloning", "tts", "xtts-v2", "cli"]
+keywords = ["voice-cloning", "tts", "qwen3-tts", "cli"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -90,7 +90,7 @@ warn_no_return = true
 strict_equality = true
 
 [[tool.mypy.overrides]]
-module = "TTS.*"
+module = "qwen_tts.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
