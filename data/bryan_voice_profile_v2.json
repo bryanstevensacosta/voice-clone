@@ -1,8 +1,8 @@
 {
-  "name": "Bryan",
-  "created_at": "2026-01-24T02:56:40.211179",
+  "name": "Bryan_v2",
+  "created_at": "2026-01-24T03:45:13.206167",
   "language": "es",
-  "total_duration": 207.03,
+  "total_duration": 290.99,
   "samples": [
     {
       "path": "data/samples/sample_01.wav",
@@ -79,6 +79,54 @@
     {
       "path": "data/samples/sample_13.wav",
       "duration": 18.88,
+      "emotion": "neutral",
+      "quality_score": 1.0
+    },
+    {
+      "path": "data/samples/sample_16.wav",
+      "duration": 7.52,
+      "emotion": "neutral",
+      "quality_score": 1.0
+    },
+    {
+      "path": "data/samples/sample_17.wav",
+      "duration": 12.35,
+      "emotion": "neutral",
+      "quality_score": 1.0
+    },
+    {
+      "path": "data/samples/sample_18.wav",
+      "duration": 8.99,
+      "emotion": "neutral",
+      "quality_score": 1.0
+    },
+    {
+      "path": "data/samples/sample_19.wav",
+      "duration": 7.36,
+      "emotion": "neutral",
+      "quality_score": 1.0
+    },
+    {
+      "path": "data/samples/sample_20.wav",
+      "duration": 10.38,
+      "emotion": "neutral",
+      "quality_score": 1.0
+    },
+    {
+      "path": "data/samples/sample_21.wav",
+      "duration": 10.75,
+      "emotion": "neutral",
+      "quality_score": 1.0
+    },
+    {
+      "path": "data/samples/sample_22.wav",
+      "duration": 12.19,
+      "emotion": "neutral",
+      "quality_score": 1.0
+    },
+    {
+      "path": "data/samples/sample_23.wav",
+      "duration": 14.42,
       "emotion": "neutral",
       "quality_score": 1.0
     }

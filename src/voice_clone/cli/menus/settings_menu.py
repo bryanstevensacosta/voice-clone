@@ -1,6 +1,5 @@
 """Settings and configuration menu."""
 
-from typing import Optional
 
 import questionary
 from rich.table import Table
@@ -11,7 +10,7 @@ from voice_clone.cli.menus.base import BaseMenu, console
 class SettingsMenu(BaseMenu):
     """Menu for settings and configuration."""
 
-    def run(self) -> Optional[str]:
+    def run(self) -> str | None:
         """Run settings menu loop."""
         while True:
             choice = questionary.select(
@@ -136,7 +135,7 @@ class SettingsMenu(BaseMenu):
                 TextColumn("[progress.description]{task.description}"),
                 console=console,
             ) as progress:
-                task = progress.add_task(
+                progress.add_task(
                     "Loading TTS model (this may take a while)...", total=None
                 )
 
@@ -178,13 +177,17 @@ class SettingsMenu(BaseMenu):
         table.add_row("Device", model_config.get("device", "N/A"))
         table.add_row(
             "Status",
-            "[green]Loaded[/green]" if self.state.model_loaded else "[dim]Not loaded[/dim]",
+            "[green]Loaded[/green]"
+            if self.state.model_loaded
+            else "[dim]Not loaded[/dim]",
         )
 
         if self.state.model_manager:
             table.add_row("Model Type", "XTTS-v2")
             table.add_row("Multilingual", "Yes")
-            table.add_row("Supported Languages", "Spanish, English, French, German, etc.")
+            table.add_row(
+                "Supported Languages", "Spanish, English, French, German, etc."
+            )
 
         console.print(table)
         console.print()

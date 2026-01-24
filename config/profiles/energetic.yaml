@@ -1,0 +1,7 @@
+# Configuración para voz más energética (intros, anuncios)
+generation:
+  temperature: 0.90          # Máxima expresividad
+  repetition_penalty: 1.5    # Permite más variación
+  speed: 1.05                # Ligeramente más rápido
+  top_k: 50
+  top_p: 0.90

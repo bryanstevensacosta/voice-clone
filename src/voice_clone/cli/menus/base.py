@@ -1,7 +1,6 @@
 """Base menu class for all CLI menus."""
 
 from abc import ABC, abstractmethod
-from typing import Optional
 
 import questionary
 from questionary import Style
@@ -26,7 +25,7 @@ class BaseMenu(ABC):
         self.style = style
 
     @abstractmethod
-    def run(self) -> Optional[str]:
+    def run(self) -> str | None:
         """Run the menu and return action or None to go back.
 
         Returns:
@@ -44,7 +43,8 @@ class BaseMenu(ABC):
         Returns:
             True if confirmed, False otherwise
         """
-        return questionary.confirm(message, default=default, style=self.style).ask()
+        result = questionary.confirm(message, default=default, style=self.style).ask()
+        return bool(result) if result is not None else False
 
     def show_error(self, message: str) -> None:
         """Show error message.

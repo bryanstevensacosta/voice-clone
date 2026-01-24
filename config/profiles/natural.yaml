@@ -1,0 +1,7 @@
+# Configuración para voz más natural y expresiva
+generation:
+  temperature: 0.85          # Más variación (0.5-1.0)
+  repetition_penalty: 1.8    # Menos repetitivo
+  speed: 1.0                 # Velocidad normal
+  top_k: 50
+  top_p: 0.85

@@ -1,8 +1,7 @@
 """CLI state management."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 from voice_clone.config import ConfigManager
 from voice_clone.model.manager import ModelManager
@@ -14,20 +13,20 @@ class CLIState:
     """Manages the state of the CLI application."""
 
     # Configuration
-    config_manager: Optional[ConfigManager] = None
-    config: Optional[dict] = None
+    config_manager: ConfigManager | None = None
+    config: dict | None = None
 
     # Voice profile
-    current_profile: Optional[VoiceProfile] = None
-    current_profile_path: Optional[Path] = None
+    current_profile: VoiceProfile | None = None
+    current_profile_path: Path | None = None
 
     # Model
-    model_manager: Optional[ModelManager] = None
+    model_manager: ModelManager | None = None
     model_loaded: bool = False
 
     # Recent paths
-    recent_samples_dir: Optional[Path] = None
-    recent_output_dir: Optional[Path] = None
+    recent_samples_dir: Path | None = None
+    recent_output_dir: Path | None = None
 
     def load_config(self) -> dict:
         """Load configuration if not already loaded."""

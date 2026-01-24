@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 setup(
     name="voice-clone-cli",
     version="0.1.0",
-    description="Personal voice cloning CLI tool using XTTS-v2",
+    description="Personal voice cloning CLI tool using Qwen3-TTS",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     author="Bryan Stevens Acosta",
@@ -14,7 +14,7 @@ setup(
     package_dir={"": "src"},
     python_requires=">=3.9,<3.12",
     install_requires=[
-        "TTS>=0.22.0",
+        "qwen-tts>=1.0.0",
         "torch>=2.0.0",
         "torchaudio>=2.0.0",
         "soundfile>=0.12.0",
@@ -54,6 +54,6 @@ setup(
         "Topic :: Multimedia :: Sound/Audio :: Speech",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
-    keywords="voice-cloning tts xtts-v2 cli speech-synthesis",
+    keywords="voice-cloning tts qwen3-tts cli speech-synthesis",
     license="MIT",
 )

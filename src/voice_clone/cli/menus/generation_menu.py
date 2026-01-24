@@ -1,7 +1,6 @@
 """Speech generation menu."""
 
 from pathlib import Path
-from typing import Optional
 
 import questionary
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -16,7 +15,7 @@ from voice_clone.model.generator import VoiceGenerator
 class GenerationMenu(BaseMenu):
     """Menu for speech generation."""
 
-    def run(self) -> Optional[str]:
+    def run(self) -> str | None:
         """Run generation menu loop."""
         while True:
             choice = questionary.select(
@@ -66,7 +65,8 @@ class GenerationMenu(BaseMenu):
         # Ask for output path
         output_path = questionary.path(
             "Enter output path for audio file:",
-            default=str(self.state.recent_output_dir or "./data/outputs") + "/output.wav",
+            default=str(self.state.recent_output_dir or "./data/outputs")
+            + "/output.wav",
             style=self.style,
         ).ask()
 
@@ -103,6 +103,13 @@ class GenerationMenu(BaseMenu):
 
                 # Generate speech
                 task = progress.add_task("Generating speech...", total=None)
+
+                # Type guards
+                if self.state.model_manager is None or self.state.config is None:
+                    self.show_error("Model or config not loaded")
+                    self.pause()
+                    return
+
                 generator = VoiceGenerator(self.state.model_manager, self.state.config)
                 success = generator.generate(
                     text, self.state.current_profile, output_file
@@ -183,6 +190,13 @@ class GenerationMenu(BaseMenu):
 
                 # Process batch
                 task = progress.add_task("Processing script...", total=None)
+
+                # Type guards
+                if self.state.model_manager is None or self.state.config is None:
+                    self.show_error("Model or config not loaded")
+                    self.pause()
+                    return
+
                 generator = VoiceGenerator(self.state.model_manager, self.state.config)
                 processor = AudioProcessor()
                 batch_processor = BatchProcessor(generator, processor)
@@ -268,6 +282,13 @@ class GenerationMenu(BaseMenu):
 
                 # Generate speech
                 task = progress.add_task("Generating test audio...", total=None)
+
+                # Type guards
+                if self.state.model_manager is None or self.state.config is None:
+                    self.show_error("Model or config not loaded")
+                    self.pause()
+                    return
+
                 generator = VoiceGenerator(self.state.model_manager, self.state.config)
                 success = generator.generate(
                     text, self.state.current_profile, output_file

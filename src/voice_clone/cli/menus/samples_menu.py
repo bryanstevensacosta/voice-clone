@@ -1,10 +1,8 @@
 """Audio samples management menu."""
 
 from pathlib import Path
-from typing import Optional
 
 import questionary
-from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 from voice_clone.audio.processor import AudioProcessor
@@ -14,7 +12,7 @@ from voice_clone.cli.menus.base import BaseMenu, console
 class SamplesMenu(BaseMenu):
     """Menu for managing audio samples."""
 
-    def run(self) -> Optional[str]:
+    def run(self) -> str | None:
         """Run samples menu loop."""
         while True:
             choice = questionary.select(
@@ -139,7 +137,9 @@ class SamplesMenu(BaseMenu):
             result = processor.validate_sample(sample_path)
 
             # Show detailed info
-            console.print(f"\n[bold cyan]Sample Information: {sample_path.name}[/bold cyan]\n")
+            console.print(
+                f"\n[bold cyan]Sample Information: {sample_path.name}[/bold cyan]\n"
+            )
 
             table = Table(show_header=False, box=None)
             table.add_column("Property", style="cyan")
@@ -150,7 +150,9 @@ class SamplesMenu(BaseMenu):
                 table.add_row(key.replace("_", " ").title(), str(value))
 
             # Add validation status
-            table.add_row("Valid", "[green]Yes[/green]" if result.is_valid() else "[red]No[/red]")
+            table.add_row(
+                "Valid", "[green]Yes[/green]" if result.is_valid() else "[red]No[/red]"
+            )
 
             console.print(table)
 
@@ -175,5 +177,7 @@ class SamplesMenu(BaseMenu):
     def _convert_samples(self) -> None:
         """Convert audio samples to target format."""
         self.show_info("Sample conversion feature coming soon!")
-        self.show_info("This will allow you to convert samples to 22050Hz, mono, 16-bit WAV")
+        self.show_info(
+            "This will allow you to convert samples to 22050Hz, mono, 16-bit WAV"
+        )
         self.pause()

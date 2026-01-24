@@ -1,6 +1,6 @@
 """Main menu for interactive CLI."""
 
-from typing import Optional
+from typing import TYPE_CHECKING, Any
 
 import questionary
 from rich.console import Console
@@ -8,10 +8,13 @@ from rich.panel import Panel
 from rich.table import Table
 
 from voice_clone.cli.menus.base import BaseMenu
-from voice_clone.cli.menus.samples_menu import SamplesMenu
-from voice_clone.cli.menus.profile_menu import ProfileMenu
 from voice_clone.cli.menus.generation_menu import GenerationMenu
+from voice_clone.cli.menus.profile_menu import ProfileMenu
+from voice_clone.cli.menus.samples_menu import SamplesMenu
 from voice_clone.cli.menus.settings_menu import SettingsMenu
+
+if TYPE_CHECKING:
+    from voice_clone.cli.state import CLIState
 
 console = Console()
 
@@ -19,7 +22,7 @@ console = Console()
 class MainMenu(BaseMenu):
     """Main menu screen."""
 
-    def __init__(self, state, style) -> None:
+    def __init__(self, state: "CLIState", style: Any) -> None:
         """Initialize main menu."""
         super().__init__(state, style)
         self.samples_menu = SamplesMenu(state, style)
@@ -27,7 +30,7 @@ class MainMenu(BaseMenu):
         self.generation_menu = GenerationMenu(state, style)
         self.settings_menu = SettingsMenu(state, style)
 
-    def run(self) -> Optional[str]:
+    def run(self) -> str | None:
         """Run main menu loop."""
         while True:
             # Show current state
