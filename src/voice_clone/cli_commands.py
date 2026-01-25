@@ -16,9 +16,9 @@ from rich.table import Table
 from voice_clone.audio.processor import AudioProcessor
 from voice_clone.batch.processor import BatchProcessor
 from voice_clone.config import ConfigManager
-from voice_clone.model.generator import VoiceGenerator
-from voice_clone.model.manager import ModelManager
 from voice_clone.model.profile import VoiceProfile
+from voice_clone.model.qwen3_generator import Qwen3Generator
+from voice_clone.model.qwen3_manager import Qwen3ModelManager
 
 console = Console()
 
@@ -27,7 +27,7 @@ console = Console()
 @click.pass_context
 @click.version_option(version="0.1.0")
 def cli(ctx: click.Context) -> None:
-    """Voice cloning CLI tool using XTTS-v2.
+    """Voice cloning CLI tool using Qwen3-TTS.
 
     Run without arguments to start interactive mode.
     """
@@ -131,8 +131,19 @@ def validate_samples(samples_dir: Path) -> None:
     required=True,
     help="Name for the voice profile",
 )
-def prepare(samples_dir: Path, output_path: Path, profile_name: str) -> None:
-    """Create voice profile from audio samples."""
+@click.option(
+    "--ref-text",
+    "ref_text",
+    required=True,
+    help="Transcript of the reference audio (required for Qwen3-TTS)",
+)
+def prepare(
+    samples_dir: Path, output_path: Path, profile_name: str, ref_text: str
+) -> None:
+    """Create voice profile from audio samples.
+
+    Note: Qwen3-TTS requires a transcript (ref_text) of the reference audio.
+    """
     try:
         console.print(f"\n[cyan]Creating voice profile: {profile_name}[/cyan]\n")
 
@@ -143,8 +154,10 @@ def prepare(samples_dir: Path, output_path: Path, profile_name: str) -> None:
         ) as progress:
             task = progress.add_task("Processing samples...", total=None)
 
-            # Create profile
-            profile = VoiceProfile.from_directory(profile_name, samples_dir)
+            # Create profile with ref_text
+            profile = VoiceProfile.from_directory(
+                profile_name, samples_dir, ref_text=ref_text
+            )
 
             if not profile.samples:
                 console.print("[red]✗ No valid samples found[/red]")
@@ -180,6 +193,10 @@ def prepare(samples_dir: Path, output_path: Path, profile_name: str) -> None:
         table.add_row("Samples", str(len(profile.samples)))
         table.add_row("Duration", f"{profile.total_duration:.1f}s")
         table.add_row("Language", profile.language)
+        table.add_row("Sample Rate", f"{profile.sample_rate} Hz")
+        table.add_row(
+            "Reference Text", ref_text[:50] + "..." if len(ref_text) > 50 else ref_text
+        )
         table.add_row("Output", str(output_path))
 
         console.print(table)
@@ -211,7 +228,7 @@ def prepare(samples_dir: Path, output_path: Path, profile_name: str) -> None:
     help="Output path for generated audio",
 )
 def generate(profile_path: Path, text: str, output_path: Path) -> None:
-    """Generate speech from text using voice profile."""
+    """Generate speech from text using voice profile (Qwen3-TTS)."""
     try:
         with Progress(
             SpinnerColumn(),
@@ -229,23 +246,31 @@ def generate(profile_path: Path, text: str, output_path: Path) -> None:
 
             # Initialize model
             progress.update(
-                task, description="Initializing model (this may take a while)..."
+                task,
+                description="Initializing Qwen3-TTS model (this may take a while)...",
             )
-            model_manager = ModelManager(config)
+            model_manager = Qwen3ModelManager(config)
 
             if not model_manager.load_model():
-                console.print("[red]✗ Failed to load model[/red]")
+                console.print("[red]✗ Failed to load Qwen3-TTS model[/red]")
                 sys.exit(1)
 
             # Generate
-            progress.update(task, description="Generating speech...")
-            generator = VoiceGenerator(model_manager, config)
+            progress.update(task, description="Generating speech with Qwen3-TTS...")
+            generator = Qwen3Generator(model_manager, config)
 
-            success = generator.generate(text, profile, output_path)
+            success = generator.generate_to_file(
+                text=text,
+                ref_audio=profile.samples[0].path,  # Use path from VoiceSample
+                ref_text=profile.ref_text,
+                output_path=output_path,
+                language=profile.language,
+            )
 
         if success:
             console.print("\n[green]✓ Audio generated successfully![/green]")
-            console.print(f"[cyan]Output: {output_path}[/cyan]\n")
+            console.print(f"[cyan]Output: {output_path}[/cyan]")
+            console.print("[dim]Sample rate: 12000 Hz (Qwen3-TTS native)[/dim]\n")
         else:
             console.print("\n[red]✗ Generation failed[/red]")
             sys.exit(1)
@@ -278,7 +303,7 @@ def generate(profile_path: Path, text: str, output_path: Path) -> None:
     help="Output directory for generated audio files",
 )
 def batch(profile_path: Path, script_path: Path, output_dir: Path) -> None:
-    """Process script file and generate audio for all segments."""
+    """Process script file and generate audio for all segments (Qwen3-TTS)."""
     try:
         with Progress(
             SpinnerColumn(),
@@ -296,17 +321,18 @@ def batch(profile_path: Path, script_path: Path, output_dir: Path) -> None:
 
             # Initialize model
             progress.update(
-                task, description="Initializing model (this may take a while)..."
+                task,
+                description="Initializing Qwen3-TTS model (this may take a while)...",
             )
-            model_manager = ModelManager(config)
+            model_manager = Qwen3ModelManager(config)
 
             if not model_manager.load_model():
-                console.print("[red]✗ Failed to load model[/red]")
+                console.print("[red]✗ Failed to load Qwen3-TTS model[/red]")
                 sys.exit(1)
 
             # Process batch
             progress.update(task, description="Processing script...")
-            generator = VoiceGenerator(model_manager, config)
+            generator = Qwen3Generator(model_manager, config)
             processor = AudioProcessor()
             batch_processor = BatchProcessor(generator, processor)
 
@@ -325,6 +351,7 @@ def batch(profile_path: Path, script_path: Path, output_dir: Path) -> None:
             f"[red]{results['failed']}[/red]" if results["failed"] > 0 else "0",
         )
         table.add_row("Output directory", str(output_dir))
+        table.add_row("Sample rate", "12000 Hz (Qwen3-TTS native)")
 
         console.print(table)
         console.print()
@@ -347,7 +374,7 @@ def batch(profile_path: Path, script_path: Path, output_dir: Path) -> None:
 )
 @click.option(
     "--text",
-    default="Hola, esta es una prueba de mi voz clonada. ¿Suena natural?",
+    default="Hola, esta es una prueba de mi voz clonada con Qwen3-TTS. ¿Suena natural?",
     help="Test text (default: Spanish test phrase)",
 )
 @click.option(
@@ -358,12 +385,12 @@ def batch(profile_path: Path, script_path: Path, output_dir: Path) -> None:
     help="Output path (default: ./test_output.wav)",
 )
 def test(profile_path: Path, text: str, output_path: Path | None) -> None:
-    """Quick test of voice cloning with default text."""
+    """Quick test of voice cloning with Qwen3-TTS."""
     if output_path is None:
         output_path = Path("./test_output.wav")
 
     try:
-        console.print("\n[cyan]Running voice cloning test...[/cyan]\n")
+        console.print("\n[cyan]Running Qwen3-TTS voice cloning test...[/cyan]\n")
         console.print(f"[white]Text: {text}[/white]\n")
 
         with Progress(
@@ -382,26 +409,105 @@ def test(profile_path: Path, text: str, output_path: Path | None) -> None:
 
             # Initialize model
             progress.update(
-                task, description="Initializing model (this may take a while)..."
+                task,
+                description="Initializing Qwen3-TTS model (this may take a while)...",
             )
-            model_manager = ModelManager(config)
+            model_manager = Qwen3ModelManager(config)
 
             if not model_manager.load_model():
-                console.print("[red]✗ Failed to load model[/red]")
+                console.print("[red]✗ Failed to load Qwen3-TTS model[/red]")
                 sys.exit(1)
 
             # Generate
-            progress.update(task, description="Generating test audio...")
-            generator = VoiceGenerator(model_manager, config)
-            success = generator.generate(text, profile, output_path)
+            progress.update(task, description="Generating test audio with Qwen3-TTS...")
+            generator = Qwen3Generator(model_manager, config)
+            success = generator.generate_to_file(
+                text=text,
+                ref_audio=profile.samples[0].path,  # Use path from VoiceSample
+                ref_text=profile.ref_text,
+                output_path=output_path,
+                language=profile.language,
+            )
 
         if success:
             console.print("\n[green]✓ Test audio generated successfully![/green]")
             console.print(f"[cyan]Output: {output_path}[/cyan]")
+            console.print("[dim]Sample rate: 12000 Hz (Qwen3-TTS native)[/dim]")
             console.print(f"\n[yellow]Play with: afplay {output_path}[/yellow]\n")
         else:
             console.print("\n[red]✗ Generation failed[/red]")
             sys.exit(1)
+
+    except Exception as e:
+        console.print(f"[red]✗ Error: {str(e)}[/red]")
+        sys.exit(1)
+
+
+@cli.command()
+def info() -> None:
+    """Display Qwen3-TTS model and system information."""
+    try:
+        import torch
+
+        console.print("\n[bold cyan]Voice Clone CLI - System Information[/bold cyan]\n")
+
+        # Create info table
+        table = Table(show_header=False, box=None)
+        table.add_column("Key", style="cyan", width=25)
+        table.add_column("Value", style="white")
+
+        # TTS Engine
+        table.add_row("TTS Engine", "Qwen3-TTS")
+        table.add_row("Model", "Qwen/Qwen3-TTS-12Hz-1.7B-Base")
+
+        # Device info
+        if torch.backends.mps.is_available():
+            device = "MPS (Metal Performance Shaders)"
+            device_status = "[green]✓ Available[/green]"
+        elif torch.cuda.is_available():
+            device = f"CUDA (GPU: {torch.cuda.get_device_name(0)})"
+            device_status = "[green]✓ Available[/green]"
+        else:
+            device = "CPU"
+            device_status = "[yellow]⚠ GPU not available[/yellow]"
+
+        table.add_row("Device", device)
+        table.add_row("Device Status", device_status)
+
+        # PyTorch info
+        table.add_row("PyTorch Version", torch.__version__)
+        table.add_row(
+            "MPS Available",
+            "[green]Yes[/green]"
+            if torch.backends.mps.is_available()
+            else "[red]No[/red]",
+        )
+        table.add_row(
+            "CUDA Available",
+            "[green]Yes[/green]" if torch.cuda.is_available() else "[red]No[/red]",
+        )
+
+        # Audio specs
+        table.add_row("Native Sample Rate", "12000 Hz")
+        table.add_row("Min Sample Duration", "3 seconds")
+        table.add_row("Output Format", "WAV (mono, 16-bit)")
+
+        # Config
+        try:
+            config_manager = ConfigManager()
+            config = config_manager.load_config()
+
+            model_config = config.get("model", {})
+            table.add_row("Config Device", model_config.get("device", "auto"))
+            table.add_row("Config Dtype", model_config.get("dtype", "float32"))
+
+            paths = config.get("paths", {})
+            table.add_row("Models Cache", paths.get("models", "./data/qwen3_models"))
+        except Exception:
+            table.add_row("Config", "[yellow]Not loaded[/yellow]")
+
+        console.print(table)
+        console.print()
 
     except Exception as e:
         console.print(f"[red]✗ Error: {str(e)}[/red]")
