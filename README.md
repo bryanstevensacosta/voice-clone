@@ -5,13 +5,13 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-A personal voice cloning CLI tool powered by XTTS-v2 (Coqui TTS). Clone any voice with just a few audio samples and generate natural-sounding speech from text.
+A personal voice cloning CLI tool powered by Qwen3-TTS. Clone any voice with just a few audio samples and generate natural-sounding speech from text.
 
 ## Features
 
 - 🎤 **Voice Cloning**: Clone any voice using audio samples
 - 🗣️ **Text-to-Speech**: Generate speech from text in the cloned voice
-- 🎯 **High Quality**: Powered by XTTS-v2 for natural-sounding results
+- 🎯 **High Quality**: Powered by Qwen3-TTS for natural-sounding results
 - ⚡ **Fast Processing**: Optimized for quick voice cloning and synthesis
 - 🖥️ **CLI Interface**: Simple command-line interface for easy use
 - 🔧 **Configurable**: Flexible configuration options for advanced users
@@ -46,6 +46,7 @@ voice-clone validate-samples --dir ./data/samples
 # 2. Create a voice profile
 voice-clone prepare \
   --samples ./data/samples \
+  --ref-text "Hola, esta es una muestra de mi voz para clonación." \
   --output ./data/voice_profile.json \
   --name "my_voice"
 
@@ -92,7 +93,7 @@ First, record 6-10 audio samples of your voice (10-20 seconds each):
 
 ```bash
 # Samples should be:
-# - WAV format, 22050 Hz, mono, 16-bit
+# - WAV format, 12000 Hz, mono, 16-bit
 # - Clear speech, no background noise
 # - Different emotions/tones
 # - Named: neutral_01.wav, happy_01.wav, serious_01.wav, etc.
@@ -124,6 +125,7 @@ voice-clone validate-samples --dir ./data/samples
 # Create profile from validated samples
 voice-clone prepare \
   --samples ./data/samples \
+  --ref-text "Hola, esta es una muestra de mi voz para clonación." \
   --output ./data/voice_profile.json \
   --name "my_voice"
 
@@ -201,19 +203,20 @@ Create a `config/config.yaml` file to customize settings (see `config/config.yam
 ```yaml
 # Model configuration
 model:
-  name: "tts_models/multilingual/multi-dataset/xtts_v2"
-  device: "auto"  # auto, mps (M1/M2), cuda, or cpu
+  name: "Qwen/Qwen3-TTS-12Hz-1.7B-Base"
+  device: "auto"  # auto, mps (M1/M2), or cpu
+  dtype: "float32"  # Required for MPS
 
 # Generation parameters
 generation:
-  language: "es"  # Spanish
+  language: "Spanish"
   temperature: 0.75  # 0.5-1.0 (consistency vs variety)
   speed: 1.0  # 0.8-1.2 (speaking speed)
-  max_chunk_size: 400  # Characters per generation
+  max_new_tokens: 2048  # Maximum tokens to generate
 
 # Audio settings
 audio:
-  sample_rate: 22050  # XTTS-v2 native
+  sample_rate: 12000  # Qwen3-TTS native
   channels: 1  # Mono
   bit_depth: 16
 
@@ -230,7 +233,7 @@ Create a `.env` file for sensitive settings:
 
 ```bash
 # Optional: Custom model cache directory
-TTS_CACHE_DIR=/path/to/cache
+QWEN_TTS_CACHE_DIR=/path/to/cache
 
 # Optional: Logging level
 LOG_LEVEL=INFO
@@ -266,9 +269,9 @@ For detailed documentation, see:
 
 For best results, your audio samples should be:
 
-- **Format**: WAV, 22050 Hz, mono, 16-bit
-- **Duration**: 10-20 seconds per sample
-- **Quantity**: 6-10 samples minimum
+- **Format**: WAV, 12000 Hz, mono, 16-bit
+- **Duration**: 3-30 seconds per sample
+- **Quantity**: 1-3 samples (Qwen3-TTS requires fewer samples)
 - **Quality**: Clear speech, no background noise
 - **Variety**: Different emotions and tones
 - **Content**: Natural speech, complete sentences
@@ -456,24 +459,24 @@ voice-clone-cli/
 source venv/bin/activate
 ```
 
-**Model download fails**: The XTTS-v2 model (~1.8GB) downloads automatically on first use. Ensure you have:
+**Model download fails**: The Qwen3-TTS model (~3.4GB) downloads automatically on first use. Ensure you have:
 - Stable internet connection
 - At least 10GB free disk space
-- Patience (first download takes 5-10 minutes)
+- Patience (first download takes 10-15 minutes)
 
 **Audio quality issues**: Ensure your input samples are:
-- 22050 Hz sample rate (or will be converted)
+- 12000 Hz sample rate (or will be converted)
 - Mono (single channel)
 - 16-bit depth
 - Clear speech without background noise
-- 10-20 seconds duration each
-- At least 6 samples total
+- 3-30 seconds duration each
+- At least 1 sample (1-3 recommended)
 
 **Generation is slow**:
 - First generation is slower (model loading)
-- CPU-only mode is significantly slower than GPU
-- For M1/M2 Mac: Ensure PyTorch has MPS support
-- For NVIDIA GPU: Install CUDA-enabled PyTorch
+- CPU-only mode is significantly slower than MPS
+- For M1/M2 Mac: Ensure PyTorch has MPS support and dtype is set to float32
+- CUDA is not supported by Qwen3-TTS
 
 **Voice sounds robotic**:
 - Add more samples with emotional variety
@@ -503,7 +506,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Built with [XTTS-v2](https://github.com/coqui-ai/TTS) by Coqui AI
+- Built with [Qwen3-TTS](https://github.com/QwenLM/Qwen-Audio) by Alibaba Cloud
 - Inspired by the open-source TTS community
 
 ## Support
@@ -514,11 +517,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Roadmap
 
-- [x] Core voice cloning with XTTS-v2
+- [x] Core voice cloning with Qwen3-TTS
 - [x] CLI interface with all commands
 - [x] Audio validation and conversion
 - [x] Batch processing for scripts
 - [x] Voice profile management
+- [x] Migration from XTTS-v2 to Qwen3-TTS
 - [ ] Post-processing (normalization, fade effects)
 - [ ] Format export (MP3, AAC, platform-specific)
 - [ ] Integration tests
