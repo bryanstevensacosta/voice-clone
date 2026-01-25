@@ -5,8 +5,8 @@ from pathlib import Path
 import questionary
 from rich.table import Table
 
+from cli.interactive.menus.base import BaseMenu, console
 from voice_clone.audio.processor import AudioProcessor
-from voice_clone.cli.menus.base import BaseMenu, console
 
 
 class SamplesMenu(BaseMenu):

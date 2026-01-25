@@ -12,6 +12,7 @@ This module tests all validation scenarios as specified in task 2.3.4 and 2.3.5:
 import numpy as np
 import pytest
 import soundfile as sf
+
 from gradio_ui.handlers.sample_handler import validate_samples_handler
 
 
@@ -250,7 +251,7 @@ class TestValidationUIIntegration:
         assert params[0] == "files"
 
         # Should return string
-        assert sig.return_annotation == str
+        assert sig.return_annotation is str
 
     def test_handler_works_with_gradio_file_output(self, valid_sample):
         """Test that handler output works with gr.Markdown."""

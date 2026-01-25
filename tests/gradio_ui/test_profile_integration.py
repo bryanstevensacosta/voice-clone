@@ -8,6 +8,7 @@ including UI component interaction and backend integration.
 from unittest.mock import Mock, patch
 
 import gradio as gr
+
 from gradio_ui.app import create_app
 from gradio_ui.handlers.profile_handler import (
     create_profile_handler,

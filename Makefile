@@ -1,4 +1,4 @@
-.PHONY: help setup install clean test lint format type-check pre-commit run
+.PHONY: help setup install clean test lint format type-check pre-commit run ui
 
 help:  ## Show this help message
 	@echo "Available commands:"
@@ -108,5 +108,10 @@ activate:  ## Show activation command
 dev:  ## Run in development mode
 	@echo "🔧 Starting development mode..."
 	@python -m voice_clone.cli --help
+
+ui:  ## Launch Gradio web interface
+	@echo "🌐 Starting Gradio UI..."
+	@echo "📍 Opening at http://localhost:7860"
+	@python -m gradio_ui.app
 
 .DEFAULT_GOAL := help

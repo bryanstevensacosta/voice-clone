@@ -11,6 +11,7 @@ from pathlib import Path
 
 import gradio as gr
 import pytest
+
 from gradio_ui.app import create_app
 from gradio_ui.handlers.profile_handler import list_available_profiles
 

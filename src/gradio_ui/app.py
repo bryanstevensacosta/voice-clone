@@ -11,13 +11,16 @@ using Gradio. It offers three main workflows:
 
 import gradio as gr
 
+from gradio_ui.handlers.batch_handler import batch_process_handler
+
+# Import handlers
+from gradio_ui.handlers.generation_handler import generate_audio_handler
 from gradio_ui.handlers.profile_handler import (
     create_profile_handler,
     list_available_profiles,
 )
-
-# Import handlers
 from gradio_ui.handlers.sample_handler import validate_samples_handler
+from gradio_ui.handlers.visualization_handler import generate_sample_visualization
 
 
 def create_app() -> gr.Blocks:
@@ -32,7 +35,7 @@ def create_app() -> gr.Blocks:
         # Header
         gr.Markdown(
             """
-        # 🎤 Voice Clone - AI Voice Cloning Tool
+        # AI Voice Cloning Tool
 
         Clone any voice with just a few audio samples and generate natural-sounding speech using **Qwen3-TTS**.
 
@@ -93,6 +96,12 @@ def create_app() -> gr.Blocks:
                         )
                         profile_output = gr.JSON(label="Voice Profile Info")
 
+                        # Audio visualization
+                        gr.Markdown("### 🎵 Audio Visualization")
+                        spectrogram_plot = gr.Plot(
+                            label="Spectrogram & Waveform", visible=True
+                        )
+
             # Tab 2: Generate Audio
             with gr.Tab("2️⃣ Generate Audio"):
                 gr.Markdown(
@@ -131,7 +140,7 @@ def create_app() -> gr.Blocks:
                         )
 
                         with gr.Accordion("⚙️ Advanced Settings", open=False):
-                            _temperature_slider = gr.Slider(
+                            temperature_slider = gr.Slider(
                                 minimum=0.5,
                                 maximum=1.0,
                                 value=0.75,
@@ -140,7 +149,7 @@ def create_app() -> gr.Blocks:
                                 info="Control variability (lower = more consistent, higher = more varied)",
                             )
 
-                            _speed_slider = gr.Slider(
+                            speed_slider = gr.Slider(
                                 minimum=0.8,
                                 maximum=1.2,
                                 value=1.0,
@@ -149,16 +158,19 @@ def create_app() -> gr.Blocks:
                                 info="Speaking speed multiplier",
                             )
 
-                        _generate_btn = gr.Button(
+                        generate_btn = gr.Button(
                             "🎙️ Generate Audio", variant="primary", size="lg"
                         )
 
                     with gr.Column(scale=1):
                         gr.Markdown("### 🔊 Output")
-                        _output_audio = gr.Audio(
-                            label="Generated Audio", type="filepath", interactive=False
+                        output_audio = gr.Audio(
+                            label="Generated Audio",
+                            type="filepath",
+                            interactive=False,
+                            buttons=["download"],
                         )
-                        _generation_info = gr.Markdown()
+                        generation_info = gr.Markdown()
 
                 # Example texts
                 gr.Examples(
@@ -213,22 +225,22 @@ def create_app() -> gr.Blocks:
                             else "⚠️ No profiles available. Create one in Tab 1 first.",
                         )
 
-                        _script_file_input = gr.File(
+                        script_file_input = gr.File(
                             label="Upload Script File (.txt)",
                             file_types=[".txt", ".md"],
                             type="filepath",
                         )
 
-                        _batch_btn = gr.Button(
+                        batch_btn = gr.Button(
                             "⚡ Process Batch", variant="primary", size="lg"
                         )
 
                     with gr.Column(scale=1):
                         gr.Markdown("### 📦 Output")
-                        _batch_output = gr.File(
+                        batch_output = gr.File(
                             label="Generated Files", file_count="multiple"
                         )
-                        _batch_info = gr.Markdown()
+                        batch_info = gr.Markdown()
 
         # Footer
         gr.Markdown(
@@ -260,6 +272,13 @@ def create_app() -> gr.Blocks:
             show_progress="minimal",
         )
 
+        # Tab 1: Update spectrogram when files are uploaded
+        samples_upload.change(
+            fn=generate_sample_visualization,
+            inputs=[samples_upload],
+            outputs=[spectrogram_plot],
+        )
+
         # Tab 1: Profile Creation
         create_profile_btn.click(
             fn=create_profile_handler,
@@ -278,6 +297,22 @@ def create_app() -> gr.Blocks:
             fn=update_char_count,
             inputs=[text_input],
             outputs=[char_counter],
+        )
+
+        # Tab 2: Audio Generation
+        generate_btn.click(
+            fn=generate_audio_handler,
+            inputs=[profile_selector, text_input, temperature_slider, speed_slider],
+            outputs=[output_audio, generation_info],
+            show_progress="full",
+        )
+
+        # Tab 3: Batch Processing
+        batch_btn.click(
+            fn=batch_process_handler,
+            inputs=[profile_selector_batch, script_file_input],
+            outputs=[batch_output, batch_info],
+            show_progress="full",
         )
 
     return app

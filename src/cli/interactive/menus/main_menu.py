@@ -7,14 +7,14 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from voice_clone.cli.menus.base import BaseMenu
-from voice_clone.cli.menus.generation_menu import GenerationMenu
-from voice_clone.cli.menus.profile_menu import ProfileMenu
-from voice_clone.cli.menus.samples_menu import SamplesMenu
-from voice_clone.cli.menus.settings_menu import SettingsMenu
+from cli.interactive.menus.base import BaseMenu
+from cli.interactive.menus.generation_menu import GenerationMenu
+from cli.interactive.menus.profile_menu import ProfileMenu
+from cli.interactive.menus.samples_menu import SamplesMenu
+from cli.interactive.menus.settings_menu import SettingsMenu
 
 if TYPE_CHECKING:
-    from voice_clone.cli.state import CLIState
+    from cli.interactive.state import CLIState
 
 console = Console()
 

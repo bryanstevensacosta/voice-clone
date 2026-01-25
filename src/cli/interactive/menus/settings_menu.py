@@ -4,7 +4,7 @@
 import questionary
 from rich.table import Table
 
-from voice_clone.cli.menus.base import BaseMenu, console
+from cli.interactive.menus.base import BaseMenu, console
 
 
 class SettingsMenu(BaseMenu):

@@ -4,9 +4,9 @@ import sys
 
 from rich.console import Console
 
-from voice_clone.cli.menus.main_menu import MainMenu
-from voice_clone.cli.state import CLIState
-from voice_clone.cli.styles import get_custom_style
+from cli.interactive.menus.main_menu import MainMenu
+from cli.interactive.state import CLIState
+from cli.interactive.styles import get_custom_style
 
 console = Console()
 
