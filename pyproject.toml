@@ -109,6 +109,30 @@ ignore_missing_imports = true
 module = "torch.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "questionary.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rich.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "psutil.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "questionary.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rich.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "psutil.*"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "-ra -q --strict-markers --cov=voice_clone --cov-report=term-missing"
