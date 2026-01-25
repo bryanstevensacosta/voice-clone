@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from click.testing import CliRunner
-from voice_clone.cli import cli
+from voice_clone.cli_commands import cli
 
 
 def test_cli_help() -> None:

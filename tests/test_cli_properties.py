@@ -4,7 +4,7 @@
 from click.testing import CliRunner
 from hypothesis import given
 from hypothesis import strategies as st
-from voice_clone.cli import cli
+from voice_clone.cli_commands import cli
 
 
 @given(st.text(min_size=1, max_size=100))
