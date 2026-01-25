@@ -6,7 +6,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 from click.testing import CliRunner
-from voice_clone.cli_commands import cli
+
+from cli.cli import cli
 
 
 @pytest.fixture
