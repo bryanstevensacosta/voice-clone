@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated configuration files for Qwen3-TTS
 - Updated all documentation for Qwen3-TTS
 - Updated steering files with Qwen3-TTS specifications
-- Model cache directory changed from `./data/models` to `./data/qwen3_models`
+- Model cache directory: `./data/models`
 - Dtype configuration now requires `float32` for MPS
 
 ### Removed

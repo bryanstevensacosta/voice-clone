@@ -103,8 +103,8 @@ The script will:
   - Model name → `Qwen/Qwen3-TTS-12Hz-1.7B-Base`
   - Sample rate → `12000`
   - Adds `dtype: "float32"`
-  - Updates models path → `./data/qwen3_models`
-- Creates `data/qwen3_models/` directory
+  - Updates models path → `./data/models`
+- Creates `data/models/` directory
 
 #### 5. Verification
 - Checks TTS is uninstalled
@@ -199,13 +199,13 @@ audio:
   sample_rate: 12000
 
 paths:
-  models: "./data/qwen3_models"
+  models: "./data/models"
 ```
 
 Create models directory:
 
 ```bash
-mkdir -p data/qwen3_models
+mkdir -p data/models
 ```
 
 ### Step 6: Verify Migration

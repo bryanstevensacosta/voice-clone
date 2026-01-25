@@ -52,8 +52,8 @@ class TestDefaultConfig:
         assert "dtype" in config["model"]
         assert config["model"]["dtype"] == "float32"
 
-    def test_models_path_is_qwen3(self):
-        """Test that models path is qwen3_models."""
+    def test_models_path_is_correct(self):
+        """Test that models path is correct."""
         config_path = Path("config/default.yaml")
         with open(config_path) as f:
             config = yaml.safe_load(f)
@@ -144,13 +144,13 @@ class TestEnvExample:
 
         assert "SAMPLE_RATE=12000" in content
 
-    def test_env_has_qwen_cache_dir(self):
-        """Test that .env.example has QWEN_TTS_CACHE_DIR."""
+    def test_env_has_qwen_models_dir(self):
+        """Test that .env.example has QWEN_TTS_MODELS_DIR."""
         env_path = Path(".env.example")
         with open(env_path) as f:
             content = f.read()
 
-        assert "QWEN_TTS_CACHE_DIR" in content
+        assert "QWEN_TTS_MODELS_DIR" in content
 
     def test_env_no_xtts_references(self):
         """Test that .env.example has no XTTS references."""

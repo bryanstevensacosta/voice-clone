@@ -29,7 +29,7 @@ def mock_config():
             "output_format": "wav",
         },
         "paths": {
-            "models": "./data/qwen3_models",
+            "models": "./data/models",
         },
     }
 
