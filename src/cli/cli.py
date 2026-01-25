@@ -12,6 +12,7 @@ import click
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
 from voice_clone.audio.processor import AudioProcessor
 from voice_clone.batch.processor import BatchProcessor
 from voice_clone.config import ConfigManager
