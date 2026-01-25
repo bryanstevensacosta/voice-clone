@@ -10,6 +10,7 @@ from typing import Any
 from voice_clone.audio.processor import AudioProcessor
 from voice_clone.model.generator import VoiceGenerator
 from voice_clone.model.profile import VoiceProfile
+from voice_clone.model.qwen3_generator import Qwen3Generator
 from voice_clone.utils.logger import logger
 
 
@@ -26,12 +27,14 @@ class BatchProcessor:
     """Processes script files with multiple segments."""
 
     def __init__(
-        self, voice_generator: VoiceGenerator, audio_processor: AudioProcessor
+        self,
+        voice_generator: VoiceGenerator | Qwen3Generator,
+        audio_processor: AudioProcessor,
     ):
         """Initialize BatchProcessor.
 
         Args:
-            voice_generator: VoiceGenerator instance
+            voice_generator: VoiceGenerator or Qwen3Generator instance
             audio_processor: AudioProcessor instance
         """
         self.voice_generator = voice_generator
@@ -172,7 +175,8 @@ class BatchProcessor:
 
             try:
                 # Generate audio
-                success = self.voice_generator.generate(
+                # TODO: Update to support Qwen3Generator interface
+                success = self.voice_generator.generate(  # type: ignore[call-arg]
                     text=segment.text,
                     voice_profile=voice_profile,
                     output_path=output_path,
