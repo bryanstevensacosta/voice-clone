@@ -40,13 +40,15 @@ class VoiceSample:
 
 @dataclass
 class VoiceProfile:
-    """Voice profile containing reference samples and metadata."""
+    """Voice profile containing reference samples and metadata for Qwen3-TTS."""
 
     name: str
     samples: list[VoiceSample] = field(default_factory=list)
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
     language: str = "es"
     total_duration: float = 0.0
+    ref_text: str = ""  # NEW: Required for Qwen3-TTS voice cloning
+    sample_rate: int = 12000  # NEW: Qwen3-TTS native sample rate
 
     def __post_init__(self) -> None:
         """Calculate total duration after initialization."""
@@ -59,6 +61,7 @@ class VoiceProfile:
         name: str,
         samples_dir: Path | str,
         language: str = "es",
+        ref_text: str = "",
     ) -> "VoiceProfile":
         """Create voice profile from directory of audio samples.
 
@@ -66,6 +69,7 @@ class VoiceProfile:
             name: Profile name
             samples_dir: Directory containing audio samples
             language: Language code (default: "es")
+            ref_text: Reference text (transcript of reference audio) for Qwen3-TTS
 
         Returns:
             VoiceProfile instance
@@ -118,6 +122,7 @@ class VoiceProfile:
             name=name,
             samples=samples,
             language=language,
+            ref_text=ref_text,
         )
 
         return profile
@@ -136,6 +141,8 @@ class VoiceProfile:
             "created_at": self.created_at,
             "language": self.language,
             "total_duration": self.total_duration,
+            "ref_text": self.ref_text,  # NEW: Include ref_text for Qwen3-TTS
+            "sample_rate": self.sample_rate,  # NEW: Include sample_rate
             "samples": [s.to_dict() for s in self.samples],
         }
 
@@ -165,10 +172,14 @@ class VoiceProfile:
             created_at=data["created_at"],
             language=data["language"],
             total_duration=data["total_duration"],
+            ref_text=data.get("ref_text", ""),  # NEW: Load ref_text (default to empty)
+            sample_rate=data.get(
+                "sample_rate", 12000
+            ),  # NEW: Load sample_rate (default to 12000)
         )
 
     def validate(self) -> tuple[bool, list[str]]:
-        """Validate that profile has sufficient samples and duration.
+        """Validate that profile has sufficient samples and duration for Qwen3-TTS.
 
         Returns:
             Tuple of (is_valid, warnings)
@@ -181,8 +192,8 @@ class VoiceProfile:
                 f"Profile has only {len(self.samples)} samples (recommended: 6-10)"
             )
 
-        # Check total duration
-        if self.total_duration < 60.0:
+        # Check total duration (Qwen3-TTS minimum is 3s per sample)
+        if self.total_duration < 18.0:  # 6 samples * 3s minimum
             warnings.append(
                 f"Total duration is {self.total_duration:.1f}s (recommended: 60-180s)"
             )
@@ -198,6 +209,18 @@ class VoiceProfile:
                 "Profile has limited emotion variety (recommended: multiple emotions)"
             )
 
-        is_valid = len(self.samples) >= 1 and self.total_duration >= 6.0
+        # NEW: Check for ref_text (required for Qwen3-TTS)
+        if not self.ref_text or len(self.ref_text.strip()) == 0:
+            warnings.append(
+                "Profile missing ref_text (required for Qwen3-TTS voice cloning)"
+            )
+
+        # NEW: Check sample rate
+        if self.sample_rate != 12000:
+            warnings.append(
+                f"Sample rate is {self.sample_rate} Hz (Qwen3-TTS native: 12000 Hz)"
+            )
+
+        is_valid = len(self.samples) >= 1 and self.total_duration >= 3.0
 
         return is_valid, warnings
