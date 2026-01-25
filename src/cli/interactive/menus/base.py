@@ -6,7 +6,7 @@ import questionary
 from questionary import Style
 from rich.console import Console
 
-from voice_clone.cli.state import CLIState
+from cli.interactive.state import CLIState
 
 console = Console()
 

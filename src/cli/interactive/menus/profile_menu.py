@@ -6,7 +6,7 @@ import questionary
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from voice_clone.cli.menus.base import BaseMenu, console
+from cli.interactive.menus.base import BaseMenu, console
 from voice_clone.model.profile import VoiceProfile
 
 

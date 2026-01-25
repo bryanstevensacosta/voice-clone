@@ -1,0 +1,11 @@
+[INTRO]
+Hola, bienvenidos a este tutorial sobre inteligencia artificial.
+
+[SECTION_1]
+Hoy vamos a hablar sobre redes neuronales y cómo funcionan.
+
+[SECTION_2]
+Las redes neuronales son modelos computacionales inspirados en el cerebro humano.
+
+[OUTRO]
+Gracias por ver este video. No olvides suscribirte al canal.

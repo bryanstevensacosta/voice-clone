@@ -33,7 +33,7 @@ def cli(ctx: click.Context) -> None:
     """
     # If no subcommand is provided, start interactive mode
     if ctx.invoked_subcommand is None:
-        from voice_clone.cli.app import InteractiveCLI
+        from cli.interactive.app import InteractiveCLI
 
         app = InteractiveCLI()
         app.run()
@@ -42,7 +42,7 @@ def cli(ctx: click.Context) -> None:
 @cli.command()
 def interactive() -> None:
     """Start interactive mode with menu navigation."""
-    from voice_clone.cli.app import InteractiveCLI
+    from cli.interactive.app import InteractiveCLI
 
     app = InteractiveCLI()
     app.run()
@@ -526,20 +526,52 @@ def info() -> None:
     is_flag=True,
     help="Create a public shareable link for the UI",
 )
-def ui(port: int, share: bool) -> None:
+@click.option(
+    "--reload",
+    is_flag=True,
+    help="Enable hot reload mode for development (auto-reloads on code changes)",
+)
+def ui(port: int, share: bool, reload: bool) -> None:
     """Launch the Gradio web interface.
 
     This starts a web-based UI for voice cloning with an intuitive interface
     for uploading samples, creating profiles, and generating audio.
+
+    Use --reload flag during development to enable hot reload mode, which
+    automatically reloads the UI when you make code changes.
     """
     try:
-        console.print("\n[cyan]🚀 Starting Gradio UI...[/cyan]\n")
+        if reload:
+            # Hot reload mode using Gradio CLI
+            import subprocess
 
-        # Import here to avoid loading Gradio unless needed
-        from gradio_ui.app import main as gradio_main
+            console.print("\n[cyan]🔥 Starting Gradio UI in hot reload mode...[/cyan]")
+            console.print(
+                "[dim]Changes to code will automatically reload the UI[/dim]\n"
+            )
 
-        # Launch the Gradio app with specified options
-        gradio_main(server_port=port, share=share)
+            # Build command
+            cmd = [
+                "gradio",
+                "src/gradio_ui/app.py",
+                "--server-port",
+                str(port),
+            ]
+
+            if share:
+                cmd.append("--share")
+
+            # Run Gradio CLI with hot reload
+            subprocess.run(cmd)
+        else:
+            # Normal mode
+            console.print("\n[cyan]🚀 Starting Gradio UI...[/cyan]\n")
+
+            # Import here to avoid loading Gradio unless needed
+            from gradio_ui.app import main as gradio_main
+
+            # Launch the Gradio app with specified options
+            gradio_main(server_port=port, share=share)
 
     except ImportError as e:
         console.print("[red]✗ Error: Gradio UI dependencies not installed[/red]")

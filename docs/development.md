@@ -456,19 +456,257 @@ rm -rf venv
 ./setup.sh
 ```
 
+## Gradio Hot Reload (Fast Development) 🔥
+
+### What is Hot Reload?
+
+Gradio's hot reload mode automatically reloads your UI when you make code changes, eliminating the need to manually stop and restart the server. This dramatically speeds up development.
+
+### How to Use Hot Reload
+
+Instead of running your app with Python:
+```bash
+# ❌ Old way (manual restart required)
+python src/gradio_ui/app.py
+```
+
+Use the Gradio CLI:
+```bash
+# ✅ New way (automatic reload)
+gradio src/gradio_ui/app.py
+
+# Or with custom demo name
+gradio src/gradio_ui/app.py --demo-name=app
+
+# With custom port
+gradio src/gradio_ui/app.py --server-port 8080
+```
+
+### What Gets Reloaded
+
+When you save changes to any of these files, Gradio automatically reloads:
+- `src/gradio_ui/app.py` - Main application
+- `src/gradio_ui/handlers/*.py` - Event handlers
+- `src/gradio_ui/utils/*.py` - Utilities
+- Any imported modules
+
+### Controlling Reload Behavior
+
+Some code should only run once (like loading ML models). Use `gr.NO_RELOAD` to prevent re-execution:
+
+```python
+import gradio as gr
+from voice_clone.model.generator import VoiceGenerator
+
+# This code runs only once, not on every reload
+if gr.NO_RELOAD:
+    print("Loading model (one time only)...")
+    generator = VoiceGenerator()
+    print("Model loaded!")
+
+def create_app():
+    with gr.Blocks() as app:
+        # UI code here - this WILL reload
+        pass
+    return app
+```
+
+**Use cases for `gr.NO_RELOAD`:**
+- Loading ML models (Qwen3-TTS)
+- Initializing database connections
+- Loading large datasets
+- Importing libraries with C/Rust extensions (numpy, tiktoken)
+
+### Development Workflow with Hot Reload
+
+1. **Start the app in reload mode**
+   ```bash
+   gradio src/gradio_ui/app.py
+   ```
+
+2. **Open in browser**
+   ```
+   http://localhost:7860
+   ```
+
+3. **Make changes to code**
+   - Edit handlers, components, or layout
+   - Save the file (Cmd+S / Ctrl+S)
+
+4. **See changes instantly**
+   - Gradio detects the change
+   - Automatically reloads the app
+   - Browser refreshes with new version
+
+5. **Iterate quickly**
+   - No need to stop/restart server
+   - Focus on coding, not process management
+
+### Watching Multiple Files
+
+Gradio watches the directory containing your main file and automatically reloads when any Python file changes:
+
+```
+src/gradio_ui/
+├── app.py                    # Watched ✓
+├── handlers/
+│   ├── sample_handler.py     # Watched ✓
+│   ├── profile_handler.py    # Watched ✓
+│   └── generation_handler.py # Watched ✓
+└── utils/
+    └── audio_viz.py          # Watched ✓
+```
+
+### Troubleshooting Hot Reload
+
+**Problem**: Changes not reloading
+
+**Solution**: Make sure you're using `gradio` command, not `python`:
+```bash
+# ❌ Won't hot reload
+python src/gradio_ui/app.py
+
+# ✅ Will hot reload
+gradio src/gradio_ui/app.py
+```
+
+**Problem**: Demo not found error
+
+**Solution**: Specify the demo name if it's not called `demo`:
+```bash
+# If your app variable is named 'app' instead of 'demo'
+gradio src/gradio_ui/app.py --demo-name=app
+```
+
+**Problem**: Encoding errors
+
+**Solution**: Specify encoding if not UTF-8:
+```bash
+gradio src/gradio_ui/app.py --encoding cp1252
+```
+
+**Problem**: Model reloads on every change (slow)
+
+**Solution**: Wrap model loading in `if gr.NO_RELOAD:` block
+
+### Jupyter Notebook Development
+
+If you prefer Jupyter notebooks, use Gradio's magic command:
+
+```python
+# Load extension at top of notebook
+%load_ext gradio
+
+# In your demo cell
+%%blocks
+import gradio as gr
+
+with gr.Blocks() as demo:
+    gr.Markdown("# My Demo")
+    # ... rest of your UI
+```
+
+Changes take effect when you re-run the cell.
+
+### Vibe Mode (Experimental)
+
+Gradio also offers "Vibe Mode" - an AI assistant that can edit your code:
+
+```bash
+gradio --vibe src/gradio_ui/app.py
+```
+
+**⚠️ Warning**: Vibe Mode allows arbitrary code execution. Use only for local development.
+
+### Performance Tips
+
+1. **Use `gr.NO_RELOAD` for expensive operations**
+   - Model loading
+   - Database connections
+   - Large file reads
+
+2. **Keep UI code separate from business logic**
+   - Handlers in separate files
+   - Easy to reload without affecting models
+
+3. **Test with small changes first**
+   - Verify reload is working
+   - Then make larger changes
+
+### Comparison: Manual vs Hot Reload
+
+**Manual Restart (Old Way):**
+```bash
+# 1. Stop server (Ctrl+C)
+# 2. Edit code
+# 3. Save file
+# 4. Restart server
+python src/gradio_ui/app.py
+# 5. Wait for model to load (~30s)
+# 6. Refresh browser
+# 7. Test changes
+# Total time: ~45 seconds per change
+```
+
+**Hot Reload (New Way):**
+```bash
+# 1. Edit code
+# 2. Save file
+# 3. Gradio auto-reloads (~2s)
+# 4. Test changes
+# Total time: ~5 seconds per change
+```
+
+**Time saved**: ~40 seconds per change = ~10 minutes per hour of development!
+
+### Integration with CLI
+
+The CLI command `voice-clone ui` can also use hot reload:
+
+```python
+# In src/voice_clone/cli.py
+@cli.command()
+@click.option("--port", default=7860, help="Port to run the UI")
+@click.option("--reload", is_flag=True, help="Enable hot reload")
+def ui(port: int, reload: bool):
+    """Launch the Gradio web interface."""
+    if reload:
+        import subprocess
+        subprocess.run([
+            "gradio",
+            "src/gradio_ui/app.py",
+            "--server-port", str(port)
+        ])
+    else:
+        from gradio_ui.app import main
+        main(server_port=port)
+```
+
+Usage:
+```bash
+# Normal mode
+voice-clone ui
+
+# Hot reload mode
+voice-clone ui --reload
+```
+
 ## Best Practices
 
 1. **Always use virtual environment** - Never install packages globally
-2. **Commit often** - Small, focused commits are better
-3. **Write tests first** - TDD helps design better code
-4. **Run pre-commit before pushing** - Catch issues early
-5. **Keep dependencies minimal** - Only add what you need
-6. **Document as you go** - Update docs with code changes
-7. **Review your own PR** - Catch obvious issues before review
+2. **Use hot reload during development** - Save time with automatic reloads
+3. **Commit often** - Small, focused commits are better
+4. **Write tests first** - TDD helps design better code
+5. **Run pre-commit before pushing** - Catch issues early
+6. **Keep dependencies minimal** - Only add what you need
+7. **Document as you go** - Update docs with code changes
+8. **Review your own PR** - Catch obvious issues before review
+9. **Wrap expensive operations in `gr.NO_RELOAD`** - Prevent unnecessary reloading
 
 ## Resources
 
 - [Python Virtual Environments](https://docs.python.org/3/tutorial/venv.html)
+- [Gradio Hot Reload Guide](https://www.gradio.app/guides/developing-faster-with-reload-mode)
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [Black Documentation](https://black.readthedocs.io/)
 - [Ruff Documentation](https://docs.astral.sh/ruff/)
