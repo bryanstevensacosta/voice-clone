@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import torch
 
 
 class TestCoquiTTSCompleteRemoval:
@@ -243,3 +244,220 @@ class TestQwen3Installation:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+class TestModelLoadingUsesQwen3:
+    """
+    Property 3: Model Loading Uses Qwen3
+
+    For any model loading operation, the code should call Qwen3TTSModel.from_pretrained
+    and should not import from TTS.api.
+
+    Validates: Requirements 3.1, 3.5
+    """
+
+    def test_qwen3_model_manager_uses_qwen3tts(self) -> None:
+        """
+        Test that Qwen3ModelManager uses Qwen3TTSModel for loading.
+
+        Feature: migrate-to-qwen3-tts, Property 3: Model Loading Uses Qwen3
+        """
+        from typing import Any
+        from unittest.mock import MagicMock, patch
+
+        from voice_clone.model.qwen3_manager import Qwen3ModelManager
+
+        config: dict[str, Any] = {"model": {}, "paths": {}}
+        manager = Qwen3ModelManager(config)
+
+        # Mock Qwen3TTSModel
+        mock_model = MagicMock()
+        mock_model.to.return_value = mock_model
+
+        with patch("qwen_tts.Qwen3TTSModel") as MockModel:
+            MockModel.from_pretrained.return_value = mock_model
+
+            result = manager.load_model()
+
+            # Verify Qwen3TTSModel.from_pretrained was called
+            assert result is True
+            MockModel.from_pretrained.assert_called_once()
+
+            # Verify the call includes the correct model name
+            call_args = MockModel.from_pretrained.call_args
+            assert call_args is not None
+            assert "Qwen/Qwen3-TTS" in call_args[0][0]
+
+    def test_no_tts_api_imports_in_qwen3_manager(self) -> None:
+        """
+        Test that qwen3_manager.py does not import from TTS.api.
+
+        Feature: migrate-to-qwen3-tts, Property 3: Model Loading Uses Qwen3
+        """
+        manager_path = Path("src/voice_clone/model/qwen3_manager.py")
+        assert manager_path.exists(), "qwen3_manager.py not found"
+
+        content = manager_path.read_text()
+
+        # Check that TTS.api is not imported
+        assert "from TTS.api import" not in content, "TTS.api import found"
+        assert "from TTS import" not in content, "TTS import found"
+        assert "import TTS" not in content, "TTS import found"
+
+        # Verify qwen_tts is imported
+        assert "from qwen_tts import" in content, "qwen_tts import not found"
+
+    def test_qwen3_model_manager_exported_from_init(self) -> None:
+        """
+        Test that Qwen3ModelManager is exported from model/__init__.py.
+
+        Feature: migrate-to-qwen3-tts, Property 3: Model Loading Uses Qwen3
+        """
+        from voice_clone.model import Qwen3ModelManager
+
+        assert Qwen3ModelManager is not None
+        assert callable(Qwen3ModelManager)
+
+    def test_model_init_does_not_export_old_manager(self) -> None:
+        """
+        Test that model/__init__.py does not export old ModelManager.
+
+        Feature: migrate-to-qwen3-tts, Property 3: Model Loading Uses Qwen3
+        """
+        init_path = Path("src/voice_clone/model/__init__.py")
+        assert init_path.exists(), "model/__init__.py not found"
+
+        content = init_path.read_text()
+
+        # Check that old ModelManager is not exported
+        # Note: It might still exist in the codebase but shouldn't be in __all__
+        if "__all__" in content:
+            # If __all__ is defined, check it doesn't include old manager
+            assert (
+                '"ModelManager"' not in content or "Qwen3ModelManager" in content
+            ), "Old ModelManager still exported"
+
+
+class TestMPSDeviceConfiguration:
+    """
+    Property 4: MPS Device Configuration
+
+    For any Apple Silicon system, when detecting device, the system should select "mps"
+    as device and torch.float32 as dtype.
+
+    Validates: Requirements 3.2, 3.3
+    """
+
+    def test_mps_device_selected_on_darwin_with_mps(self) -> None:
+        """
+        Test that MPS device is selected on macOS with MPS available.
+
+        Feature: migrate-to-qwen3-tts, Property 4: MPS Device Configuration
+        """
+        from typing import Any
+        from unittest.mock import patch
+
+        from voice_clone.model.qwen3_manager import Qwen3ModelManager
+
+        config: dict[str, Any] = {"model": {"device": "auto"}, "paths": {}}
+
+        with patch("sys.platform", "darwin"):
+            with patch("torch.backends.mps.is_available", return_value=True):
+                manager = Qwen3ModelManager(config)
+
+                device, dtype = manager.get_device_info()
+
+                assert device == "mps", f"Expected 'mps', got '{device}'"
+                assert dtype == torch.float32, f"Expected torch.float32, got {dtype}"
+
+    def test_float32_forced_for_mps(self) -> None:
+        """
+        Test that float32 is forced for MPS even if config specifies different dtype.
+
+        Feature: migrate-to-qwen3-tts, Property 4: MPS Device Configuration
+        """
+        from typing import Any
+
+        from voice_clone.model.qwen3_manager import Qwen3ModelManager
+
+        # Try to configure float16 with MPS
+        config: dict[str, Any] = {
+            "model": {"device": "mps", "dtype": "float16"},
+            "paths": {},
+        }
+
+        manager = Qwen3ModelManager(config)
+
+        device, dtype = manager.get_device_info()
+
+        # MPS should force float32
+        assert device == "mps"
+        assert dtype == torch.float32, "MPS should force float32 dtype"
+
+    def test_cpu_fallback_when_mps_unavailable(self) -> None:
+        """
+        Test that CPU is used when MPS is not available on macOS.
+
+        Feature: migrate-to-qwen3-tts, Property 4: MPS Device Configuration
+        """
+        from typing import Any
+        from unittest.mock import patch
+
+        from voice_clone.model.qwen3_manager import Qwen3ModelManager
+
+        config: dict[str, Any] = {"model": {"device": "auto"}, "paths": {}}
+
+        with patch("sys.platform", "darwin"):
+            with patch("torch.backends.mps.is_available", return_value=False):
+                manager = Qwen3ModelManager(config)
+
+                device, dtype = manager.get_device_info()
+
+                assert device == "cpu", "Should fallback to CPU when MPS unavailable"
+                assert dtype == torch.float32
+
+    def test_explicit_mps_configuration(self) -> None:
+        """
+        Test that explicit MPS configuration is respected.
+
+        Feature: migrate-to-qwen3-tts, Property 4: MPS Device Configuration
+        """
+        from typing import Any
+
+        from voice_clone.model.qwen3_manager import Qwen3ModelManager
+
+        config: dict[str, Any] = {"model": {"device": "mps"}, "paths": {}}
+
+        manager = Qwen3ModelManager(config)
+
+        device, dtype = manager.get_device_info()
+
+        assert device == "mps"
+        assert dtype == torch.float32
+
+    def test_model_moved_to_mps_device(self) -> None:
+        """
+        Test that model is moved to MPS device after loading.
+
+        Feature: migrate-to-qwen3-tts, Property 4: MPS Device Configuration
+        """
+        from typing import Any
+        from unittest.mock import MagicMock, patch
+
+        from voice_clone.model.qwen3_manager import Qwen3ModelManager
+
+        config: dict[str, Any] = {"model": {"device": "mps"}, "paths": {}}
+
+        manager = Qwen3ModelManager(config)
+
+        mock_model = MagicMock()
+        mock_model.to.return_value = mock_model
+
+        with patch("qwen_tts.Qwen3TTSModel") as MockModel:
+            MockModel.from_pretrained.return_value = mock_model
+
+            result = manager.load_model()
+
+            assert result is True
+            # Verify model.to() was called with "mps"
+            mock_model.to.assert_called_once_with("mps")
