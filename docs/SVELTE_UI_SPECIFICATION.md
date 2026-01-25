@@ -62,10 +62,10 @@ This document provides a comprehensive specification for replacing the current G
 Create a modern, single-page voice cloning web application with the following specifications:
 
 LAYOUT:
-- Single page with 3 main cards arranged vertically
-- Clean, modern design with blue/cyan color scheme
-- Responsive layout that works on desktop (primary) and tablet
+- Single page with 3 main cards arranged horizontally
+- Clean, modern design with blue color scheme
 - Generous white space and clear visual hierarchy
+- Rounded corners
 
 CARD 1: REFERENCE AUDIO (🎵)
 Header:
@@ -73,9 +73,10 @@ Header:
 - Action icons (right side): Upload New, Edit Reference Text
 
 Content:
-- Large horizontal audio waveform/spectrogram visualization (center)
+- Large horizontal audio waveform visualization (center)
 - Waveform should be prominent and visually appealing
-- Show frequency spectrum with blue/cyan gradient colors
+- Show frequency spectrum with blue gradient colors
+- Drag & drop for audio file upload
 
 Controls (bottom):
 - Playback controls: Rewind, Play/Pause, Forward
@@ -131,17 +132,11 @@ Generation Info:
 - Generation time
 - Settings used (temperature, speed)
 
-VOICE PROFILE MANAGEMENT:
-- Floating action button (bottom right): "Save Voice Profile"
-- Modal dialog for saving/loading profiles
-- List of saved profiles with preview
-- Delete profile option
-
 COLOR SCHEME:
-- Primary: Blue (#0066B4, #01C6FF)
-- Secondary: Cyan (#00D9FF)
-- Background: Light gray (#F5F7FA)
-- Cards: White (#FFFFFF) with subtle shadow
+- Primary: Blue (#0171E3)
+- Secondary: Gray (#F5F5F7)
+- Background: White (#FFFFFF)
+- Cards: gray (#F5F5F7) with subtle shadow
 - Text: Dark gray (#2C3E50)
 - Accent: Bright blue for CTAs
 
@@ -151,39 +146,11 @@ TYPOGRAPHY:
 - Monospace: SF Mono or Fira Code (for technical info)
 
 INTERACTIONS:
-- Smooth transitions (200-300ms)
-- Hover states on all interactive elements
-- Loading spinners for async operations
-- Toast notifications for success/error messages
 - Drag & drop for audio file upload
 
 ICONS:
-- Use modern icon set (Heroicons, Lucide, or similar)
+- Use modern icon set
 - Consistent icon style throughout
-- 20-24px size for most icons
-- 32-40px for primary actions
-
-ACCESSIBILITY:
-- ARIA labels on all interactive elements
-- Keyboard navigation support
-- Focus indicators
-- High contrast mode support
-- Screen reader friendly
-
-TECHNICAL REQUIREMENTS:
-- Mobile-first responsive design
-- CSS Grid and Flexbox for layout
-- Tailwind CSS for styling (preferred)
-- Smooth animations with CSS transitions
-- No jQuery dependencies
-- Modern ES6+ JavaScript
-
-EXPORT:
-- Generate clean, semantic HTML5
-- Modular CSS (BEM methodology or Tailwind)
-- Commented code for easy understanding
-- Separate files for HTML, CSS, and JS
-- Include SVG icons inline or as separate files
 ```
 
 ### Usage Instructions
