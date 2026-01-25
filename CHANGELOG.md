@@ -8,13 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Initial project setup
-- Git repository initialization
-- Pre-commit hooks configuration
-- MIT License
-- Open source documentation (README, CONTRIBUTING, CODE_OF_CONDUCT)
-- Development environment configuration
-- Project structure and tooling
 
 ### Changed
 
@@ -25,6 +18,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Security
+
+## [0.2.0] - 2026-01-24
+
+### Added
+- Qwen3-TTS integration for voice cloning
+- MPS (Apple Silicon) support with Metal Performance Shaders
+- Automated migration script (`scripts/migrate_to_qwen3.sh`)
+- Comprehensive migration guide (`MIGRATION.md`)
+- Property-based tests for migration verification
+- System cleanup tests for Coqui TTS removal
+- Voice profile migration utilities
+- Support for 1-3 voice samples (reduced from 6-10)
+- `ref_text` field in voice profiles for better cloning
+
+### Changed
+- **BREAKING**: Migrated from Coqui TTS (XTTS-v2) to Qwen3-TTS
+- **BREAKING**: Sample rate changed from 22050 Hz to 12000 Hz
+- **BREAKING**: Device configuration changed from CUDA to MPS/CPU
+- **BREAKING**: Minimum sample duration reduced from 6s to 3s
+- Updated all CLI commands to use Qwen3-TTS
+- Updated configuration files for Qwen3-TTS
+- Updated all documentation for Qwen3-TTS
+- Updated steering files with Qwen3-TTS specifications
+- Model cache directory changed from `./data/models` to `./data/qwen3_models`
+- Dtype configuration now requires `float32` for MPS
+
+### Removed
+- Coqui TTS (XTTS-v2) dependency
+- Old model manager (`src/voice_clone/model/manager.py`)
+- Old generator (`src/voice_clone/model/generator.py`)
+- TTS.api imports and references
+- XTTS-v2 specific code and tests
+- Old test files for Coqui TTS
+
+### Fixed
+- Audio processor validation for 12000 Hz sample rate
+- Batch processor compatibility with Qwen3-TTS
+- Configuration validation for new model format
+
+### Security
+- Removed deprecated Coqui TTS package
+- Updated to actively maintained Qwen3-TTS
 
 ## Version Format
 
@@ -95,5 +130,6 @@ When releasing a new version:
 
 ## Links
 
-[Unreleased]: https://github.com/yourusername/voice-clone-cli/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/yourusername/voice-clone-cli/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/yourusername/voice-clone-cli/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/yourusername/voice-clone-cli/releases/tag/v0.1.0
