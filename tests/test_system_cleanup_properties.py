@@ -121,11 +121,11 @@ class TestSystemPackageRemoval:
                         len(xtts_files) == 0
                     ), f"XTTS files found in {cache_dir}: {xtts_files}"
 
-    def test_qwen3_models_directory_exists(self) -> None:
-        """Verify qwen3_models directory exists."""
-        qwen3_dir = Path("data") / "qwen3_models"
-        assert qwen3_dir.exists(), "data/qwen3_models directory should exist"
-        assert qwen3_dir.is_dir(), "data/qwen3_models should be a directory"
+    def test_models_directory_exists(self) -> None:
+        """Verify models directory exists."""
+        models_dir = Path("data") / "models"
+        assert models_dir.exists(), "data/models directory should exist"
+        assert models_dir.is_dir(), "data/models should be a directory"
 
     @pytest.mark.parametrize("iteration", range(10))
     def test_system_state_consistent(self, iteration: int) -> None:

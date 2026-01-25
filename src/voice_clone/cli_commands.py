@@ -502,7 +502,7 @@ def info() -> None:
             table.add_row("Config Dtype", model_config.get("dtype", "float32"))
 
             paths = config.get("paths", {})
-            table.add_row("Models Cache", paths.get("models", "./data/qwen3_models"))
+            table.add_row("Models Cache", paths.get("models", "./data/models"))
         except Exception:
             table.add_row("Config", "[yellow]Not loaded[/yellow]")
 
@@ -511,6 +511,43 @@ def info() -> None:
 
     except Exception as e:
         console.print(f"[red]✗ Error: {str(e)}[/red]")
+        sys.exit(1)
+
+
+@cli.command()
+@click.option(
+    "--port",
+    default=7860,
+    type=int,
+    help="Port to run the Gradio UI server (default: 7860)",
+)
+@click.option(
+    "--share",
+    is_flag=True,
+    help="Create a public shareable link for the UI",
+)
+def ui(port: int, share: bool) -> None:
+    """Launch the Gradio web interface.
+
+    This starts a web-based UI for voice cloning with an intuitive interface
+    for uploading samples, creating profiles, and generating audio.
+    """
+    try:
+        console.print("\n[cyan]🚀 Starting Gradio UI...[/cyan]\n")
+
+        # Import here to avoid loading Gradio unless needed
+        from gradio_ui.app import main as gradio_main
+
+        # Launch the Gradio app with specified options
+        gradio_main(server_port=port, share=share)
+
+    except ImportError as e:
+        console.print("[red]✗ Error: Gradio UI dependencies not installed[/red]")
+        console.print(f"[yellow]Details: {str(e)}[/yellow]")
+        console.print("\n[cyan]Install with: pip install -e .[dev][/cyan]\n")
+        sys.exit(1)
+    except Exception as e:
+        console.print(f"[red]✗ Error launching UI: {str(e)}[/red]")
         sys.exit(1)
 
 

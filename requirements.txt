@@ -1,5 +1,5 @@
 # Core TTS and ML dependencies
-qwen-tts>=1.0.0
+qwen-tts>=0.0.5
 torch>=2.0.0
 torchaudio>=2.0.0
 soundfile>=0.12.0
@@ -16,6 +16,9 @@ rich>=13.0.0
 tqdm>=4.65.0
 python-dotenv>=1.0.0
 PyYAML>=6.0
+
+# UI Framework
+gradio>=4.0.0
 
 # Development tools (optional)
 black>=23.0.0

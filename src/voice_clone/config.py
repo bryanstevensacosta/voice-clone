@@ -167,7 +167,7 @@ class ConfigManager:
             "paths": {
                 "samples": "./data/samples",
                 "outputs": "./data/outputs",
-                "models": "./data/qwen3_models",
+                "models": "./data/models",
                 "cache": "./data/cache",
             },
             "generation": {

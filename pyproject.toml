@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "voice-clone-cli"
 version = "0.2.0"
-description = "Personal voice cloning CLI tool using Qwen3-TTS"
+description = "Personal voice cloning CLI tool using Qwen3-TTS with Gradio UI"
 readme = "README.md"
 requires-python = ">=3.9,<3.12"
 license = {text = "MIT"}
 authors = [
     {name = "Bryan Stevens Acosta", email = "bryanstevensacosta@gmail.com"}
 ]
-keywords = ["voice-cloning", "tts", "qwen3-tts", "cli"]
+keywords = ["voice-cloning", "tts", "qwen3-tts", "cli", "gradio", "ui"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -21,9 +21,26 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
+dependencies = [
+    "qwen-tts>=0.0.5",
+    "torch>=2.0.0",
+    "torchaudio>=2.0.0",
+    "soundfile>=0.12.0",
+    "numpy>=1.24.0",
+    "librosa>=0.10.0",
+    "pydub>=0.25.0",
+    "scipy>=1.10.0",
+    "click>=8.1.0",
+    "rich>=13.0.0",
+    "tqdm>=4.65.0",
+    "python-dotenv>=1.0.0",
+    "PyYAML>=6.0",
+    "gradio>=4.0.0",
+]
 
 [project.scripts]
 voice-clone = "voice_clone.cli:cli"
+voice-clone-ui = "gradio_ui.app:main"
 
 [project.optional-dependencies]
 dev = [
@@ -81,6 +98,10 @@ python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "examples.*"]
+ignore_errors = true
 disallow_incomplete_defs = true
 check_untyped_defs = true
 no_implicit_optional = true

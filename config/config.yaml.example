@@ -6,7 +6,7 @@ model:
   name: "Qwen/Qwen3-TTS-12Hz-1.7B-Base"
   device: "mps"  # mps (Apple Silicon), cuda, or cpu
   dtype: "float32"  # Required for MPS
-  cache_dir: "./data/qwen3_models"
+  cache_dir: "./data/cache"
 
 # Audio processing configuration
 audio:
@@ -27,7 +27,7 @@ generation:
 paths:
   samples: "./data/samples"
   outputs: "./data/outputs"
-  models: "./data/qwen3_models"
+  models: "./data/models"
 
 # Validation thresholds
 validation:
