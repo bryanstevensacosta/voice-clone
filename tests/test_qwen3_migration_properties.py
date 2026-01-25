@@ -242,10 +242,6 @@ class TestQwen3Installation:
             pytest.skip("MPS not available on this platform")
 
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
-
-
 class TestModelLoadingUsesQwen3:
     """
     Property 3: Model Loading Uses Qwen3
@@ -461,3 +457,162 @@ class TestMPSDeviceConfiguration:
             assert result is True
             # Verify model.to() was called with "mps"
             mock_model.to.assert_called_once_with("mps")
+
+
+class TestAudioGenerationMethod:
+    """
+    Property 5: Audio Generation Method
+
+    For any audio generation call, the code should invoke model.generate_voice_clone
+    with parameters (text, language, ref_audio, ref_text) and should not call model.tts.
+
+    Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5
+    """
+
+    def test_qwen3_generator_uses_generate_voice_clone(self) -> None:
+        """
+        Test that Qwen3Generator uses generate_voice_clone method.
+
+        Feature: migrate-to-qwen3-tts, Property 5: Audio Generation Method
+        """
+        from typing import Any
+        from unittest.mock import MagicMock
+
+        import numpy as np
+        from voice_clone.model.qwen3_generator import Qwen3Generator
+        from voice_clone.model.qwen3_manager import Qwen3ModelManager
+
+        config: dict[str, Any] = {"model": {}, "paths": {}}
+        manager = Qwen3ModelManager(config)
+        generator = Qwen3Generator(manager, config)
+
+        # Mock model
+        mock_model = MagicMock()
+        mock_audio = np.array([0.1, 0.2, 0.3])
+        mock_sample_rate = 12000
+        mock_model.generate_voice_clone.return_value = (mock_audio, mock_sample_rate)
+
+        manager.model = mock_model
+
+        # Generate audio
+        result = generator.generate(
+            text="Test text",
+            ref_audio="ref.wav",
+            ref_text="Reference text",
+        )
+
+        assert result is not None
+
+        # Verify generate_voice_clone was called
+        mock_model.generate_voice_clone.assert_called_once()
+
+        # Verify the call includes required parameters
+        call_args = mock_model.generate_voice_clone.call_args
+        assert call_args is not None
+        assert call_args[1]["text"] == "Test text"
+        assert call_args[1]["ref_audio"] == "ref.wav"
+        assert call_args[1]["ref_text"] == "Reference text"
+        assert "language" in call_args[1]
+
+    def test_no_tts_method_in_qwen3_generator(self) -> None:
+        """
+        Test that qwen3_generator.py does not call model.tts method.
+
+        Feature: migrate-to-qwen3-tts, Property 5: Audio Generation Method
+        """
+        generator_path = Path("src/voice_clone/model/qwen3_generator.py")
+        assert generator_path.exists(), "qwen3_generator.py not found"
+
+        content = generator_path.read_text()
+
+        # Check that model.tts is not called
+        assert "model.tts(" not in content, "model.tts() call found"
+        assert ".tts(" not in content, ".tts() call found"
+
+        # Verify generate_voice_clone is used
+        assert (
+            "generate_voice_clone" in content
+        ), "generate_voice_clone not found in generator"
+
+    def test_generator_requires_ref_text_parameter(self) -> None:
+        """
+        Test that generator requires ref_text parameter for generation.
+
+        Feature: migrate-to-qwen3-tts, Property 5: Audio Generation Method
+        """
+        from typing import Any
+
+        from voice_clone.model.qwen3_generator import Qwen3Generator
+        from voice_clone.model.qwen3_manager import Qwen3ModelManager
+
+        config: dict[str, Any] = {"model": {}, "paths": {}}
+        manager = Qwen3ModelManager(config)
+        generator = Qwen3Generator(manager, config)
+
+        # Check that generate method signature includes ref_text
+        import inspect
+
+        sig = inspect.signature(generator.generate)
+        params = sig.parameters
+
+        assert "ref_text" in params, "ref_text parameter not found in generate method"
+        assert params["ref_text"].annotation == str, "ref_text should be type str"
+
+    def test_generator_passes_all_required_params(self) -> None:
+        """
+        Test that generator passes all required parameters to model.
+
+        Feature: migrate-to-qwen3-tts, Property 5: Audio Generation Method
+        """
+        from typing import Any
+        from unittest.mock import MagicMock
+
+        import numpy as np
+        from voice_clone.model.qwen3_generator import Qwen3Generator
+        from voice_clone.model.qwen3_manager import Qwen3ModelManager
+
+        config: dict[str, Any] = {"model": {}, "paths": {}}
+        manager = Qwen3ModelManager(config)
+        generator = Qwen3Generator(manager, config)
+
+        # Mock model
+        mock_model = MagicMock()
+        mock_audio = np.array([0.1, 0.2, 0.3])
+        mock_sample_rate = 12000
+        mock_model.generate_voice_clone.return_value = (mock_audio, mock_sample_rate)
+
+        manager.model = mock_model
+
+        # Generate with all parameters
+        result = generator.generate(
+            text="Test text",
+            ref_audio="ref.wav",
+            ref_text="Reference text",
+            language="Spanish",
+            max_new_tokens=2048,
+        )
+
+        assert result is not None
+
+        # Verify all parameters were passed
+        call_args = mock_model.generate_voice_clone.call_args
+        assert call_args[1]["text"] == "Test text"
+        assert call_args[1]["ref_audio"] == "ref.wav"
+        assert call_args[1]["ref_text"] == "Reference text"
+        assert call_args[1]["language"] == "Spanish"
+        assert call_args[1]["max_new_tokens"] == 2048
+
+    def test_generator_exported_from_init(self) -> None:
+        """
+        Test that Qwen3Generator is exported from model/__init__.py.
+
+        Feature: migrate-to-qwen3-tts, Property 5: Audio Generation Method
+        """
+        from voice_clone.model import Qwen3Generator
+
+        assert Qwen3Generator is not None
+        assert callable(Qwen3Generator)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
