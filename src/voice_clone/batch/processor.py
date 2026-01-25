@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Any
 
 from voice_clone.audio.processor import AudioProcessor
-from voice_clone.model.generator import VoiceGenerator
 from voice_clone.model.profile import VoiceProfile
 from voice_clone.model.qwen3_generator import Qwen3Generator
 from voice_clone.utils.logger import logger
@@ -28,13 +27,13 @@ class BatchProcessor:
 
     def __init__(
         self,
-        voice_generator: VoiceGenerator | Qwen3Generator,
+        voice_generator: Qwen3Generator,
         audio_processor: AudioProcessor,
     ):
         """Initialize BatchProcessor.
 
         Args:
-            voice_generator: VoiceGenerator or Qwen3Generator instance
+            voice_generator: Qwen3Generator instance
             audio_processor: AudioProcessor instance
         """
         self.voice_generator = voice_generator
