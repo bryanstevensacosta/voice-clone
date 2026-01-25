@@ -33,8 +33,7 @@ resource "github_repository" "voice_clone_settings" {
     "voice-cloning",
     "text-to-speech",
     "tts",
-    "xtts-v2",
-    "coqui",
+    "qwen3-tts",
     "python",
     "cli",
     "machine-learning"

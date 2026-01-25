@@ -3,13 +3,14 @@
 
 # Model configuration
 model:
-  name: "tts_models/multilingual/multi-dataset/xtts_v2"
-  device: "auto"  # auto, mps, cuda, or cpu
-  cache_dir: "./data/models"
+  name: "Qwen/Qwen3-TTS-12Hz-1.7B-Base"
+  device: "mps"  # mps (Apple Silicon), cuda, or cpu
+  dtype: "float32"  # Required for MPS
+  cache_dir: "./data/qwen3_models"
 
 # Audio processing configuration
 audio:
-  sample_rate: 22050  # Native XTTS-v2 sample rate
+  sample_rate: 12000  # Native Qwen3-TTS sample rate
   channels: 1  # Mono
   bit_depth: 16
   format: "wav"
@@ -26,13 +27,13 @@ generation:
 paths:
   samples: "./data/samples"
   outputs: "./data/outputs"
-  models: "./data/models"
+  models: "./data/qwen3_models"
 
 # Validation thresholds
 validation:
-  min_duration: 6.0  # Minimum sample duration in seconds
+  min_duration: 3.0  # Minimum sample duration in seconds (Qwen3-TTS)
   max_duration: 30.0  # Maximum sample duration in seconds
-  warn_sample_rate: true  # Warn if not 22050 Hz
+  warn_sample_rate: true  # Warn if not 12000 Hz
   warn_bit_depth: true  # Warn if not 16-bit
 
 # Post-processing defaults
