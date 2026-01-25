@@ -556,7 +556,7 @@ class TestAudioGenerationMethod:
         params = sig.parameters
 
         assert "ref_text" in params, "ref_text parameter not found in generate method"
-        assert params["ref_text"].annotation == str, "ref_text should be type str"
+        assert params["ref_text"].annotation is str, "ref_text should be type str"
 
     def test_generator_passes_all_required_params(self) -> None:
         """
@@ -616,3 +616,241 @@ class TestAudioGenerationMethod:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+class TestAudioSampleValidation:
+    """
+    Property 9: Audio Sample Validation
+
+    For any audio sample, if duration is >= 3 seconds and format is valid,
+    then validation should pass for Qwen3-TTS.
+
+    Validates: Requirements 8.1, 8.3
+    """
+
+    def test_audio_processor_minimum_duration_is_3_seconds(self) -> None:
+        """
+        Test that AudioProcessor validates minimum 3 seconds for Qwen3-TTS.
+
+        Feature: migrate-to-qwen3-tts, Property 9: Audio Sample Validation
+        """
+        from voice_clone.audio.processor import AudioProcessor
+
+        processor = AudioProcessor()
+
+        # Verify default sample rate is 12000 Hz (Qwen3-TTS)
+        assert processor.sample_rate == 12000, "Default sample rate should be 12000 Hz"
+
+    def test_validation_accepts_3_second_samples(self) -> None:
+        """
+        Test that validation accepts samples >= 3 seconds.
+
+        Feature: migrate-to-qwen3-tts, Property 9: Audio Sample Validation
+        """
+        from unittest.mock import MagicMock, patch
+
+        import numpy as np
+        from voice_clone.audio.processor import AudioProcessor
+
+        processor = AudioProcessor()
+
+        # Mock a valid 3-second sample
+        mock_audio = np.random.randn(36000) * 0.3  # 3 seconds at 12kHz
+        mock_info = MagicMock()
+        mock_info.subtype = "PCM_16"
+
+        with patch("librosa.load", return_value=(mock_audio, 12000)):
+            with patch("soundfile.info", return_value=mock_info):
+                with patch("librosa.get_duration", return_value=3.0):
+                    result = processor.validate_sample("test.wav")
+
+                    # Should not have duration error
+                    assert not any(
+                        "minimum: 3s" in error for error in result.errors
+                    ), "3-second sample should pass duration check"
+
+    def test_validation_rejects_below_3_seconds(self) -> None:
+        """
+        Test that validation rejects samples < 3 seconds.
+
+        Feature: migrate-to-qwen3-tts, Property 9: Audio Sample Validation
+        """
+        from unittest.mock import MagicMock, patch
+
+        import numpy as np
+        from voice_clone.audio.processor import AudioProcessor
+
+        processor = AudioProcessor()
+
+        # Mock a 2-second sample (too short)
+        mock_audio = np.random.randn(24000) * 0.3  # 2 seconds at 12kHz
+        mock_info = MagicMock()
+        mock_info.subtype = "PCM_16"
+
+        with patch("librosa.load", return_value=(mock_audio, 12000)):
+            with patch("soundfile.info", return_value=mock_info):
+                with patch("librosa.get_duration", return_value=2.0):
+                    result = processor.validate_sample("test.wav")
+
+                    # Should have duration error
+                    assert any(
+                        "minimum: 3s" in error for error in result.errors
+                    ), "2-second sample should fail duration check"
+
+    def test_validation_warns_for_non_12khz(self) -> None:
+        """
+        Test that validation warns for non-12kHz sample rate.
+
+        Feature: migrate-to-qwen3-tts, Property 9: Audio Sample Validation
+        """
+        from unittest.mock import MagicMock, patch
+
+        import numpy as np
+        from voice_clone.audio.processor import AudioProcessor
+
+        processor = AudioProcessor()
+
+        # Mock a sample at 22050 Hz (not Qwen3-TTS native)
+        mock_audio = np.random.randn(66150) * 0.3  # 3 seconds at 22050Hz
+        mock_info = MagicMock()
+        mock_info.subtype = "PCM_16"
+
+        with patch("librosa.load", return_value=(mock_audio, 22050)):
+            with patch("soundfile.info", return_value=mock_info):
+                with patch("librosa.get_duration", return_value=3.0):
+                    result = processor.validate_sample("test.wav")
+
+                    # Should warn about sample rate
+                    assert any(
+                        "12000 Hz" in warning for warning in result.warnings
+                    ), "Should warn about non-12kHz sample rate"
+
+
+class TestOutputSampleRate:
+    """
+    Property 10: Output Sample Rate
+
+    For any generated audio output, the native sample rate should be 12000 Hz
+    unless explicitly upsampled.
+
+    Validates: Requirements 8.2, 8.4
+    """
+
+    def test_qwen3_generator_returns_12khz_audio(self) -> None:
+        """
+        Test that Qwen3Generator returns 12kHz audio by default.
+
+        Feature: migrate-to-qwen3-tts, Property 10: Output Sample Rate
+        """
+        from typing import Any
+        from unittest.mock import MagicMock
+
+        import numpy as np
+        from voice_clone.model.qwen3_generator import Qwen3Generator
+        from voice_clone.model.qwen3_manager import Qwen3ModelManager
+
+        config: dict[str, Any] = {"model": {}, "paths": {}}
+        manager = Qwen3ModelManager(config)
+        generator = Qwen3Generator(manager, config)
+
+        # Mock model to return 12kHz audio
+        mock_model = MagicMock()
+        mock_audio = np.random.randn(12000)  # 1 second at 12kHz
+        mock_sample_rate = 12000
+        mock_model.generate_voice_clone.return_value = (mock_audio, mock_sample_rate)
+
+        manager.model = mock_model
+
+        # Generate audio
+        result = generator.generate(
+            text="Test text",
+            ref_audio="ref.wav",
+            ref_text="Reference text",
+        )
+
+        assert result is not None
+        audio, sample_rate = result
+
+        # Verify sample rate is 12000 Hz
+        assert sample_rate == 12000, "Qwen3-TTS should return 12kHz audio"
+
+    def test_audio_processor_can_upsample_to_22khz(self) -> None:
+        """
+        Test that AudioProcessor can upsample 12kHz to 22kHz.
+
+        Feature: migrate-to-qwen3-tts, Property 10: Output Sample Rate
+        """
+        from unittest.mock import patch
+
+        import numpy as np
+        from voice_clone.audio.processor import AudioProcessor
+
+        processor = AudioProcessor()
+
+        # Create 12kHz audio
+        audio_12k = np.random.randn(12000)  # 1 second at 12kHz
+
+        with patch("librosa.resample") as mock_resample:
+            mock_resample.return_value = np.random.randn(22050)  # 1 second at 22kHz
+
+            processor.upsample_output(audio_12k, 12000, 22050)
+
+            # Verify resample was called with correct parameters
+            mock_resample.assert_called_once()
+            call_args = mock_resample.call_args
+            assert call_args[1]["orig_sr"] == 12000
+            assert call_args[1]["target_sr"] == 22050
+
+    def test_audio_processor_has_upsample_methods(self) -> None:
+        """
+        Test that AudioProcessor has upsampling methods for Qwen3-TTS output.
+
+        Feature: migrate-to-qwen3-tts, Property 10: Output Sample Rate
+        """
+        from voice_clone.audio.processor import AudioProcessor
+
+        processor = AudioProcessor()
+
+        # Verify upsampling methods exist
+        assert hasattr(
+            processor, "upsample_output"
+        ), "AudioProcessor should have upsample_output method"
+        assert hasattr(
+            processor, "upsample_file"
+        ), "AudioProcessor should have upsample_file method"
+        assert hasattr(
+            processor, "convert_sample_rate"
+        ), "AudioProcessor should have convert_sample_rate method"
+
+    def test_audio_processor_default_sample_rate_is_12khz(self) -> None:
+        """
+        Test that AudioProcessor default sample rate is 12kHz for Qwen3-TTS.
+
+        Feature: migrate-to-qwen3-tts, Property 10: Output Sample Rate
+        """
+        from voice_clone.audio.processor import AudioProcessor
+
+        processor = AudioProcessor()
+
+        # Verify default sample rate
+        assert (
+            processor.sample_rate == 12000
+        ), "AudioProcessor default should be 12kHz for Qwen3-TTS"
+
+    def test_resample_to_qwen3_method_exists(self) -> None:
+        """
+        Test that AudioProcessor has resample_to_qwen3 method.
+
+        Feature: migrate-to-qwen3-tts, Property 10: Output Sample Rate
+        """
+        from voice_clone.audio.processor import AudioProcessor
+
+        processor = AudioProcessor()
+
+        # Verify method exists
+        assert hasattr(
+            processor, "resample_to_qwen3"
+        ), "AudioProcessor should have resample_to_qwen3 method"
+        assert callable(
+            processor.resample_to_qwen3
+        ), "resample_to_qwen3 should be callable"

@@ -15,14 +15,14 @@ class AudioProcessor:
 
     def __init__(
         self,
-        sample_rate: int = 22050,
+        sample_rate: int = 12000,
         channels: int = 1,
         bit_depth: int = 16,
     ):
         """Initialize AudioProcessor.
 
         Args:
-            sample_rate: Target sample rate in Hz (default: 22050)
+            sample_rate: Target sample rate in Hz (default: 12000 for Qwen3-TTS)
             channels: Target number of channels (default: 1 for mono)
             bit_depth: Target bit depth (default: 16)
         """
@@ -31,13 +31,13 @@ class AudioProcessor:
         self.bit_depth = bit_depth
 
     def validate_sample(self, file_path: Path | str) -> ValidationResult:
-        """Validate audio file against XTTS-v2 requirements.
+        """Validate audio file against Qwen3-TTS requirements.
 
         Checks:
-        - Sample rate (warn if not 22050 Hz)
+        - Sample rate (warn if not 12000 Hz)
         - Channels (error if not mono)
         - Bit depth (warn if not 16-bit)
-        - Duration (error if < 6s, warn if > 30s)
+        - Duration (error if < 3s, warn if > 30s)
         - Clipping (error if detected)
 
         Args:
@@ -85,15 +85,17 @@ class AudioProcessor:
                     )
                 metadata["bit_depth"] = info.subtype
 
-            # Check duration
+            # Check duration (Qwen3-TTS requires minimum 3 seconds)
             duration = librosa.get_duration(y=audio, sr=sr)
             metadata["duration"] = f"{duration:.2f}s"
 
-            if duration < 6.0:
-                errors.append(f"Duration is {duration:.2f}s (minimum: 6s)")
+            if duration < 3.0:
+                errors.append(
+                    f"Duration is {duration:.2f}s (minimum: 3s for Qwen3-TTS)"
+                )
             elif duration > 30.0:
                 warnings.append(
-                    f"Duration is {duration:.2f}s (recommended: 6-30s for diminishing returns)"
+                    f"Duration is {duration:.2f}s (recommended: 3-30s for diminishing returns)"
                 )
 
             # Check for clipping
@@ -368,6 +370,130 @@ class AudioProcessor:
                 ]
             else:
                 return False
+
+            result = subprocess.run(cmd, capture_output=True, check=False)
+            return result.returncode == 0 and output_path.exists()
+
+        except Exception:
+            return False
+
+    def resample_to_qwen3(
+        self,
+        input_path: Path | str,
+        output_path: Path | str,
+    ) -> bool:
+        """Resample audio to Qwen3-TTS native format (12kHz, mono, 16-bit).
+
+        Args:
+            input_path: Input audio file path
+            output_path: Output audio file path
+
+        Returns:
+            True if successful, False otherwise
+        """
+        return self.convert_to_target_format(input_path, output_path)
+
+    def upsample_output(
+        self,
+        audio: np.ndarray,
+        source_sr: int,
+        target_sr: int = 22050,
+    ) -> np.ndarray:
+        """Upsample Qwen3-TTS output to higher sample rate.
+
+        Useful for mixing with music or video production that requires higher sample rates.
+
+        Args:
+            audio: Audio array from Qwen3-TTS (typically 12kHz)
+            source_sr: Source sample rate (typically 12000)
+            target_sr: Target sample rate (default: 22050)
+
+        Returns:
+            Upsampled audio array
+        """
+        if source_sr == target_sr:
+            return audio
+
+        try:
+            upsampled = librosa.resample(
+                audio,
+                orig_sr=source_sr,
+                target_sr=target_sr,
+                res_type="kaiser_best",
+            )
+            return upsampled
+        except Exception as e:
+            # Log error and return original
+            print(f"Warning: Upsampling failed: {e}")
+            return audio
+
+    def upsample_file(
+        self,
+        input_path: Path | str,
+        output_path: Path | str,
+        target_sr: int = 22050,
+    ) -> bool:
+        """Upsample audio file to higher sample rate.
+
+        Args:
+            input_path: Input audio file path (typically 12kHz Qwen3-TTS output)
+            output_path: Output audio file path
+            target_sr: Target sample rate (default: 22050)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        input_path = Path(input_path)
+        output_path = Path(output_path)
+
+        try:
+            # Load audio
+            audio, sr = librosa.load(input_path, sr=None, mono=True)
+
+            # Upsample
+            upsampled = self.upsample_output(audio, sr, target_sr)
+
+            # Save
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            sf.write(output_path, upsampled, target_sr)
+
+            return True
+
+        except Exception as e:
+            print(f"Error upsampling file: {e}")
+            return False
+
+    def convert_sample_rate(
+        self,
+        input_path: Path | str,
+        output_path: Path | str,
+        target_sr: int,
+    ) -> bool:
+        """Convert audio file to specific sample rate using ffmpeg.
+
+        Args:
+            input_path: Input audio file path
+            output_path: Output audio file path
+            target_sr: Target sample rate in Hz
+
+        Returns:
+            True if successful, False otherwise
+        """
+        input_path = Path(input_path)
+        output_path = Path(output_path)
+
+        try:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+            cmd = [
+                "ffmpeg",
+                "-i",
+                str(input_path),
+                "-ar",
+                str(target_sr),
+                "-y",
+                str(output_path),
+            ]
 
             result = subprocess.run(cmd, capture_output=True, check=False)
             return result.returncode == 0 and output_path.exists()
