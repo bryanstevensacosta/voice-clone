@@ -1,4 +1,5 @@
 """Unit tests for Qwen3-TTS configuration."""
+
 # mypy: disable-error-code="no-untyped-def"
 
 from pathlib import Path

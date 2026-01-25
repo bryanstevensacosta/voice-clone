@@ -8,7 +8,6 @@ using Gradio. It offers three main workflows:
 3. Batch Processing - Process multiple text segments at once
 """
 
-
 import gradio as gr
 
 from gradio_ui.handlers.batch_handler import batch_process_handler
@@ -121,9 +120,11 @@ def create_app() -> gr.Blocks:
                         profile_selector = gr.Dropdown(
                             choices=available_profiles,
                             label="Select Voice Profile",
-                            info="Choose a previously created profile"
-                            if available_profiles
-                            else "⚠️ No profiles available. Create one in Tab 1 first.",
+                            info=(
+                                "Choose a previously created profile"
+                                if available_profiles
+                                else "⚠️ No profiles available. Create one in Tab 1 first."
+                            ),
                         )
 
                         text_input = gr.Textbox(
@@ -220,9 +221,11 @@ def create_app() -> gr.Blocks:
                         profile_selector_batch = gr.Dropdown(
                             choices=available_profiles_batch,
                             label="Select Voice Profile",
-                            info="Choose a previously created profile"
-                            if available_profiles_batch
-                            else "⚠️ No profiles available. Create one in Tab 1 first.",
+                            info=(
+                                "Choose a previously created profile"
+                                if available_profiles_batch
+                                else "⚠️ No profiles available. Create one in Tab 1 first."
+                            ),
                         )
 
                         script_file_input = gr.File(

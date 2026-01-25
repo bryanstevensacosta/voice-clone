@@ -1,6 +1,7 @@
 """
 Audio visualization utilities for Gradio UI.
 """
+
 from pathlib import Path
 
 import librosa

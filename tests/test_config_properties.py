@@ -2,6 +2,7 @@
 
 Tests universal properties of configuration loading, merging, and validation.
 """
+
 from typing import Any
 
 from hypothesis import given

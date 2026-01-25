@@ -1,13 +1,13 @@
 """Unit tests for CLI commands with Qwen3-TTS."""
+
 # mypy: disable-error-code="no-untyped-def"
 
 import json
 from unittest.mock import Mock, patch
 
 import pytest
-from click.testing import CliRunner
-
 from cli.cli import cli
+from click.testing import CliRunner
 
 
 @pytest.fixture

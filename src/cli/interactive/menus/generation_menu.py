@@ -1,6 +1,5 @@
 """Speech generation menu."""
 
-
 from cli.interactive.menus.base import BaseMenu, console
 
 

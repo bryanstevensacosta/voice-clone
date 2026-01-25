@@ -2,6 +2,7 @@
 
 This module handles loading, merging, and validating configuration files.
 """
+
 from pathlib import Path
 from typing import Any, cast
 

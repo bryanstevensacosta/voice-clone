@@ -8,11 +8,9 @@ This module tests all validation scenarios as specified in task 2.3.4 and 2.3.5:
 - Non-existent files
 """
 
-
 import numpy as np
 import pytest
 import soundfile as sf
-
 from gradio_ui.handlers.sample_handler import validate_samples_handler
 
 

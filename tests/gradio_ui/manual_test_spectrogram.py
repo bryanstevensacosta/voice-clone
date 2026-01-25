@@ -7,14 +7,14 @@ Run this script to test the spectrogram generation functionality.
 import sys
 from pathlib import Path
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from gradio_ui.utils.audio_viz import (
     generate_combined_visualization,
     generate_spectrogram,
     generate_waveform,
 )
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 
 def test_spectrogram_generation():
