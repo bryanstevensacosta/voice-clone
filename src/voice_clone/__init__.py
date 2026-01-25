@@ -4,7 +4,7 @@ This package provides a command-line interface for cloning voices and generating
 text-to-speech audio using the Qwen3-TTS model.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Bryan Stevens Acosta"
 __license__ = "MIT"
 
