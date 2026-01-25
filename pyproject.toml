@@ -7,7 +7,7 @@ name = "voice-clone-cli"
 version = "0.2.0"
 description = "Personal voice cloning CLI tool using Qwen3-TTS with Gradio UI"
 readme = "README.md"
-requires-python = ">=3.9,<3.12"
+requires-python = ">=3.10,<3.12"
 license = {text = "MIT"}
 authors = [
     {name = "Bryan Stevens Acosta", email = "bryanstevensacosta@gmail.com"}
@@ -17,7 +17,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]

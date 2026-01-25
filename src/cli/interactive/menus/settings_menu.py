@@ -1,6 +1,5 @@
 """Settings and configuration menu."""
 
-
 import questionary
 from rich.table import Table
 
@@ -101,7 +100,11 @@ class SettingsMenu(BaseMenu):
             choice = questionary.select(
                 "Model Settings",
                 choices=[
-                    "🔄 Load Model" if not self.state.model_loaded else "🔄 Reload Model",
+                    (
+                        "🔄 Load Model"
+                        if not self.state.model_loaded
+                        else "🔄 Reload Model"
+                    ),
                     "🗑️  Unload Model" if self.state.model_loaded else None,
                     "ℹ️  Model Information",
                     questionary.Separator(),
@@ -177,9 +180,11 @@ class SettingsMenu(BaseMenu):
         table.add_row("Device", model_config.get("device", "N/A"))
         table.add_row(
             "Status",
-            "[green]Loaded[/green]"
-            if self.state.model_loaded
-            else "[dim]Not loaded[/dim]",
+            (
+                "[green]Loaded[/green]"
+                if self.state.model_loaded
+                else "[dim]Not loaded[/dim]"
+            ),
         )
 
         if self.state.model_manager:

@@ -3,6 +3,7 @@
 Tests that all required directories exist and dependencies are properly configured.
 Validates: Requirements 8.1
 """
+
 from pathlib import Path
 
 

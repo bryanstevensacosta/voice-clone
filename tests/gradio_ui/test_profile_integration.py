@@ -8,7 +8,6 @@ including UI component interaction and backend integration.
 from unittest.mock import Mock, patch
 
 import gradio as gr
-
 from gradio_ui.app import create_app
 from gradio_ui.handlers.profile_handler import (
     create_profile_handler,
@@ -233,9 +232,12 @@ class TestProfileCreationIntegration:
         # This test verifies that both Tab 2 and Tab 3 dropdowns receive
         # the same updated list of profiles
 
-        with patch("gradio_ui.handlers.profile_handler.AudioProcessor"), patch(
-            "gradio_ui.handlers.profile_handler.VoiceProfile"
-        ) as mock_profile_class:
+        with (
+            patch("gradio_ui.handlers.profile_handler.AudioProcessor"),
+            patch(
+                "gradio_ui.handlers.profile_handler.VoiceProfile"
+            ) as mock_profile_class,
+        ):
             # Setup mocks
             mock_profile = Mock()
             mock_profile.name = "sync_test"

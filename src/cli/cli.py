@@ -12,7 +12,6 @@ import click
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
-
 from voice_clone.audio.processor import AudioProcessor
 from voice_clone.batch.processor import BatchProcessor
 from voice_clone.config import ConfigManager
@@ -478,9 +477,11 @@ def info() -> None:
         table.add_row("PyTorch Version", torch.__version__)
         table.add_row(
             "MPS Available",
-            "[green]Yes[/green]"
-            if torch.backends.mps.is_available()
-            else "[red]No[/red]",
+            (
+                "[green]Yes[/green]"
+                if torch.backends.mps.is_available()
+                else "[red]No[/red]"
+            ),
         )
         table.add_row(
             "CUDA Available",
