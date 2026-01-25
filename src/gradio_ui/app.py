@@ -30,6 +30,7 @@ def create_app() -> gr.Blocks:
         gr.Blocks: Configured Gradio application instance
     """
 
+    app: gr.Blocks
     with gr.Blocks(title="Voice Clone - AI Voice Cloning") as app:
         # Header
         gr.Markdown(
