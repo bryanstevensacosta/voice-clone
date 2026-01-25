@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from voice_clone.config import ConfigManager
-from voice_clone.model.manager import ModelManager
 from voice_clone.model.profile import VoiceProfile
+from voice_clone.model.qwen3_manager import Qwen3ModelManager
 
 
 @dataclass
@@ -21,7 +21,7 @@ class CLIState:
     current_profile_path: Path | None = None
 
     # Model
-    model_manager: ModelManager | None = None
+    model_manager: Qwen3ModelManager | None = None
     model_loaded: bool = False
 
     # Recent paths
@@ -42,15 +42,15 @@ class CLIState:
         return self.current_profile
 
     def load_model(self) -> bool:
-        """Load TTS model if not already loaded."""
+        """Load Qwen3-TTS model if not already loaded."""
         if not self.model_loaded:
             config = self.load_config()
-            self.model_manager = ModelManager(config)
+            self.model_manager = Qwen3ModelManager(config)
             self.model_loaded = self.model_manager.load_model()
         return self.model_loaded
 
     def unload_model(self) -> None:
-        """Unload TTS model to free memory."""
+        """Unload Qwen3-TTS model to free memory."""
         if self.model_manager:
             self.model_manager.unload_model()
         self.model_loaded = False

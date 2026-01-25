@@ -1,7 +1,7 @@
-"""Voice Clone - Personal voice cloning CLI tool using XTTS-v2.
+"""Voice Clone - Personal voice cloning CLI tool using Qwen3-TTS.
 
 This package provides a command-line interface for cloning voices and generating
-text-to-speech audio using the Coqui XTTS-v2 model.
+text-to-speech audio using the Qwen3-TTS model.
 """
 
 __version__ = "0.1.0"

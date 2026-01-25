@@ -153,11 +153,12 @@ class ConfigManager:
         """
         return {
             "model": {
-                "name": "tts_models/multilingual/multi-dataset/xtts_v2",
+                "name": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
                 "device": "auto",
+                "dtype": "float32",
             },
             "audio": {
-                "sample_rate": 22050,
+                "sample_rate": 12000,
                 "format": "wav",
                 "mono": True,
                 "channels": 1,
@@ -166,21 +167,19 @@ class ConfigManager:
             "paths": {
                 "samples": "./data/samples",
                 "outputs": "./data/outputs",
-                "models": "./data/models",
+                "models": "./data/qwen3_models",
                 "cache": "./data/cache",
             },
             "generation": {
-                "language": "es",
+                "language": "Spanish",
+                "max_new_tokens": 2048,
                 "temperature": 0.75,
                 "speed": 1.0,
                 "max_length": 400,
-                "repetition_penalty": 2.0,
-                "top_k": 50,
-                "top_p": 0.85,
             },
             "performance": {
                 "use_gpu": True,
-                "fp16": True,
+                "dtype": "float32",
                 "batch_size": 1,
                 "max_memory_allocated": "8GB",
                 "clear_cache_between_batches": True,
