@@ -106,8 +106,11 @@ class TestAudioValidationQwen3:
         """Test that validation warns for audio longer than 30 seconds."""
         processor = AudioProcessor()
 
-        # Mock audio data (35 seconds, normalized)
-        mock_audio = np.random.randn(420000) * 0.5
+        # Mock audio data (35 seconds, properly normalized to avoid clipping)
+        raw_audio = np.random.randn(420000)
+        mock_audio = raw_audio / (
+            np.abs(raw_audio).max() * 1.5
+        )  # Normalize to avoid clipping
         mock_load.return_value = (mock_audio, 12000)
 
         # Mock info
