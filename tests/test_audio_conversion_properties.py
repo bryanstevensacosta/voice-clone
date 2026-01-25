@@ -41,9 +41,9 @@ def test_property_7_sample_rate_conversion_correctness(
         success = processor.convert_to_target_format(input_path, output_path)
         assert success
 
-        # Verify output has correct sample rate
+        # Verify output has correct sample rate (Qwen3-TTS native: 12000 Hz)
         info = sf.info(output_path)
-        assert info.samplerate == 22050
+        assert info.samplerate == 12000
 
     finally:
         input_path.unlink(missing_ok=True)
@@ -108,8 +108,8 @@ def test_property_9_format_conversion_round_trip(duration: float) -> None:
         converted_path = Path(f.name)
 
     try:
-        # Create original audio
-        sample_rate = 22050
+        # Create original audio (Qwen3-TTS native: 12000 Hz)
+        sample_rate = 12000
         audio = np.random.randn(int(duration * sample_rate)) * 0.5
         audio = np.clip(audio, -0.98, 0.98)
         sf.write(original_path, audio, sample_rate)
@@ -121,7 +121,7 @@ def test_property_9_format_conversion_round_trip(duration: float) -> None:
         # Verify converted file exists and has correct properties
         assert converted_path.exists()
         info = sf.info(converted_path)
-        assert info.samplerate == 22050
+        assert info.samplerate == 12000
         assert info.channels == 1
 
     finally:
