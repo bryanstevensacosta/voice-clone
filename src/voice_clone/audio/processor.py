@@ -135,9 +135,12 @@ class AudioProcessor:
         input_path: Path | str,
         output_path: Path | str,
     ) -> bool:
-        """Convert audio to XTTS-v2 native format using ffmpeg.
+        """Convert audio to Qwen3-TTS native format using ffmpeg.
 
         Converts to:
+        - Sample rate: 12000 Hz (Qwen3-TTS native)
+        - Channels: Mono
+        - Format: WAV PCM 16-bit
         - 22050 Hz sample rate
         - Mono (1 channel)
         - 16-bit PCM WAV

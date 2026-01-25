@@ -183,11 +183,10 @@ class SettingsMenu(BaseMenu):
         )
 
         if self.state.model_manager:
-            table.add_row("Model Type", "XTTS-v2")
-            table.add_row("Multilingual", "Yes")
-            table.add_row(
-                "Supported Languages", "Spanish, English, French, German, etc."
-            )
+            table.add_row("Model Type", "Qwen3-TTS")
+            table.add_row("Model", "Qwen/Qwen3-TTS-12Hz-1.7B-Base")
+            table.add_row("Sample Rate", "12000 Hz")
+            table.add_row("Supported Languages", "Spanish, English, Chinese, and more")
 
         console.print(table)
         console.print()
