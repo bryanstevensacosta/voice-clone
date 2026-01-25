@@ -33,28 +33,24 @@ def create_app() -> gr.Blocks:
     app: gr.Blocks
     with gr.Blocks(title="Voice Clone - AI Voice Cloning") as app:
         # Header
-        gr.Markdown(
-            """
+        gr.Markdown("""
         # AI Voice Cloning Tool
 
         Clone any voice with just a few audio samples and generate natural-sounding speech using **Qwen3-TTS**.
 
         ---
-        """
-        )
+        """)
 
         # Main tabs for different workflows
         with gr.Tabs():
             # Tab 1: Prepare Voice Profile
             with gr.Tab("1️⃣ Prepare Voice Profile"):
-                gr.Markdown(
-                    """
+                gr.Markdown("""
                 ### Step 1: Upload Voice Samples
 
                 Upload 1-3 audio samples (10-20 seconds each) of the voice you want to clone.
                 Samples should be clear, without background noise, and include different emotions/tones.
-                """
-                )
+                """)
 
                 with gr.Row():
                     with gr.Column(scale=1):
@@ -104,13 +100,11 @@ def create_app() -> gr.Blocks:
 
             # Tab 2: Generate Audio
             with gr.Tab("2️⃣ Generate Audio"):
-                gr.Markdown(
-                    """
+                gr.Markdown("""
                 ### Step 2: Generate Speech from Text
 
                 Select a voice profile and enter the text you want to convert to speech.
-                """
-                )
+                """)
 
                 with gr.Row():
                     with gr.Column(scale=1):
@@ -193,8 +187,7 @@ def create_app() -> gr.Blocks:
 
             # Tab 3: Batch Processing
             with gr.Tab("3️⃣ Batch Processing"):
-                gr.Markdown(
-                    """
+                gr.Markdown("""
                 ### Step 3: Process Multiple Segments
 
                 Upload a script file with multiple text segments to generate audio for each one.
@@ -210,8 +203,7 @@ def create_app() -> gr.Blocks:
                 [OUTRO]
                 Gracias por ver.
                 ```
-                """
-                )
+                """)
 
                 with gr.Row():
                     with gr.Column(scale=1):
@@ -247,8 +239,7 @@ def create_app() -> gr.Blocks:
                         batch_info = gr.Markdown()
 
         # Footer
-        gr.Markdown(
-            """
+        gr.Markdown("""
         ---
 
         ### 📚 Tips for Best Results:
@@ -264,8 +255,7 @@ def create_app() -> gr.Blocks:
         - [Documentation](https://github.com/yourusername/voice-clone)
         - [Report Issues](https://github.com/yourusername/voice-clone/issues)
         - Powered by [Qwen3-TTS](https://github.com/QwenLM/Qwen-Audio)
-        """
-        )
+        """)
 
         # Event Handlers
         # Tab 1: Validation
