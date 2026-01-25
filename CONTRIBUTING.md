@@ -143,13 +143,13 @@ These tools run automatically via pre-commit hooks.
 
 ```python
 # Good: Type hints, docstrings, clear names
-def process_audio(file_path: str, sample_rate: int = 22050) -> np.ndarray:
+def process_audio(file_path: str, sample_rate: int = 12000) -> np.ndarray:
     """
     Process audio file and return normalized waveform.
 
     Args:
         file_path: Path to audio file
-        sample_rate: Target sample rate in Hz
+        sample_rate: Target sample rate in Hz (default: 12000 for Qwen3-TTS)
 
     Returns:
         Normalized audio waveform as numpy array
@@ -167,7 +167,7 @@ def process_audio(file_path: str, sample_rate: int = 22050) -> np.ndarray:
 
 
 # Bad: No types, no docstring, unclear names
-def proc(f, sr=22050):
+def proc(f, sr=12000):
     w = load(f, sr)
     return norm(w)
 ```
@@ -195,7 +195,7 @@ from typing import List, Optional
 # Third-party imports
 import numpy as np
 import torch
-from TTS.api import TTS
+from qwen_tts import Qwen3TTSModel
 
 # Local imports
 from voice_clone.audio import load_audio
@@ -419,7 +419,7 @@ def test_load_audio_invalid_file():
 @pytest.fixture
 def sample_audio():
     """Fixture providing sample audio for tests."""
-    return np.random.randn(22050)  # 1 second at 22050 Hz
+    return np.random.randn(12000)  # 1 second at 12000 Hz (Qwen3-TTS native)
 
 
 def test_with_fixture(sample_audio):
