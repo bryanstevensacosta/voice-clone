@@ -107,19 +107,27 @@ def create_app() -> gr.Blocks:
                     with gr.Column(scale=1):
                         gr.Markdown("### 🎭 Input")
 
-                        # Placeholder components - will be implemented in Phase 3
+                        # Profile selection dropdown
+                        available_profiles = list_available_profiles()
                         profile_selector = gr.Dropdown(
-                            choices=list_available_profiles(),
+                            choices=available_profiles,
                             label="Select Voice Profile",
-                            info="Choose a previously created profile",
+                            info="Choose a previously created profile"
+                            if available_profiles
+                            else "⚠️ No profiles available. Create one in Tab 1 first.",
                         )
 
                         text_input = gr.Textbox(
                             lines=8,
                             max_lines=20,
                             label="Text to Generate",
-                            placeholder="Escribe el texto que quieres convertir a voz...\n\nPuedes escribir hasta 2048 tokens (~500 caracteres recomendado para mejor calidad).",
-                            max_length=2048,
+                            placeholder="Escribe el texto que quieres convertir a voz...\n\nPuedes escribir hasta 500 caracteres para mejor calidad.",
+                            max_length=500,
+                        )
+
+                        # Character counter
+                        char_counter = gr.Markdown(
+                            value="**Caracteres: 0 / 500**", visible=True
                         )
 
                         with gr.Accordion("⚙️ Advanced Settings", open=False):
@@ -195,10 +203,14 @@ def create_app() -> gr.Blocks:
                     with gr.Column(scale=1):
                         gr.Markdown("### 📄 Input")
 
-                        # Placeholder components - will be implemented in Phase 4
+                        # Profile selection dropdown (synced with Tab 2)
+                        available_profiles_batch = list_available_profiles()
                         profile_selector_batch = gr.Dropdown(
-                            choices=list_available_profiles(),
+                            choices=available_profiles_batch,
                             label="Select Voice Profile",
+                            info="Choose a previously created profile"
+                            if available_profiles_batch
+                            else "⚠️ No profiles available. Create one in Tab 1 first.",
                         )
 
                         _script_file_input = gr.File(
@@ -254,6 +266,18 @@ def create_app() -> gr.Blocks:
             inputs=[samples_upload, profile_name_input, reference_text_input],
             outputs=[profile_output, profile_selector, profile_selector_batch],
             show_progress="full",
+        )
+
+        # Tab 2: Character counter update
+        def update_char_count(text: str) -> str:
+            """Update character counter display."""
+            count = len(text) if text else 0
+            return f"**Caracteres: {count} / 500**"
+
+        text_input.change(
+            fn=update_char_count,
+            inputs=[text_input],
+            outputs=[char_counter],
         )
 
     return app
