@@ -106,7 +106,7 @@ The configuration sets up the following protection for the `master`, `main`, and
 - **Visibility**: Public
 - **Merge strategies**: Only rebase merge allowed
 - **Auto-delete branches**: Enabled after merge
-- **Topics**: voice-cloning, text-to-speech, tts, xtts-v2, coqui, python, cli, machine-learning
+- **Topics**: voice-cloning, text-to-speech, tts, qwen3-tts, python, cli, machine-learning
 
 ## Using Environment Variables (Alternative)
 
