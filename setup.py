@@ -27,6 +27,7 @@ setup(
         "tqdm>=4.65.0",
         "python-dotenv>=1.0.0",
         "PyYAML>=6.0",
+        "matplotlib>=3.5.0",
     ],
     extras_require={
         "dev": [
