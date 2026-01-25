@@ -3,11 +3,12 @@
 # Create config/config.yaml for personal overrides (git-ignored)
 
 model:
-  name: "tts_models/multilingual/multi-dataset/xtts_v2"
+  name: "Qwen/Qwen3-TTS-12Hz-1.7B-Base"
   device: "auto"  # auto-detect: mps (Apple Silicon), cuda (NVIDIA), or cpu
+  dtype: "float32"  # Required for MPS compatibility
 
 audio:
-  sample_rate: 22050  # Native XTTS-v2 sample rate
+  sample_rate: 12000  # Native Qwen3-TTS sample rate
   format: "wav"
   mono: true
   channels: 1
@@ -16,21 +17,19 @@ audio:
 paths:
   samples: "./data/samples"
   outputs: "./data/outputs"
-  models: "./data/models"
+  models: "./data/qwen3_models"
   cache: "./data/cache"
 
 generation:
-  language: "es"  # Spanish
+  language: "Spanish"  # Language for generation
+  max_new_tokens: 2048  # Maximum tokens to generate
   temperature: 0.75  # 0.5-1.0, controls variation
   speed: 1.0  # 0.8-1.2, controls speaking speed
   max_length: 400  # Maximum characters per chunk
-  repetition_penalty: 2.0
-  top_k: 50
-  top_p: 0.85
 
 performance:
   use_gpu: true
-  fp16: true  # Half precision for better performance on GPU
+  dtype: "float32"  # Required for MPS, use float32 not fp16
   batch_size: 1
   max_memory_allocated: "8GB"
   clear_cache_between_batches: true
