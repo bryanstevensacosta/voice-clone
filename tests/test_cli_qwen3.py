@@ -6,8 +6,9 @@ import json
 from unittest.mock import Mock, patch
 
 import pytest
-from cli.cli import cli
 from click.testing import CliRunner
+
+from cli.cli import cli
 
 
 @pytest.fixture

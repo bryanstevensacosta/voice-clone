@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
+
 from voice_clone.model.qwen3_generator import Qwen3Generator
 from voice_clone.model.qwen3_manager import Qwen3ModelManager
 
