@@ -88,8 +88,12 @@ class VoiceProfile:
                 continue
 
             # Get duration
-            duration_str = result.metadata.get("duration", "0s")
-            duration = float(duration_str.rstrip("s"))
+            duration_value = result.metadata.get("duration", 0.0)
+            # Handle both string and float formats
+            if isinstance(duration_value, str):
+                duration = float(duration_value.rstrip("s"))
+            else:
+                duration = float(duration_value)
 
             # Infer emotion from filename
             emotion = "neutral"

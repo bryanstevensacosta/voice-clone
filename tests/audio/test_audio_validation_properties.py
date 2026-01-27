@@ -7,20 +7,19 @@ import numpy as np
 import soundfile as sf
 from hypothesis import given, settings
 from hypothesis import strategies as st
-
 from voice_clone.audio.processor import AudioProcessor
 
 
 @settings(deadline=None)  # Audio file generation can be slow
 @given(
     sample_rate=st.integers(min_value=8000, max_value=48000).filter(
-        lambda x: x != 22050
+        lambda x: x != 12000
     )
 )
 def test_property_1_sample_rate_validation_detection(sample_rate: int) -> None:
     """Property 1: Sample rate validation detection.
 
-    When audio has non-22050 Hz sample rate, validation should warn.
+    When audio has non-12000 Hz sample rate, validation should warn.
 
     Validates: Requirements 1.2
     """
@@ -80,11 +79,11 @@ def test_property_2_channel_validation_detection(num_channels: int) -> None:
 
 
 @settings(deadline=None)  # Audio file generation can be slow
-@given(duration=st.floats(min_value=0.5, max_value=5.9))
+@given(duration=st.floats(min_value=0.5, max_value=2.9))
 def test_property_3_duration_validation_short_files(duration: float) -> None:
     """Property 3: Duration validation for short files.
 
-    When audio is shorter than 6 seconds, validation should error.
+    When audio is shorter than 3 seconds, validation should error.
 
     Validates: Requirements 1.5
     """
@@ -94,7 +93,7 @@ def test_property_3_duration_validation_short_files(duration: float) -> None:
         temp_path = Path(f.name)
 
     try:
-        sample_rate = 22050
+        sample_rate = 12000
         audio = np.random.randn(int(duration * sample_rate))
         sf.write(temp_path, audio, sample_rate)
 
@@ -124,7 +123,7 @@ def test_property_4_duration_validation_long_files(duration: float) -> None:
         temp_path = Path(f.name)
 
     try:
-        sample_rate = 22050
+        sample_rate = 12000
         # Use smaller amplitude and clip to avoid clipping
         audio = np.random.randn(int(duration * sample_rate)) * 0.5
         audio = np.clip(audio, -0.98, 0.98)
@@ -156,7 +155,7 @@ def test_property_5_clipping_detection() -> None:
 
     try:
         # Generate audio with clipping
-        sample_rate = 22050
+        sample_rate = 12000
         duration = 10.0
         audio = np.random.randn(int(duration * sample_rate))
         # Add clipping
@@ -176,7 +175,7 @@ def test_property_5_clipping_detection() -> None:
 
 @settings(deadline=None)  # Audio file generation can be slow
 @given(
-    duration=st.floats(min_value=6.0, max_value=30.0),
+    duration=st.floats(min_value=3.0, max_value=30.0),
     amplitude=st.floats(min_value=0.1, max_value=0.9),
 )
 def test_property_6_successful_validation_reporting(
@@ -194,7 +193,7 @@ def test_property_6_successful_validation_reporting(
         temp_path = Path(f.name)
 
     try:
-        sample_rate = 22050
+        sample_rate = 12000
         # Clip amplitude to ensure no clipping
         audio = np.random.randn(int(duration * sample_rate)) * amplitude
         # Ensure max amplitude is below 0.99

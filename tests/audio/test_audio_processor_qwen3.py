@@ -5,7 +5,6 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
-
 from voice_clone.audio.processor import AudioProcessor
 
 
@@ -140,8 +139,10 @@ class TestAudioValidationQwen3:
         """Test that validation warns for non-12kHz sample rate."""
         processor = AudioProcessor()
 
-        # Mock audio data at 22050 Hz (normalized)
-        mock_audio = np.random.randn(66150) * 0.5  # 3 seconds at 22050Hz
+        # Mock audio data at 22050 Hz (properly normalized to avoid clipping)
+        raw_audio = np.random.randn(66150)  # 3 seconds at 22050Hz
+        # Normalize to ensure no clipping
+        mock_audio = raw_audio / (np.abs(raw_audio).max() * 1.5)
         mock_load.return_value = (mock_audio, 22050)
 
         # Mock info

@@ -358,7 +358,7 @@ git commit -m "test: add unit tests for audio loader"
 git commit -m "feat: add voice cloning functionality
 
 - Implement audio sample processing
-- Add XTTS-v2 model integration
+- Add Qwen3-TTS model integration
 - Create CLI interface for cloning
 
 Closes #123"

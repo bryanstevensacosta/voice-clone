@@ -6,9 +6,8 @@ import json
 from unittest.mock import Mock, patch
 
 import pytest
-from click.testing import CliRunner
-
 from cli.cli import cli
+from click.testing import CliRunner
 
 
 @pytest.fixture
@@ -66,7 +65,7 @@ class TestValidateSamplesCommand:
         assert result.exit_code == 1
         assert "No WAV files found" in result.output
 
-    @patch("voice_clone.cli_commands.AudioProcessor")
+    @patch("cli.cli.AudioProcessor")
     def test_validate_samples_all_valid(self, mock_processor_class, runner, tmp_path):
         """Test validation with all valid samples."""
         # Create mock WAV files
@@ -87,7 +86,7 @@ class TestValidateSamplesCommand:
         assert result.exit_code == 0
         assert "2/2 samples valid" in result.output
 
-    @patch("voice_clone.cli_commands.AudioProcessor")
+    @patch("cli.cli.AudioProcessor")
     def test_validate_samples_some_invalid(
         self, mock_processor_class, runner, tmp_path
     ):
@@ -121,7 +120,7 @@ class TestValidateSamplesCommand:
 class TestPrepareCommand:
     """Tests for prepare command."""
 
-    @patch("voice_clone.cli_commands.VoiceProfile")
+    @patch("cli.cli.VoiceProfile")
     def test_prepare_success(self, mock_profile_class, runner, tmp_path):
         """Test successful profile preparation."""
         # Create mock samples directory
@@ -162,7 +161,7 @@ class TestPrepareCommand:
             "test_voice", samples_dir, ref_text="This is a test transcript"
         )
 
-    @patch("voice_clone.cli_commands.VoiceProfile")
+    @patch("cli.cli.VoiceProfile")
     def test_prepare_no_samples(self, mock_profile_class, runner, tmp_path):
         """Test preparation with no valid samples."""
         samples_dir = tmp_path / "samples"
@@ -192,7 +191,7 @@ class TestPrepareCommand:
         assert result.exit_code == 1
         assert "No valid samples found" in result.output
 
-    @patch("voice_clone.cli_commands.VoiceProfile")
+    @patch("cli.cli.VoiceProfile")
     def test_prepare_validation_failed(self, mock_profile_class, runner, tmp_path):
         """Test preparation with validation failure."""
         samples_dir = tmp_path / "samples"
@@ -227,10 +226,10 @@ class TestPrepareCommand:
 class TestGenerateCommand:
     """Tests for generate command."""
 
-    @patch("voice_clone.cli_commands.Qwen3Generator")
-    @patch("voice_clone.cli_commands.Qwen3ModelManager")
-    @patch("voice_clone.cli_commands.ConfigManager")
-    @patch("voice_clone.cli_commands.VoiceProfile")
+    @patch("cli.cli.Qwen3Generator")
+    @patch("cli.cli.Qwen3ModelManager")
+    @patch("cli.cli.ConfigManager")
+    @patch("cli.cli.VoiceProfile")
     def test_generate_success(
         self,
         mock_profile_class,
@@ -284,9 +283,9 @@ class TestGenerateCommand:
         assert "12000 Hz" in result.output
         mock_generator.generate_to_file.assert_called_once()
 
-    @patch("voice_clone.cli_commands.Qwen3ModelManager")
-    @patch("voice_clone.cli_commands.ConfigManager")
-    @patch("voice_clone.cli_commands.VoiceProfile")
+    @patch("cli.cli.Qwen3ModelManager")
+    @patch("cli.cli.ConfigManager")
+    @patch("cli.cli.VoiceProfile")
     def test_generate_model_load_failed(
         self,
         mock_profile_class,
@@ -333,12 +332,12 @@ class TestGenerateCommand:
 class TestBatchCommand:
     """Tests for batch command."""
 
-    @patch("voice_clone.cli_commands.BatchProcessor")
-    @patch("voice_clone.cli_commands.AudioProcessor")
-    @patch("voice_clone.cli_commands.Qwen3Generator")
-    @patch("voice_clone.cli_commands.Qwen3ModelManager")
-    @patch("voice_clone.cli_commands.ConfigManager")
-    @patch("voice_clone.cli_commands.VoiceProfile")
+    @patch("cli.cli.BatchProcessor")
+    @patch("cli.cli.AudioProcessor")
+    @patch("cli.cli.Qwen3Generator")
+    @patch("cli.cli.Qwen3ModelManager")
+    @patch("cli.cli.ConfigManager")
+    @patch("cli.cli.VoiceProfile")
     def test_batch_success(
         self,
         mock_profile_class,
@@ -400,10 +399,10 @@ class TestBatchCommand:
 class TestTestCommand:
     """Tests for test command."""
 
-    @patch("voice_clone.cli_commands.Qwen3Generator")
-    @patch("voice_clone.cli_commands.Qwen3ModelManager")
-    @patch("voice_clone.cli_commands.ConfigManager")
-    @patch("voice_clone.cli_commands.VoiceProfile")
+    @patch("cli.cli.Qwen3Generator")
+    @patch("cli.cli.Qwen3ModelManager")
+    @patch("cli.cli.ConfigManager")
+    @patch("cli.cli.VoiceProfile")
     def test_test_command_success(
         self,
         mock_profile_class,
@@ -447,10 +446,10 @@ class TestTestCommand:
         assert "Qwen3-TTS" in result.output
         assert "12000 Hz" in result.output
 
-    @patch("voice_clone.cli_commands.Qwen3Generator")
-    @patch("voice_clone.cli_commands.Qwen3ModelManager")
-    @patch("voice_clone.cli_commands.ConfigManager")
-    @patch("voice_clone.cli_commands.VoiceProfile")
+    @patch("cli.cli.Qwen3Generator")
+    @patch("cli.cli.Qwen3ModelManager")
+    @patch("cli.cli.ConfigManager")
+    @patch("cli.cli.VoiceProfile")
     def test_test_command_custom_text(
         self,
         mock_profile_class,

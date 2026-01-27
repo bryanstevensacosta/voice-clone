@@ -7,6 +7,12 @@ from pathlib import Path
 
 import pytest
 
+# Migration script was removed during Qwen3-TTS migration
+# These tests are skipped until/unless the script is restored
+pytestmark = pytest.mark.skip(
+    reason="Migration script not present in Qwen3-TTS version"
+)
+
 
 class TestMigrateVoiceProfiles:
     """Test voice profile migration script."""

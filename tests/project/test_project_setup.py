@@ -6,6 +6,8 @@ Validates: Requirements 8.1
 
 from pathlib import Path
 
+import pytest
+
 
 def test_required_directories_exist() -> None:
     """Test that all required directories exist."""
@@ -87,7 +89,9 @@ def test_default_config_has_required_sections() -> None:
     assert "device" in config["model"]
 
     assert "sample_rate" in config["audio"]
-    assert config["audio"]["sample_rate"] == 22050, "Sample rate should be 22050 Hz"
+    assert (
+        config["audio"]["sample_rate"] == 12000
+    ), "Sample rate should be 12000 Hz (Qwen3-TTS native)"
 
     assert "samples" in config["paths"]
     assert "outputs" in config["paths"]
@@ -139,7 +143,7 @@ def test_setup_py_has_required_fields() -> None:
 
     # Verify entry point
     assert (
-        "voice-clone=voice_clone.cli:cli" in setup_content
+        "voice-clone=cli.cli:cli" in setup_content
     ), "CLI entry point not properly configured"
 
 
@@ -182,16 +186,22 @@ def test_package_is_importable() -> None:
 def test_cli_module_exists() -> None:
     """Test that the CLI module exists and can be imported."""
     try:
-        from voice_clone import cli
+        from cli import cli
 
-        assert hasattr(cli, "cli"), "CLI entry point function not found"
+        # The cli object is the Click group itself
+        assert cli is not None, "CLI entry point not found"
+        assert hasattr(cli, "commands"), "CLI should be a Click group with commands"
     except ImportError as e:
         raise AssertionError(f"Cannot import CLI module: {e}") from e
 
 
 def test_pyproject_toml_configuration() -> None:
     """Test that pyproject.toml is properly configured."""
-    import tomli
+    try:
+        import tomli
+    except ImportError:
+        pytest.skip("tomli not installed (optional dependency for this test)")
+        return
 
     pyproject_path = Path("pyproject.toml")
 

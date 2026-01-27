@@ -6,7 +6,7 @@ import voice_clone
 def test_version() -> None:
     """Test that version is defined."""
     assert hasattr(voice_clone, "__version__")
-    assert voice_clone.__version__ == "0.1.0"
+    assert voice_clone.__version__ == "0.2.0"
 
 
 def test_author() -> None:
