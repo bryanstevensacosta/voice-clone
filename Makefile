@@ -37,13 +37,26 @@ lint:  ## Run linter (Ruff)
 	@echo "🔍 Running linter..."
 	@ruff check src/ tests/
 
-format:  ## Format code with Black
+format:  ## Format code with Black and Ruff
 	@echo "✨ Formatting code..."
 	@black src/ tests/
+	@ruff check src/ tests/ --fix
+
+format-check:  ## Check code formatting without making changes
+	@echo "🔍 Checking code formatting..."
+	@black --check src/ tests/
+	@ruff check src/ tests/
 
 type-check:  ## Run type checker (MyPy)
 	@echo "🔎 Running type checker..."
 	@mypy src/
+
+ci-check:  ## Run all CI checks locally (format, lint, type-check, test)
+	@echo "🔄 Running all CI checks..."
+	@$(MAKE) format-check
+	@$(MAKE) lint
+	@$(MAKE) type-check
+	@$(MAKE) test
 
 pre-commit:  ## Run all pre-commit hooks
 	@echo "🪝 Running pre-commit hooks..."

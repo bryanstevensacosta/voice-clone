@@ -1,35 +1,32 @@
-# See https://pre-commit.com for more information
 repos:
-  # Code formatting
+  # Black - Code formatting (MUST RUN FIRST)
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.1.1
     hooks:
       - id: black
-        language_version: python3.10
+        language_version: python3.11
+        args: ['--config=pyproject.toml']
 
-  # Linting
+  # Ruff - Fast linting and import sorting
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.9
     hooks:
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
+        args: ['--fix', '--exit-non-zero-on-fix']
+      - id: ruff-format
 
-  # Type checking
+  # Mypy - Type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
     hooks:
       - id: mypy
-        args: [--ignore-missing-imports]
+        additional_dependencies:
+          - types-PyYAML
+          - types-requests
+        args: ['--config-file=pyproject.toml']
+        exclude: '^(tests/|examples/)'
 
-  # Conventional commits
-  - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v3.0.0
-    hooks:
-      - id: conventional-pre-commit
-        stages: [commit-msg]
-        args: []
-
-  # General hooks
+  # Pre-commit hooks for common issues
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -37,54 +34,54 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+        args: ['--maxkb=1000']
       - id: check-merge-conflict
-      - id: detect-private-key
+      - id: check-case-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
 
-  # Local hooks
+  # Branch protection hook
   - repo: local
     hooks:
-      # Pre-commit: Block direct commits to protected branches
-      - id: check-branch
-        name: check-branch-before-commit
-        entry: scripts/check-branch-before-commit.sh
+      - id: check-branch-before-commit
+        name: Check branch before commit
+        entry: bash scripts/check-branch-before-commit.sh
         language: system
         pass_filenames: false
         always_run: true
-        stages: [commit]
+        stages: [pre-commit]
 
-      # Pre-merge-commit: Block merges into protected branches
+  # Merge protection hook
+  - repo: local
+    hooks:
       - id: check-merge-to-protected
-        name: check-merge-to-protected-branch
-        entry: scripts/check-merge-to-protected.sh
+        name: Check merge to protected branch
+        entry: bash scripts/check-merge-to-protected.sh
         language: system
         pass_filenames: false
         always_run: true
-        stages: [merge-commit]
+        stages: [pre-commit]
 
-      # Pre-push: Check rebase status
-      - id: check-rebase
-        name: check-rebase-before-push
-        entry: scripts/check-rebase-before-push.sh
+  # Pre-push format check
+  - repo: local
+    hooks:
+      - id: pre-push-format-check
+        name: Check code formatting before push
+        entry: bash scripts/pre-push-format-check.sh
         language: system
         pass_filenames: false
         always_run: true
-        stages: [push]
+        stages: [pre-push]
 
-      # Pre-push: Run tests
-      - id: pytest-check
-        name: pytest-check
-        entry: pytest
-        language: system
-        pass_filenames: false
-        always_run: true
-        args: [tests/, --cov=voice_clone, --cov-report=term-missing, --cov-fail-under=70]
-        stages: [push]
+# Configuration
+default_language_version:
+  python: python3.11
 
-      # Manual: Check terraform sync
-      - id: check-terraform-sync
-        name: check-terraform-sync
-        entry: scripts/check-terraform-sync.sh
-        language: system
-        pass_filenames: false
-        always_run: true
-        stages: [manual]
+# Run hooks on all files during manual runs
+default_stages: [pre-commit]
+
+# Fail fast - stop on first failure
+fail_fast: false
+
+# Minimum pre-commit version
+minimum_pre_commit_version: '3.0.0'
