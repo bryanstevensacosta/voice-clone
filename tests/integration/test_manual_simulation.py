@@ -10,7 +10,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 import soundfile as sf
-
 from voice_clone.audio.processor import AudioProcessor
 from voice_clone.model.profile import VoiceProfile
 
@@ -39,7 +38,7 @@ def synthetic_samples_dir(tmp_path: Path) -> Path:
     for emotion in emotions:
         # Create 12 seconds of synthetic audio
         duration = 12.0
-        sample_rate = 22050
+        sample_rate = 12000  # Qwen3-TTS native sample rate
         samples = int(duration * sample_rate)
 
         # Generate synthetic audio (sine wave with noise)
@@ -192,7 +191,7 @@ def test_manual_20_3_post_processing_and_export(
     # Create a test audio file
     test_audio = tmp_path / "test_audio.wav"
     duration = 5.0
-    sample_rate = 22050
+    sample_rate = 12000  # Qwen3-TTS native sample rate
     samples = int(duration * sample_rate)
 
     # Generate test audio
@@ -283,7 +282,8 @@ def test_manual_complete_workflow_simulation(
 
     # Step 4: Create batch script
     script_path = tmp_path / "complete_script.txt"
-    script_path.write_text("""[TEST_1]
+    script_path.write_text(
+        """[TEST_1]
 First test segment.
 
 [TEST_2]
@@ -291,14 +291,15 @@ Second test segment.
 
 [TEST_3]
 Third test segment.
-""")
+"""
+    )
 
     assert script_path.exists()
 
     # Step 5: Verify post-processing tools are available
     test_audio = tmp_path / "test.wav"
-    audio = np.random.randn(22050).astype(np.float32) * 0.5
-    sf.write(str(test_audio), audio, 22050)
+    audio = np.random.randn(12000).astype(np.float32) * 0.5  # 1 second at 12000 Hz
+    sf.write(str(test_audio), audio, 12000)
 
     # Try post-processing (may fail if ffmpeg not installed, which is OK)
     output_file = tmp_path / "processed.wav"
@@ -352,7 +353,7 @@ def test_manual_quality_metrics(synthetic_samples_dir: Path) -> None:
     # Verify quality metrics
     assert quality_metrics["valid_samples"] >= 6, "Need at least 6 valid samples"
     assert quality_metrics["total_duration"] >= 60, "Need at least 60 seconds total"
-    assert 22050 in quality_metrics["sample_rates"], "Should have 22050 Hz samples"
+    assert 12000 in quality_metrics["sample_rates"], "Should have 12000 Hz samples"
     assert 1 in quality_metrics["channels"], "Should have mono samples"
 
     print("\nQuality Metrics:")

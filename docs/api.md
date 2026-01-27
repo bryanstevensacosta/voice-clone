@@ -149,7 +149,7 @@ print(f"Duration: {duration:.2f} seconds")
 
 ## Module: voice_clone.model
 
-Model management and loading for XTTS-v2.
+Model management and loading for Qwen3-TTS.
 
 ### Classes
 
@@ -273,11 +273,11 @@ Text-to-speech synthesis functionality.
 
 #### `Synthesizer`
 
-Text-to-speech synthesizer using XTTS-v2.
+Text-to-speech synthesizer using Qwen3-TTS.
 
 **Attributes**:
 - `model` (VoiceModel): Voice model to use
-- `sample_rate` (int): Output sample rate
+- `sample_rate` (int): Output sample rate (12000 Hz for Qwen3-TTS)
 - `temperature` (float): Synthesis temperature
 - `speed` (float): Speech speed multiplier
 

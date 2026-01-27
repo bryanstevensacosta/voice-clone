@@ -7,7 +7,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
-
 from voice_clone.model.qwen3_manager import Qwen3ModelManager
 
 

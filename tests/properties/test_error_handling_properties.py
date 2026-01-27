@@ -4,7 +4,6 @@ import logging
 
 from hypothesis import given
 from hypothesis import strategies as st
-
 from voice_clone.utils.logger import setup_logger
 
 

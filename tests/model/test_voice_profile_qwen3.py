@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from voice_clone.model.profile import VoiceProfile, VoiceSample
 
 

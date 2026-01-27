@@ -7,7 +7,6 @@ import numpy as np
 import soundfile as sf
 from hypothesis import given, settings
 from hypothesis import strategies as st
-
 from voice_clone.audio.processor import AudioProcessor
 
 
@@ -74,7 +73,7 @@ def test_property_8_stereo_to_mono_conversion(
 
     try:
         # Create multi-channel audio
-        sample_rate = 22050
+        sample_rate = 12000
         audio = np.random.randn(int(duration * sample_rate), num_channels) * 0.5
         audio = np.clip(audio, -0.98, 0.98)
         sf.write(input_path, audio, sample_rate)
@@ -151,7 +150,7 @@ def test_property_10_conversion_output_file_existence(duration: float) -> None:
 
     try:
         # Create input audio
-        sample_rate = 22050
+        sample_rate = 12000
         audio = np.random.randn(int(duration * sample_rate)) * 0.5
         audio = np.clip(audio, -0.98, 0.98)
         sf.write(input_path, audio, sample_rate)
