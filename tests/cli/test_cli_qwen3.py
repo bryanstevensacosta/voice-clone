@@ -65,20 +65,19 @@ class TestValidateSamplesCommand:
         assert result.exit_code == 1
         assert "No WAV files found" in result.output
 
-    @patch("cli.cli.AudioProcessor")
+    @patch("voice_clone.audio.processor.AudioProcessor")
     def test_validate_samples_all_valid(self, mock_processor_class, runner, tmp_path):
         """Test validation with all valid samples."""
+        from voice_clone.audio.validator import ValidationResult
+
         # Create mock WAV files
         (tmp_path / "sample1.wav").touch()
         (tmp_path / "sample2.wav").touch()
 
-        # Mock processor
+        # Mock processor - return actual ValidationResult objects
         mock_processor = Mock()
-        mock_result = Mock()
-        mock_result.is_valid.return_value = True
-        mock_result.errors = []
-        mock_result.warnings = []
-        mock_processor.validate_sample.return_value = mock_result
+        valid_result = ValidationResult(success=True, errors=[], warnings=[])
+        mock_processor.validate_sample.return_value = valid_result
         mock_processor_class.return_value = mock_processor
 
         result = runner.invoke(cli, ["validate-samples", "--dir", str(tmp_path)])
@@ -86,28 +85,23 @@ class TestValidateSamplesCommand:
         assert result.exit_code == 0
         assert "2/2 samples valid" in result.output
 
-    @patch("cli.cli.AudioProcessor")
+    @patch("voice_clone.audio.processor.AudioProcessor")
     def test_validate_samples_some_invalid(
         self, mock_processor_class, runner, tmp_path
     ):
         """Test validation with some invalid samples."""
+        from voice_clone.audio.validator import ValidationResult
+
         # Create mock WAV files
         (tmp_path / "sample1.wav").touch()
         (tmp_path / "sample2.wav").touch()
 
         # Mock processor - first valid, second invalid
         mock_processor = Mock()
-
-        valid_result = Mock()
-        valid_result.is_valid.return_value = True
-        valid_result.errors = []
-        valid_result.warnings = []
-
-        invalid_result = Mock()
-        invalid_result.is_valid.return_value = False
-        invalid_result.errors = ["Sample too short"]
-        invalid_result.warnings = []
-
+        valid_result = ValidationResult(success=True, errors=[], warnings=[])
+        invalid_result = ValidationResult(
+            success=False, errors=["Sample too short"], warnings=[]
+        )
         mock_processor.validate_sample.side_effect = [valid_result, invalid_result]
         mock_processor_class.return_value = mock_processor
 
@@ -120,9 +114,11 @@ class TestValidateSamplesCommand:
 class TestPrepareCommand:
     """Tests for prepare command."""
 
-    @patch("cli.cli.VoiceProfile")
+    @patch("voice_clone.model.profile.VoiceProfile")
     def test_prepare_success(self, mock_profile_class, runner, tmp_path):
         """Test successful profile preparation."""
+        from voice_clone.model.profile import VoiceSample
+
         # Create mock samples directory
         samples_dir = tmp_path / "samples"
         samples_dir.mkdir()
@@ -130,9 +126,11 @@ class TestPrepareCommand:
 
         output_path = tmp_path / "profile.json"
 
-        # Mock profile
+        # Mock profile with proper VoiceSample
         mock_profile = Mock()
-        mock_profile.samples = ["sample1.wav"]
+        mock_profile.samples = [
+            VoiceSample(path=str(samples_dir / "sample1.wav"), duration=10.0)
+        ]
         mock_profile.total_duration = 10.0
         mock_profile.language = "Spanish"
         mock_profile.sample_rate = 12000
@@ -161,7 +159,7 @@ class TestPrepareCommand:
             "test_voice", samples_dir, ref_text="This is a test transcript"
         )
 
-    @patch("cli.cli.VoiceProfile")
+    @patch("voice_clone.model.profile.VoiceProfile")
     def test_prepare_no_samples(self, mock_profile_class, runner, tmp_path):
         """Test preparation with no valid samples."""
         samples_dir = tmp_path / "samples"
@@ -191,7 +189,7 @@ class TestPrepareCommand:
         assert result.exit_code == 1
         assert "No valid samples found" in result.output
 
-    @patch("cli.cli.VoiceProfile")
+    @patch("voice_clone.model.profile.VoiceProfile")
     def test_prepare_validation_failed(self, mock_profile_class, runner, tmp_path):
         """Test preparation with validation failure."""
         samples_dir = tmp_path / "samples"
@@ -226,10 +224,10 @@ class TestPrepareCommand:
 class TestGenerateCommand:
     """Tests for generate command."""
 
-    @patch("cli.cli.Qwen3Generator")
-    @patch("cli.cli.Qwen3ModelManager")
-    @patch("cli.cli.ConfigManager")
-    @patch("cli.cli.VoiceProfile")
+    @patch("voice_clone.model.qwen3_generator.Qwen3Generator")
+    @patch("voice_clone.model.qwen3_manager.Qwen3ModelManager")
+    @patch("voice_clone.config.ConfigManager")
+    @patch("voice_clone.model.profile.VoiceProfile")
     def test_generate_success(
         self,
         mock_profile_class,
@@ -241,6 +239,8 @@ class TestGenerateCommand:
         mock_profile,
     ):
         """Test successful audio generation."""
+        from voice_clone.model.profile import VoiceSample
+
         output_path = tmp_path / "output.wav"
 
         # Mock config
@@ -248,9 +248,11 @@ class TestGenerateCommand:
         mock_config.load_config.return_value = {"model": {}, "audio": {}}
         mock_config_class.return_value = mock_config
 
-        # Mock profile
+        # Mock profile with proper VoiceSample
         mock_profile_obj = Mock()
-        mock_profile_obj.samples = [str(tmp_path / "sample1.wav")]
+        mock_profile_obj.samples = [
+            VoiceSample(path=str(tmp_path / "sample1.wav"), duration=10.0)
+        ]
         mock_profile_obj.ref_text = "Test transcript"
         mock_profile_obj.language = "Spanish"
         mock_profile_class.from_json.return_value = mock_profile_obj
@@ -283,9 +285,9 @@ class TestGenerateCommand:
         assert "12000 Hz" in result.output
         mock_generator.generate_to_file.assert_called_once()
 
-    @patch("cli.cli.Qwen3ModelManager")
-    @patch("cli.cli.ConfigManager")
-    @patch("cli.cli.VoiceProfile")
+    @patch("voice_clone.model.qwen3_manager.Qwen3ModelManager")
+    @patch("voice_clone.config.ConfigManager")
+    @patch("voice_clone.model.profile.VoiceProfile")
     def test_generate_model_load_failed(
         self,
         mock_profile_class,
@@ -332,12 +334,12 @@ class TestGenerateCommand:
 class TestBatchCommand:
     """Tests for batch command."""
 
-    @patch("cli.cli.BatchProcessor")
-    @patch("cli.cli.AudioProcessor")
-    @patch("cli.cli.Qwen3Generator")
-    @patch("cli.cli.Qwen3ModelManager")
-    @patch("cli.cli.ConfigManager")
-    @patch("cli.cli.VoiceProfile")
+    @patch("voice_clone.batch.processor.BatchProcessor")
+    @patch("voice_clone.audio.processor.AudioProcessor")
+    @patch("voice_clone.model.qwen3_generator.Qwen3Generator")
+    @patch("voice_clone.model.qwen3_manager.Qwen3ModelManager")
+    @patch("voice_clone.config.ConfigManager")
+    @patch("voice_clone.model.profile.VoiceProfile")
     def test_batch_success(
         self,
         mock_profile_class,
@@ -399,10 +401,10 @@ class TestBatchCommand:
 class TestTestCommand:
     """Tests for test command."""
 
-    @patch("cli.cli.Qwen3Generator")
-    @patch("cli.cli.Qwen3ModelManager")
-    @patch("cli.cli.ConfigManager")
-    @patch("cli.cli.VoiceProfile")
+    @patch("voice_clone.model.qwen3_generator.Qwen3Generator")
+    @patch("voice_clone.model.qwen3_manager.Qwen3ModelManager")
+    @patch("voice_clone.config.ConfigManager")
+    @patch("voice_clone.model.profile.VoiceProfile")
     def test_test_command_success(
         self,
         mock_profile_class,
@@ -414,14 +416,18 @@ class TestTestCommand:
         mock_profile,
     ):
         """Test successful test command."""
+        from voice_clone.model.profile import VoiceSample
+
         # Mock config
         mock_config = Mock()
         mock_config.load_config.return_value = {"model": {}}
         mock_config_class.return_value = mock_config
 
-        # Mock profile
+        # Mock profile with proper VoiceSample
         mock_profile_obj = Mock()
-        mock_profile_obj.samples = [str(tmp_path / "sample1.wav")]
+        mock_profile_obj.samples = [
+            VoiceSample(path=str(tmp_path / "sample1.wav"), duration=10.0)
+        ]
         mock_profile_obj.ref_text = "Test transcript"
         mock_profile_obj.language = "Spanish"
         mock_profile_class.from_json.return_value = mock_profile_obj
@@ -446,10 +452,10 @@ class TestTestCommand:
         assert "Qwen3-TTS" in result.output
         assert "12000 Hz" in result.output
 
-    @patch("cli.cli.Qwen3Generator")
-    @patch("cli.cli.Qwen3ModelManager")
-    @patch("cli.cli.ConfigManager")
-    @patch("cli.cli.VoiceProfile")
+    @patch("voice_clone.model.qwen3_generator.Qwen3Generator")
+    @patch("voice_clone.model.qwen3_manager.Qwen3ModelManager")
+    @patch("voice_clone.config.ConfigManager")
+    @patch("voice_clone.model.profile.VoiceProfile")
     def test_test_command_custom_text(
         self,
         mock_profile_class,
@@ -461,14 +467,18 @@ class TestTestCommand:
         mock_profile,
     ):
         """Test test command with custom text."""
+        from voice_clone.model.profile import VoiceSample
+
         # Mock config
         mock_config = Mock()
         mock_config.load_config.return_value = {"model": {}}
         mock_config_class.return_value = mock_config
 
-        # Mock profile
+        # Mock profile with proper VoiceSample
         mock_profile_obj = Mock()
-        mock_profile_obj.samples = [str(tmp_path / "sample1.wav")]
+        mock_profile_obj.samples = [
+            VoiceSample(path=str(tmp_path / "sample1.wav"), duration=10.0)
+        ]
         mock_profile_obj.ref_text = "Test transcript"
         mock_profile_obj.language = "Spanish"
         mock_profile_class.from_json.return_value = mock_profile_obj
