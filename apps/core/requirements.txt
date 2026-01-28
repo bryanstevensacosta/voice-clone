@@ -1,5 +1,5 @@
 # Core TTS and ML dependencies
-qwen-tts>=1.0.0
+qwen-tts>=0.0.5
 torch>=2.0.0
 torchaudio>=2.0.0
 soundfile>=0.12.0
