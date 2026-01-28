@@ -73,18 +73,18 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 **Note**: Domain models contain ONLY pure business concepts that exist independently of application use cases. Request/Result objects are DTOs and belong in the Application layer (Phase 4).
 
 ### 2.1 Domain Models
-- [ ] Create `apps/core/src/domain/models/__init__.py`
-- [ ] Create `apps/core/src/domain/models/voice_profile.py`
-  - [ ] Define `VoiceProfile` entity (with ID and identity)
-  - [ ] Add `add_sample()` method
-  - [ ] Add `is_valid()` method
-  - [ ] Add `total_duration` property
-  - [ ] Add `remove_sample()` method
-- [ ] Create `apps/core/src/domain/models/audio_sample.py`
-  - [ ] Define `AudioSample` value object (immutable)
-  - [ ] Add validation in constructor
-  - [ ] Add `is_valid_duration()` method
-  - [ ] Add `is_valid_sample_rate()` method
+- [x] Create `apps/core/src/domain/models/__init__.py`
+- [x] Create `apps/core/src/domain/models/voice_profile.py`
+  - [x] Define `VoiceProfile` entity (with ID and identity)
+  - [x] Add `add_sample()` method
+  - [x] Add `is_valid()` method
+  - [x] Add `total_duration` property
+  - [x] Add `remove_sample()` method
+- [x] Create `apps/core/src/domain/models/audio_sample.py`
+  - [x] Define `AudioSample` value object (immutable)
+  - [x] Add validation in constructor
+  - [x] Add `is_valid_duration()` method
+  - [x] Add `is_valid_sample_rate()` method
 
 ### 2.2 Domain Ports (Interfaces)
 - [ ] Create `apps/core/src/domain/ports/__init__.py`
