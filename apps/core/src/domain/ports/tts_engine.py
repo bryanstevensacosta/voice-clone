@@ -6,6 +6,7 @@ Infrastructure adapters (e.g., Qwen3Adapter) must implement this interface.
 
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Any
 
 from ..models.voice_profile import VoiceProfile
 
@@ -24,7 +25,7 @@ class TTSEngine(ABC):
         Returns:
             List of mode names (e.g., ["clone", "custom", "design"])
         """
-        pass
+        ...
 
     @abstractmethod
     def generate_audio(
@@ -33,7 +34,7 @@ class TTSEngine(ABC):
         profile: VoiceProfile,
         output_path: Path,
         mode: str = "clone",
-        **kwargs,
+        **kwargs: Any,
     ) -> Path:
         """Generate audio from text using a voice profile.
 
@@ -50,7 +51,7 @@ class TTSEngine(ABC):
         Raises:
             GenerationException: If generation fails
         """
-        pass
+        ...
 
     @abstractmethod
     def validate_profile(self, profile: VoiceProfile) -> bool:
@@ -62,4 +63,4 @@ class TTSEngine(ABC):
         Returns:
             True if profile is valid for this engine
         """
-        pass
+        ...
