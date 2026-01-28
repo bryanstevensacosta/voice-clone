@@ -1,12 +1,20 @@
 """Setup configuration for tts-studio package."""
 
+from pathlib import Path
+
 from setuptools import find_packages, setup
+
+# Read README for long description
+readme_file = Path(__file__).parent.parent.parent / "README.md"
+long_description = (
+    readme_file.read_text(encoding="utf-8") if readme_file.exists() else ""
+)
 
 setup(
     name="tts-studio",
-    version="0.1.0",
-    description="Personal voice cloning and design tool using TTS models",
-    long_description=open("README.md").read(),
+    version="0.1.0-beta",
+    description="Voice cloning and TTS library with hexagonal architecture for desktop applications",
+    long_description=long_description,
     long_description_content_type="text/markdown",
     author="Bryan Stevens Acosta",
     author_email="bryanstevensacosta@gmail.com",
@@ -15,20 +23,21 @@ setup(
     package_dir={"": "src"},
     python_requires=">=3.10,<3.12",
     install_requires=[
+        # TTS Engine
         "qwen-tts>=1.0.0",
         "torch>=2.0.0",
         "torchaudio>=2.0.0",
+        # Audio Processing
         "soundfile>=0.12.0",
         "numpy>=1.24.0",
         "librosa>=0.10.0",
         "pydub>=0.25.0",
         "scipy>=1.10.0",
-        "click>=8.1.0",
-        "rich>=13.0.0",
-        "tqdm>=4.65.0",
+        # Configuration & Utilities
         "python-dotenv>=1.0.0",
         "PyYAML>=6.0",
-        "matplotlib>=3.5.0",
+        # DTOs and Data Validation
+        "pydantic>=2.0.0",
     ],
     extras_require={
         "dev": [
@@ -41,13 +50,8 @@ setup(
             "hypothesis>=6.0.0",
         ],
     },
-    entry_points={
-        "console_scripts": [
-            "voice-clone=cli.cli:cli",
-        ],
-    },
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.10",
@@ -55,6 +59,6 @@ setup(
         "Topic :: Multimedia :: Sound/Audio :: Speech",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
-    keywords="voice-cloning tts qwen3-tts cli speech-synthesis",
+    keywords="voice-cloning tts qwen3-tts speech-synthesis hexagonal-architecture desktop-app",
     license="MIT",
 )
