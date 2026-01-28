@@ -23,26 +23,57 @@ venv/
 env/
 ENV/
 
+# Monorepo - Python Core Library (apps/core/)
+apps/core/build/
+apps/core/dist/
+apps/core/*.egg-info/
+apps/core/.pytest_cache/
+apps/core/.coverage
+apps/core/htmlcov/
+apps/core/.mypy_cache/
+apps/core/.ruff_cache/
+apps/core/.hypothesis/
+
+# Monorepo - Desktop App (apps/desktop/)
+apps/desktop/node_modules/
+apps/desktop/dist/
+apps/desktop/.next/
+apps/desktop/.turbo/
+apps/desktop/out/
+apps/desktop/build/
+apps/desktop/.DS_Store
+apps/desktop/*.tsbuildinfo
+apps/desktop/npm-debug.log*
+apps/desktop/yarn-debug.log*
+apps/desktop/yarn-error.log*
+
+# Monorepo - Tauri (apps/desktop/src-tauri/)
+apps/desktop/src-tauri/target/
+apps/desktop/src-tauri/Cargo.lock
+
 # Data (IMPORTANT: personal data)
 data/samples/
 data/outputs/
 data/models/
 data/cache/
+data/profiles/
 
 # Configuration (personal)
 config/config.yaml
 .env
+.env.local
+.env.*.local
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-.kiro/
 
 # OS
 .DS_Store
 Thumbs.db
+*.log
 
 # Testing
 .pytest_cache/
@@ -60,3 +91,9 @@ dmypy.json
 
 # Private
 recordings-from-iphone
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
