@@ -36,7 +36,7 @@ class AudioGenerationService:
         profile: VoiceProfile,
         output_path: Path,
         mode: str = "clone",
-        **kwargs,
+        **kwargs: object,
     ) -> Path:
         """Generate audio using a voice profile.
 
