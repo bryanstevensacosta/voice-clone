@@ -1,5 +1,5 @@
 # Core TTS and ML dependencies
-qwen-tts>=0.0.5
+qwen-tts>=1.0.0
 torch>=2.0.0
 torchaudio>=2.0.0
 soundfile>=0.12.0
@@ -10,15 +10,12 @@ librosa>=0.10.0
 pydub>=0.25.0
 scipy>=1.10.0
 
-# CLI and utilities
-click>=8.1.0
-rich>=13.0.0
-tqdm>=4.65.0
+# Configuration and utilities
 python-dotenv>=1.0.0
 PyYAML>=6.0
 
-# UI Framework
-gradio>=4.0.0
+# DTOs and Data Validation
+pydantic>=2.0.0
 
 # Development tools (optional)
 black>=23.0.0

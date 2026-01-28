@@ -3,44 +3,40 @@ requires = ["setuptools>=65.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "voice-clone-cli"
-version = "0.2.0"
-description = "Personal voice cloning CLI tool using Qwen3-TTS with Gradio UI"
+name = "tts-studio"
+version = "0.1.0-beta"
+description = "Voice cloning and TTS library with hexagonal architecture for desktop applications"
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
 license = {text = "MIT"}
 authors = [
     {name = "Bryan Stevens Acosta", email = "bryanstevensacosta@gmail.com"}
 ]
-keywords = ["voice-cloning", "tts", "qwen3-tts", "cli", "gradio", "ui"]
+keywords = ["voice-cloning", "tts", "qwen3-tts", "speech-synthesis", "hexagonal-architecture", "desktop-app"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
-    "qwen-tts>=0.0.5",
+    # TTS Engine
+    "qwen-tts>=1.0.0",
     "torch>=2.0.0",
     "torchaudio>=2.0.0",
+    # Audio Processing
     "soundfile>=0.12.0",
     "numpy>=1.24.0",
     "librosa>=0.10.0",
     "pydub>=0.25.0",
     "scipy>=1.10.0",
-    "click>=8.1.0",
-    "rich>=13.0.0",
-    "tqdm>=4.65.0",
+    # Configuration & Utilities
     "python-dotenv>=1.0.0",
     "PyYAML>=6.0",
-    "gradio>=4.0.0",
-    "matplotlib>=3.5.0",
+    # DTOs and Data Validation
+    "pydantic>=2.0.0",
 ]
-
-[project.scripts]
-voice-clone = "voice_clone.cli:cli"
-voice-clone-ui = "gradio_ui.app:main"
 
 [project.optional-dependencies]
 dev = [
