@@ -6,10 +6,11 @@ import json
 import sys
 from unittest.mock import Mock, patch
 
-# Import the cli.cli module first, then get it from sys.modules
-import cli.cli  # noqa: F401
 import pytest
 from click.testing import CliRunner
+
+# Import the cli.cli module first, then get it from sys.modules
+import cli.cli  # noqa: F401
 
 cli_module = sys.modules["cli.cli"]
 

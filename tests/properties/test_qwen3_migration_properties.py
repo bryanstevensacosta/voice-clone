@@ -479,6 +479,7 @@ class TestAudioGenerationMethod:
         from unittest.mock import MagicMock
 
         import numpy as np
+
         from voice_clone.model.qwen3_generator import Qwen3Generator
         from voice_clone.model.qwen3_manager import Qwen3ModelManager
 
@@ -568,6 +569,7 @@ class TestAudioGenerationMethod:
         from unittest.mock import MagicMock
 
         import numpy as np
+
         from voice_clone.model.qwen3_generator import Qwen3Generator
         from voice_clone.model.qwen3_manager import Qwen3ModelManager
 
@@ -650,6 +652,7 @@ class TestAudioSampleValidation:
         from unittest.mock import MagicMock, patch
 
         import numpy as np
+
         from voice_clone.audio.processor import AudioProcessor
 
         processor = AudioProcessor()
@@ -678,6 +681,7 @@ class TestAudioSampleValidation:
         from unittest.mock import MagicMock, patch
 
         import numpy as np
+
         from voice_clone.audio.processor import AudioProcessor
 
         processor = AudioProcessor()
@@ -706,6 +710,7 @@ class TestAudioSampleValidation:
         from unittest.mock import MagicMock, patch
 
         import numpy as np
+
         from voice_clone.audio.processor import AudioProcessor
 
         processor = AudioProcessor()
@@ -746,6 +751,7 @@ class TestOutputSampleRate:
         from unittest.mock import MagicMock
 
         import numpy as np
+
         from voice_clone.model.qwen3_generator import Qwen3Generator
         from voice_clone.model.qwen3_manager import Qwen3ModelManager
 
@@ -783,6 +789,7 @@ class TestOutputSampleRate:
         from unittest.mock import patch
 
         import numpy as np
+
         from voice_clone.audio.processor import AudioProcessor
 
         processor = AudioProcessor()
