@@ -35,15 +35,15 @@ This directory contains GitHub Actions workflows for CI/CD and automation.
 2. **lint**: Code formatting and linting
    - Black formatting check
    - Ruff linting
-   - Runs on Python 3.9, 3.10, 3.11
+   - Runs on Python 3.10, 3.11
 
 3. **type-check**: Type checking with MyPy
-   - Runs on Python 3.9, 3.10, 3.11
+   - Runs on Python 3.10, 3.11
 
 4. **test**: Test suite with coverage
    - pytest with coverage reporting
    - Uploads coverage to Codecov
-   - Runs on Python 3.9, 3.10, 3.11
+   - Runs on Python 3.10, 3.11
 
 5. **waiting-for-approval**: Notification job
    - Only runs when CI is waiting for approval
@@ -311,13 +311,13 @@ To add/remove Python versions, update the matrix in `ci.yml`:
 ```yaml
 strategy:
   matrix:
-    python-version: ["3.9", "3.10", "3.11", "3.12"]  # Add 3.12
+    python-version: ["3.10", "3.11"]  # Project supports 3.10 and 3.11
 ```
 
 Also update Terraform's `main.tf` to match:
 ```hcl
 contexts = [
-  "lint (3.9)",
+  "lint (3.10)",
   "lint (3.10)",
   "lint (3.11)",
   "lint (3.12)",  # Add this

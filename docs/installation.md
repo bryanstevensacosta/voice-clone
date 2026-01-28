@@ -4,7 +4,7 @@ This guide covers the installation process for Voice Clone CLI.
 
 ## Prerequisites
 
-- Python 3.9, 3.10, or 3.11 (3.10 recommended)
+- Python 3.10 or 3.11 (3.10 recommended)
 - pip package manager
 - Git
 - 4GB+ RAM recommended
