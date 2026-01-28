@@ -22,7 +22,7 @@ classifiers = [
 ]
 dependencies = [
     # TTS Engine
-    "qwen-tts>=1.0.0",
+    "qwen-tts>=0.0.5",
     "torch>=2.0.0",
     "torchaudio>=2.0.0",
     # Audio Processing

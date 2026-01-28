@@ -24,7 +24,7 @@ setup(
     python_requires=">=3.10,<3.12",
     install_requires=[
         # TTS Engine
-        "qwen-tts>=1.0.0",
+        "qwen-tts>=0.0.5",
         "torch>=2.0.0",
         "torchaudio>=2.0.0",
         # Audio Processing
