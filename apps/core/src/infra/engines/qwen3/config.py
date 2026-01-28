@@ -26,7 +26,6 @@ def get_default_config() -> dict[str, Any]:
         },
         "generation": {
             "language": "Spanish",
-            "max_length": 400,  # Max characters per chunk
             "max_new_tokens": 2048,  # Max tokens to generate
             "temperature": 0.75,  # Sampling temperature
         },

@@ -14,6 +14,9 @@ class AudioGenerationService:
 
     This service orchestrates audio generation, applying business rules
     and coordinating between different components.
+
+    Note: Text length limits are enforced at the UI level based on
+    engine capabilities. This service assumes text is within limits.
     """
 
     def __init__(self, tts_engine: TTSEngine):
@@ -82,49 +85,3 @@ class AudioGenerationService:
         )
 
         return result_path
-
-    def chunk_text_for_generation(self, text: str, max_chars: int = 400) -> list[str]:
-        """Split text into chunks suitable for generation.
-
-        Business rule: Qwen3-TTS works best with ~400 characters per chunk.
-        This method splits text at sentence boundaries.
-
-        Args:
-            text: Text to split
-            max_chars: Maximum characters per chunk (default: 400)
-
-        Returns:
-            List of text chunks
-        """
-        if len(text) <= max_chars:
-            return [text]
-
-        # Split at sentence boundaries (., !, ?)
-        sentences = []
-        current = ""
-
-        for char in text:
-            current += char
-            if char in ".!?" and len(current) > 10:
-                sentences.append(current.strip())
-                current = ""
-
-        if current.strip():
-            sentences.append(current.strip())
-
-        # Group sentences into chunks
-        chunks = []
-        current_chunk = ""
-
-        for sentence in sentences:
-            if len(current_chunk) + len(sentence) + 1 <= max_chars:
-                current_chunk += " " + sentence if current_chunk else sentence
-            else:
-                if current_chunk:
-                    chunks.append(current_chunk)
-                current_chunk = sentence
-
-        if current_chunk:
-            chunks.append(current_chunk)
-
-        return chunks

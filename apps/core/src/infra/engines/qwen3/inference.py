@@ -3,7 +3,6 @@
 Handles text-to-speech generation using Qwen3-TTS.
 """
 
-import re
 from pathlib import Path
 from typing import Any
 
@@ -14,7 +13,11 @@ from .model_loader import Qwen3ModelLoader
 
 
 class Qwen3Inference:
-    """Generates speech from text using Qwen3-TTS voice cloning."""
+    """Generates speech from text using Qwen3-TTS voice cloning.
+
+    Note: Text length is limited at the UI level. This class assumes
+    text is within acceptable limits (~400 characters for best quality).
+    """
 
     def __init__(self, model_loader: Qwen3ModelLoader, config: dict[str, Any]):
         """Initialize Qwen3Inference.
@@ -25,47 +28,8 @@ class Qwen3Inference:
         """
         self.model_loader = model_loader
         self.config = config
-        self.max_chunk_size = config.get("generation", {}).get("max_length", 400)
         self.language = config.get("generation", {}).get("language", "Spanish")
         self.max_new_tokens = config.get("generation", {}).get("max_new_tokens", 2048)
-
-    def _chunk_text(self, text: str) -> list[str]:
-        """Split long text at sentence boundaries.
-
-        Args:
-            text: Input text to chunk
-
-        Returns:
-            List of text chunks
-        """
-        if len(text) <= self.max_chunk_size:
-            return [text]
-
-        chunks = []
-        current_chunk = ""
-
-        # Split by sentences (period, exclamation, question mark)
-        sentences = re.split(r"([.!?]+\s+)", text)
-
-        for i in range(0, len(sentences), 2):
-            sentence = sentences[i]
-            separator = sentences[i + 1] if i + 1 < len(sentences) else ""
-
-            # If adding this sentence exceeds max size, save current chunk
-            if (
-                current_chunk
-                and len(current_chunk + sentence + separator) > self.max_chunk_size
-            ):
-                chunks.append(current_chunk.strip())
-                current_chunk = sentence + separator
-            else:
-                current_chunk += sentence + separator
-
-        # Add remaining chunk
-        if current_chunk:
-            chunks.append(current_chunk.strip())
-
-        return chunks
 
     def generate(
         self,

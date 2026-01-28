@@ -8,7 +8,7 @@ from typing import Any
 
 from domain.exceptions import GenerationException
 from domain.models.voice_profile import VoiceProfile
-from domain.ports.tts_engine import TTSEngine
+from domain.ports.tts_engine import EngineCapabilities, TTSEngine
 
 from .inference import Qwen3Inference
 from .model_loader import Qwen3ModelLoader
@@ -31,6 +31,20 @@ class Qwen3Adapter(TTSEngine):
         self.model_loader = Qwen3ModelLoader(config)
         self.inference: Qwen3Inference | None = None
         self._loaded = False
+
+    def get_capabilities(self) -> EngineCapabilities:
+        """Get Qwen3-TTS engine capabilities.
+
+        Returns:
+            EngineCapabilities describing Qwen3-TTS limits
+        """
+        return EngineCapabilities(
+            max_text_length=2048,  # Qwen3 token limit
+            recommended_text_length=400,  # Best quality range
+            supports_streaming=False,  # Not supported yet
+            min_sample_duration=3.0,  # Minimum seconds per sample
+            max_sample_duration=30.0,  # Maximum seconds per sample
+        )
 
     def get_supported_modes(self) -> list[str]:
         """Get list of supported generation modes.
