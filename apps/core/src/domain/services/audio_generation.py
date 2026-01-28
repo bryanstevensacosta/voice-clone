@@ -15,8 +15,11 @@ class AudioGenerationService:
     This service orchestrates audio generation, applying business rules
     and coordinating between different components.
 
-    Note: Text length limits are enforced at the UI level based on
-    engine capabilities. This service assumes text is within limits.
+    Text Length Validation Strategy (Defense in Depth):
+    - Backend validates against engine capabilities for safety
+    - Soft limit (recommended_text_length): Warning logged, generation allowed
+    - Hard limit (max_text_length): Error raised, generation blocked
+    - UI should enforce limits proactively based on get_capabilities()
     """
 
     def __init__(self, tts_engine: TTSEngine):
@@ -38,6 +41,7 @@ class AudioGenerationService:
         """Generate audio using a voice profile.
 
         This method applies business rules:
+        - Validates text length against engine capabilities
         - Validates profile before generation
         - Ensures text is not empty
         - Validates mode is supported
@@ -53,12 +57,34 @@ class AudioGenerationService:
             Path to generated audio file
 
         Raises:
-            ValueError: If inputs are invalid
+            ValueError: If inputs are invalid (including text length violations)
             GenerationException: If generation fails
         """
         # Validate inputs
         if not text or not text.strip():
             raise ValueError("Text cannot be empty")
+
+        # Validate text length against engine capabilities
+        capabilities = self._tts_engine.get_capabilities()
+        text_length = len(text)
+
+        if text_length > capabilities.max_text_length:
+            raise ValueError(
+                f"Text length ({text_length} characters) exceeds maximum limit "
+                f"of {capabilities.max_text_length} characters for this engine. "
+                f"Please split your text into smaller segments."
+            )
+
+        if text_length > capabilities.recommended_text_length:
+            # This is a soft limit - log warning but allow generation
+            # UI should prevent this, but backend allows it
+            import logging
+
+            logging.warning(
+                f"Text length ({text_length} characters) exceeds recommended limit "
+                f"of {capabilities.recommended_text_length} characters. "
+                f"Quality may be degraded. Consider using shorter text for best results."
+            )
 
         if not profile.is_valid():
             raise ValueError(f"Invalid profile: {profile.validation_errors()}")

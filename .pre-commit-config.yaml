@@ -24,7 +24,7 @@ repos:
           - types-PyYAML
           - types-requests
         args: ['--config-file=apps/core/pyproject.toml']
-        exclude: '^(tests/|examples/|apps/core/setup\.py|apps/core/src/domain/)'
+        exclude: '^(tests/|examples/|apps/core/tests/|apps/core/examples/|apps/core/setup\.py|apps/core/src/domain/)'
 
   # Pre-commit hooks for common issues
   - repo: https://github.com/pre-commit/pre-commit-hooks
