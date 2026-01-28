@@ -282,8 +282,7 @@ def test_manual_complete_workflow_simulation(
 
     # Step 4: Create batch script
     script_path = tmp_path / "complete_script.txt"
-    script_path.write_text(
-        """[TEST_1]
+    script_path.write_text("""[TEST_1]
 First test segment.
 
 [TEST_2]
@@ -291,8 +290,7 @@ Second test segment.
 
 [TEST_3]
 Third test segment.
-"""
-    )
+""")
 
     assert script_path.exists()
 
