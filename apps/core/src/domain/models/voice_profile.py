@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
-from apps.core.src.domain.models.audio_sample import AudioSample
+from .audio_sample import AudioSample
 
 
 @dataclass

@@ -5,8 +5,8 @@ Contains business logic for audio generation orchestration.
 
 from pathlib import Path
 
-from apps.core.src.domain.models.voice_profile import VoiceProfile
-from apps.core.src.domain.ports.tts_engine import TTSEngine
+from ..models.voice_profile import VoiceProfile
+from ..ports.tts_engine import TTSEngine
 
 
 class AudioGenerationService:
