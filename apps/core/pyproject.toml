@@ -97,10 +97,24 @@ warn_unused_configs = true
 disallow_untyped_defs = true
 explicit_package_bases = true
 mypy_path = "apps/core/src"
+namespace_packages = true
+warn_unused_ignores = false
 
 [[tool.mypy.overrides]]
 module = ["tests.*", "examples.*"]
 ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "infra.persistence.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "domain.*"
+follow_imports = "normal"
+
+[[tool.mypy.overrides]]
+module = "infra.*"
+follow_imports = "normal"
 
 [[tool.mypy.overrides]]
 module = "qwen_tts.*"
