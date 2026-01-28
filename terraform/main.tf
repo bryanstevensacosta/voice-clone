@@ -67,13 +67,10 @@ resource "github_branch_protection" "master_protection" {
     strict = true
     contexts = [
       "check-approval",
-      "lint (3.9)",
       "lint (3.10)",
       "lint (3.11)",
-      "type-check (3.9)",
       "type-check (3.10)",
       "type-check (3.11)",
-      "test (3.9)",
       "test (3.10)",
       "test (3.11)"
     ]
@@ -102,13 +99,10 @@ resource "github_branch_protection" "main_protection" {
     strict = true
     contexts = [
       "check-approval",
-      "lint (3.9)",
       "lint (3.10)",
       "lint (3.11)",
-      "type-check (3.9)",
       "type-check (3.10)",
       "type-check (3.11)",
-      "test (3.9)",
       "test (3.10)",
       "test (3.11)"
     ]
@@ -137,13 +131,10 @@ resource "github_branch_protection" "develop_protection" {
     strict = true
     contexts = [
       "check-approval",
-      "lint (3.9)",
       "lint (3.10)",
       "lint (3.11)",
-      "type-check (3.9)",
       "type-check (3.10)",
       "type-check (3.11)",
-      "test (3.9)",
       "test (3.10)",
       "test (3.11)"
     ]

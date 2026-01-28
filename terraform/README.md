@@ -92,9 +92,9 @@ The configuration sets up the following protection for the `master`, `main`, and
 
 - **Required pull request reviews**: 1 approval required
 - **Required status checks**: Must pass before merging
-  - `lint`: Linting must pass (Python 3.9, 3.10, 3.11)
-  - `type-check`: Type checking must pass (Python 3.9, 3.10, 3.11)
-  - `test`: Test suite must pass (Python 3.9, 3.10, 3.11)
+  - `lint`: Linting must pass (Python 3.10, 3.11)
+  - `type-check`: Type checking must pass (Python 3.10, 3.11)
+  - `test`: Test suite must pass (Python 3.10, 3.11)
 - **Linear history**: Enforced (no merge commits, rebase only)
 - **Force pushes**: Disabled
 - **Branch deletions**: Disabled
