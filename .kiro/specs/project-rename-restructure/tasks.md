@@ -87,25 +87,25 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [x] Add `is_valid_sample_rate()` method
 
 ### 2.2 Domain Ports (Interfaces)
-- [ ] Create `apps/core/src/domain/ports/__init__.py`
-- [ ] Create `apps/core/src/domain/ports/tts_engine.py`
-  - [ ] Define `TTSEngine` ABC
-  - [ ] Add `get_supported_modes()` abstract method
-  - [ ] Add `generate_audio()` abstract method
-  - [ ] Add `validate_profile()` abstract method
-- [ ] Create `apps/core/src/domain/ports/audio_processor.py`
-  - [ ] Define `AudioProcessor` ABC
-  - [ ] Add `validate_sample()` abstract method
-  - [ ] Add `process_sample()` abstract method
-  - [ ] Add `normalize_audio()` abstract method
-- [ ] Create `apps/core/src/domain/ports/profile_repository.py`
-  - [ ] Define `ProfileRepository` ABC
-  - [ ] Add `save()` abstract method
-  - [ ] Add `find_by_id()` abstract method
-  - [ ] Add `list_all()` abstract method
-  - [ ] Add `delete()` abstract method
-- [ ] Create `apps/core/src/domain/ports/config_provider.py`
-  - [ ] Define `ConfigProvider` ABC
+- [x] Create `apps/core/src/domain/ports/__init__.py`
+- [x] Create `apps/core/src/domain/ports/tts_engine.py`
+  - [x] Define `TTSEngine` ABC
+  - [x] Add `get_supported_modes()` abstract method
+  - [x] Add `generate_audio()` abstract method
+  - [x] Add `validate_profile()` abstract method
+- [x] Create `apps/core/src/domain/ports/audio_processor.py`
+  - [x] Define `AudioProcessor` ABC
+  - [x] Add `validate_sample()` abstract method
+  - [x] Add `process_sample()` abstract method
+  - [x] Add `normalize_audio()` abstract method
+- [x] Create `apps/core/src/domain/ports/profile_repository.py`
+  - [x] Define `ProfileRepository` ABC
+  - [x] Add `save()` abstract method
+  - [x] Add `find_by_id()` abstract method
+  - [x] Add `list_all()` abstract method
+  - [x] Add `delete()` abstract method
+- [x] Create `apps/core/src/domain/ports/config_provider.py`
+  - [x] Define `ConfigProvider` ABC
 
 ### 2.3 Domain Services
 - [ ] Create `apps/core/src/domain/services/__init__.py`
