@@ -1,15 +1,16 @@
-"""Setup configuration for voice-clone-cli package."""
+"""Setup configuration for tts-studio package."""
+
 from setuptools import find_packages, setup
 
 setup(
-    name="voice-clone-cli",
-    version="0.2.0",
-    description="Personal voice cloning CLI tool using Qwen3-TTS",
+    name="tts-studio",
+    version="0.1.0",
+    description="Personal voice cloning and design tool using TTS models",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     author="Bryan Stevens Acosta",
     author_email="bryanstevensacosta@gmail.com",
-    url="https://github.com/yourusername/voice-clone-cli",
+    url="https://github.com/bryanstevensacosta/tts-studio",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     python_requires=">=3.10,<3.12",
