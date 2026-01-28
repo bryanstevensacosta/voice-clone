@@ -77,7 +77,7 @@ We welcome code contributions! Here's how:
 
 ### Prerequisites
 
-- Python 3.9, 3.10, or 3.11
+- Python 3.10 or 3.11
 - Git
 - pip (comes with Python)
 

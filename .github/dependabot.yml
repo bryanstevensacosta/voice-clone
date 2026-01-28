@@ -11,17 +11,10 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "python"
     commit-message:
       prefix: "chore"
       prefix-development: "chore"
       include: "scope"
-    reviewers:
-      - "@me"
-    assignees:
-      - "@me"
 
   # GitHub Actions ecosystem
   - package-ecosystem: "github-actions"
@@ -31,13 +24,6 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "github-actions"
     commit-message:
       prefix: "ci"
       include: "scope"
-    reviewers:
-      - "@me"
-    assignees:
-      - "@me"

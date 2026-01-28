@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/bryanstevensacosta/voice-clone/workflows/CI/badge.svg)](https://github.com/bryanstevensacosta/voice-clone/actions)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 AI voice cloning tool with modern web interface and CLI, powered by Qwen3-TTS. Clone any voice with just a few audio samples and generate natural-sounding speech from text.
@@ -293,7 +293,7 @@ For detailed documentation, see:
 
 ## Requirements
 
-- Python 3.9, 3.10, or 3.11
+- Python 3.10 or 3.11
 - 8GB+ RAM (16GB recommended for M1 Pro)
 - GPU recommended for faster processing:
   - NVIDIA GPU with CUDA (Linux/Windows)
