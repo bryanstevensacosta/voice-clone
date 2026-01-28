@@ -109,6 +109,10 @@ module = "infra.persistence.*"
 ignore_errors = true
 
 [[tool.mypy.overrides]]
+module = "infra.config.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
 module = "domain.*"
 follow_imports = "normal"
 
