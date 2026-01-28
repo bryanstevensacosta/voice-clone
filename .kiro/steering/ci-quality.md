@@ -32,14 +32,30 @@ pre-commit install --hook-type pre-push
 pre-commit run --all-files
 ```
 
-#### 2. Pre-push Format Check
+#### 2. Configuración Correcta de Ruff
+**CRÍTICO**: Ruff debe auto-corregir sin fallar el commit.
+
+```yaml
+# .pre-commit-config.yaml
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.1.9
+  hooks:
+    - id: ruff
+      args: ['--fix']  # ✅ Auto-fix sin fallar
+      # ❌ NO usar: ['--fix', '--exit-non-zero-on-fix']
+    - id: ruff-format
+```
+
+**Por qué**: El flag `--exit-non-zero-on-fix` hace que el hook **falle** después de aplicar correcciones, lo cual es contraproducente. Queremos que aplique los fixes y continúe.
+
+#### 3. Pre-push Format Check
 Hook automático que verifica formato antes de push:
 - Ejecuta Black en modo check
 - Ejecuta Ruff para detectar issues
 - Bloquea push si hay problemas de formato
 - Ubicación: `scripts/pre-push-format-check.sh`
 
-#### 3. Configuración de Black
+#### 4. Configuración de Black
 Black configurado para Python 3.11 en `pyproject.toml`:
 
 ```toml
@@ -245,6 +261,12 @@ ls -la .git/hooks/
 - [Git Workflow Guide](docs/git-workflow.md)
 
 ## Historial de Cambios
+
+### 2026-01-28
+- **Corregido**: Configuración de Ruff pre-commit hook
+- **Removido**: Flag `--exit-non-zero-on-fix` que causaba fallos innecesarios
+- **Mejora**: Ahora Ruff auto-corrige imports sin fallar el commit
+- **Lección**: Los hooks deben auto-corregir, no solo detectar
 
 ### 2026-01-27
 - **Creado**: Documento de estándares de CI/CD
