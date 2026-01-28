@@ -22,7 +22,8 @@ class AudioSample:
     bit_depth: int
     emotion: str | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """Validate audio sample after initialization."""
         """Validate audio sample on creation."""
         if not self.is_valid_duration():
             raise ValueError(
