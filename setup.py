@@ -12,7 +12,7 @@ setup(
     url="https://github.com/yourusername/voice-clone-cli",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    python_requires=">=3.9,<3.12",
+    python_requires=">=3.10,<3.12",
     install_requires=[
         "qwen-tts>=1.0.0",
         "torch>=2.0.0",
@@ -27,6 +27,7 @@ setup(
         "tqdm>=4.65.0",
         "python-dotenv>=1.0.0",
         "PyYAML>=6.0",
+        "matplotlib>=3.5.0",
     ],
     extras_require={
         "dev": [
@@ -41,14 +42,13 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "voice-clone=voice_clone.cli_commands:cli",
+            "voice-clone=cli.cli:cli",
         ],
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Topic :: Multimedia :: Sound/Audio :: Speech",

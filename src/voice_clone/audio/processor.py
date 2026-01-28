@@ -87,7 +87,7 @@ class AudioProcessor:
 
             # Check duration (Qwen3-TTS requires minimum 3 seconds)
             duration = librosa.get_duration(y=audio, sr=sr)
-            metadata["duration"] = f"{duration:.2f}s"
+            metadata["duration"] = duration
 
             if duration < 3.0:
                 errors.append(
@@ -110,7 +110,7 @@ class AudioProcessor:
                 errors.append(
                     "Audio clipping detected (distortion). Re-record with lower volume."
                 )
-            metadata["max_amplitude"] = f"{max_amplitude:.3f}"
+            metadata["max_amplitude"] = max_amplitude
 
             # Determine success
             success = len(errors) == 0
@@ -454,7 +454,7 @@ class AudioProcessor:
             audio, sr = librosa.load(input_path, sr=None, mono=True)
 
             # Upsample
-            upsampled = self.upsample_output(audio, sr, target_sr)
+            upsampled = self.upsample_output(audio, int(sr), target_sr)
 
             # Save
             output_path.parent.mkdir(parents=True, exist_ok=True)

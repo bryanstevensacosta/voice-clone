@@ -2,6 +2,7 @@
 
 This module handles loading, merging, and validating configuration files.
 """
+
 from pathlib import Path
 from typing import Any, cast
 
@@ -167,7 +168,7 @@ class ConfigManager:
             "paths": {
                 "samples": "./data/samples",
                 "outputs": "./data/outputs",
-                "models": "./data/qwen3_models",
+                "models": "./data/models",
                 "cache": "./data/cache",
             },
             "generation": {

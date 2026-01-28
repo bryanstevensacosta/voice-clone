@@ -1,20 +1,22 @@
-# Voice Clone CLI
+# Voice Clone - AI Voice Cloning Tool
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/bryanstevensacosta/voice-clone/workflows/CI/badge.svg)](https://github.com/bryanstevensacosta/voice-clone/actions)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-A personal voice cloning CLI tool powered by Qwen3-TTS. Clone any voice with just a few audio samples and generate natural-sounding speech from text.
+AI voice cloning tool with modern web interface and CLI, powered by Qwen3-TTS. Clone any voice with just a few audio samples and generate natural-sounding speech from text.
 
 ## Features
 
-- 🎤 **Voice Cloning**: Clone any voice using audio samples
+- 🌐 **Web Interface**: Modern, intuitive UI built with Gradio
+- 🎤 **Voice Cloning**: Clone any voice using 1-3 audio samples
 - 🗣️ **Text-to-Speech**: Generate speech from text in the cloned voice
 - 🎯 **High Quality**: Powered by Qwen3-TTS for natural-sounding results
 - ⚡ **Fast Processing**: Optimized for quick voice cloning and synthesis
-- 🖥️ **CLI Interface**: Simple command-line interface for easy use
-- 🔧 **Configurable**: Flexible configuration options for advanced users
+- 📦 **Batch Processing**: Process multiple text segments at once
+- 🖥️ **CLI Interface**: Command-line interface for advanced users
+- 🔧 **Configurable**: Flexible configuration options
 
 ## Quick Start
 
@@ -22,8 +24,8 @@ A personal voice cloning CLI tool powered by Qwen3-TTS. Clone any voice with jus
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/voice-clone-cli.git
-cd voice-clone-cli
+git clone https://github.com/yourusername/voice-clone.git
+cd voice-clone
 
 # Run the automated setup script
 ./setup.sh
@@ -31,10 +33,31 @@ cd voice-clone-cli
 
 The setup script will:
 - Create a Python virtual environment
-- Install all dependencies
+- Install all dependencies (including Gradio)
 - Set up pre-commit hooks for development
 
-### Basic Usage
+### Web Interface (Recommended)
+
+```bash
+# Activate the virtual environment
+source venv/bin/activate
+
+# Launch the web interface
+voice-clone ui
+
+# Open your browser at: http://localhost:7860
+```
+
+The web interface provides an intuitive way to:
+1. **Upload and validate** audio samples
+2. **Create voice profiles** with a few clicks
+3. **Generate audio** from text interactively
+4. **Process batches** of text segments
+5. **Download results** directly from the browser
+
+### CLI Usage (Advanced)
+
+For advanced users and automation, the CLI is still available:
 
 ```bash
 # Activate the virtual environment
@@ -86,6 +109,26 @@ pre-commit install --hook-type pre-push
 ```
 
 ## Usage Examples
+
+### Web Interface
+
+The easiest way to use Voice Clone is through the web interface:
+
+1. **Launch the UI**:
+   ```bash
+   voice-clone ui
+   ```
+
+2. **Open your browser** at `http://localhost:7860`
+
+3. **Follow the tabs**:
+   - **Tab 1**: Upload samples and create voice profile
+   - **Tab 2**: Generate audio from text
+   - **Tab 3**: Process batch scripts
+
+### CLI Examples
+
+For automation and advanced usage:
 
 ### Preparing Voice Samples
 
@@ -232,8 +275,8 @@ paths:
 Create a `.env` file for sensitive settings:
 
 ```bash
-# Optional: Custom model cache directory
-QWEN_TTS_CACHE_DIR=/path/to/cache
+# Optional: Custom models directory
+QWEN_TTS_MODELS_DIR=/path/to/models
 
 # Optional: Logging level
 LOG_LEVEL=INFO
@@ -418,28 +461,36 @@ The commit-msg hook will validate your commit messages automatically.
 ## Project Structure
 
 ```
-voice-clone-cli/
-├── src/voice_clone/        # Main package
-│   ├── cli.py             # CLI interface
-│   ├── config.py          # Configuration management
-│   ├── audio/             # Audio processing
-│   │   ├── processor.py   # Audio validation & conversion
-│   │   └── validator.py   # Validation results
-│   ├── model/             # Model management
-│   │   ├── manager.py     # Model loading & caching
-│   │   ├── generator.py   # TTS generation
-│   │   └── profile.py     # Voice profile data
-│   ├── batch/             # Batch processing
-│   │   └── processor.py   # Script processing
-│   └── utils/             # Utilities
-│       ├── logger.py      # Logging setup
-│       └── helpers.py     # Helper functions
+voice-clone/
+├── src/
+│   ├── voice_clone/        # Backend package
+│   │   ├── cli.py         # CLI interface
+│   │   ├── config.py      # Configuration management
+│   │   ├── audio/         # Audio processing
+│   │   │   ├── processor.py   # Audio validation & conversion
+│   │   │   └── validator.py   # Validation results
+│   │   ├── model/         # Model management
+│   │   │   ├── manager.py     # Model loading & caching
+│   │   │   ├── generator.py   # TTS generation
+│   │   │   └── profile.py     # Voice profile data
+│   │   ├── batch/         # Batch processing
+│   │   │   └── processor.py   # Script processing
+│   │   └── utils/         # Utilities
+│   │       ├── logger.py      # Logging setup
+│   │       └── helpers.py     # Helper functions
+│   └── gradio_ui/          # Web interface (NEW)
+│       ├── app.py         # Gradio application
+│       ├── components/    # UI components
+│       ├── handlers/      # Event handlers
+│       └── utils/         # UI utilities
 ├── tests/                 # Test suite
 │   ├── unit/             # Unit tests
-│   └── property/         # Property-based tests
+│   ├── property/         # Property-based tests
+│   └── gradio_ui/        # UI tests
 ├── docs/                  # Documentation
 ├── data/                  # Data directory (gitignored)
 │   ├── samples/          # Audio samples
+│   ├── profiles/         # Voice profiles
 │   ├── models/           # Cached models
 │   ├── outputs/          # Generated audio
 │   └── scripts/          # Example scripts
@@ -523,13 +574,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] Batch processing for scripts
 - [x] Voice profile management
 - [x] Migration from XTTS-v2 to Qwen3-TTS
+- [x] Web interface with Gradio
 - [ ] Post-processing (normalization, fade effects)
 - [ ] Format export (MP3, AAC, platform-specific)
 - [ ] Integration tests
 - [ ] Manual testing with real samples
-- [ ] Web interface (future)
+- [ ] Streaming audio generation
 - [ ] Real-time voice conversion (future)
 - [ ] Multi-speaker support (future)
+- [ ] Hugging Face Spaces deployment (future)
 
 ---
 

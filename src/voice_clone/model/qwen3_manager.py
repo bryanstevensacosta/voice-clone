@@ -28,9 +28,7 @@ class Qwen3ModelManager:
         self.model_name = config.get("model", {}).get(
             "name", "Qwen/Qwen3-TTS-12Hz-1.7B-Base"
         )
-        self.models_cache = Path(
-            config.get("paths", {}).get("models", "./data/qwen3_models")
-        )
+        self.models_cache = Path(config.get("paths", {}).get("models", "./data/models"))
 
     def _get_device_info(self) -> tuple[str, torch.dtype]:
         """Detect optimal device (MPS/CPU) and dtype.

@@ -1,4 +1,5 @@
 """Logging setup with Rich handler for formatted output."""
+
 import logging
 
 from rich.console import Console
