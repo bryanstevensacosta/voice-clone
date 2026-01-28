@@ -8,7 +8,7 @@ import logging
 import os
 from typing import Any
 
-from ...domain.ports.config_provider import ConfigProvider
+from domain.ports.config_provider import ConfigProvider
 
 logger = logging.getLogger(__name__)
 

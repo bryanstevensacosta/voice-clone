@@ -8,10 +8,9 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-
-from src.domain.models.audio_sample import AudioSample
-from src.domain.models.voice_profile import VoiceProfile
-from src.infra.persistence.file_profile_repository import FileProfileRepository
+from domain.models.audio_sample import AudioSample
+from domain.models.voice_profile import VoiceProfile
+from infra.persistence.file_profile_repository import FileProfileRepository
 
 
 @pytest.fixture

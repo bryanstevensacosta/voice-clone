@@ -8,11 +8,11 @@ import json
 import logging
 from pathlib import Path
 
-from ...domain.models.voice_profile import VoiceProfile
-from ...domain.ports.profile_repository import (
+from domain.models.voice_profile import VoiceProfile
+from domain.ports.profile_repository import (
     ProfileRepository,  # type: ignore[import-untyped]
 )
-from .json_serializer import JSONSerializer
+from infra.persistence.json_serializer import JSONSerializer
 
 logger = logging.getLogger(__name__)
 

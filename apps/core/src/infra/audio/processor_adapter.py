@@ -3,6 +3,7 @@
 Implements the AudioProcessor port using librosa and ffmpeg.
 """
 
+import subprocess
 from pathlib import Path
 
 import librosa
@@ -128,8 +129,6 @@ class LibrosaAudioProcessor(AudioProcessor):
             InvalidSampleException: If normalization fails
         """
         try:
-            import subprocess
-
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
             cmd = [

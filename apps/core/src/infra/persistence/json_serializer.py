@@ -8,8 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from ...domain.models.audio_sample import AudioSample  # type: ignore[import-untyped]
-from ...domain.models.voice_profile import VoiceProfile  # type: ignore[import-untyped]
+from domain.models.audio_sample import AudioSample  # type: ignore[import-untyped]
+from domain.models.voice_profile import VoiceProfile  # type: ignore[import-untyped]
 
 
 class JSONSerializer:
