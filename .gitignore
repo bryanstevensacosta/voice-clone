@@ -70,6 +70,9 @@ config/config.yaml
 *.swp
 *.swo
 
+# Kiro (specs and steering files)
+.kiro/
+
 # OS
 .DS_Store
 Thumbs.db
