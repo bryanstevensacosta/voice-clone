@@ -10,6 +10,7 @@ import numpy as np
 import soundfile as sf
 
 from .model_loader import Qwen3ModelLoader
+from .modes import CloneMode
 
 
 class Qwen3Inference:
@@ -31,6 +32,9 @@ class Qwen3Inference:
         self.language = config.get("generation", {}).get("language", "Spanish")
         self.max_new_tokens = config.get("generation", {}).get("max_new_tokens", 2048)
 
+        # Initialize clone mode
+        self.clone_mode = CloneMode(model_loader, config)
+
     def generate(
         self,
         text: str,
@@ -51,35 +55,15 @@ class Qwen3Inference:
         Returns:
             Tuple of (audio_array, sample_rate) or None on failure
         """
-        if not self.model_loader.is_loaded():
-            raise RuntimeError(
-                "Model not loaded. Call model_loader.load_model() first."
-            )
-
         try:
-            model = self.model_loader.get_model()
-            assert model is not None, "Model is None"
-
-            # Use config defaults if not specified
-            if language is None:
-                language = self.language
-            if max_new_tokens is None:
-                max_new_tokens = self.max_new_tokens
-
-            # Convert ref_audio to string
-            ref_audio_str = str(ref_audio)
-
-            # Generate using Qwen3-TTS
-            audio, sample_rate = model.generate_voice_clone(
+            # Delegate to clone mode
+            return self.clone_mode.generate(
                 text=text,
-                language=language,
-                ref_audio=ref_audio_str,
+                ref_audio=ref_audio,
                 ref_text=ref_text,
+                language=language,
                 max_new_tokens=max_new_tokens,
             )
-
-            return audio, sample_rate
-
         except Exception as e:
             raise RuntimeError(f"Failed to generate audio: {str(e)}") from e
 
@@ -137,15 +121,8 @@ class Qwen3Inference:
         """
         output_path = Path(output_path)
 
-        # Validate inputs
-        if not text or len(text.strip()) == 0:
-            raise ValueError("Text cannot be empty")
-
-        if not Path(ref_audio).exists():
-            raise FileNotFoundError(f"Reference audio not found: {ref_audio}")
-
-        if not ref_text or len(ref_text.strip()) == 0:
-            raise ValueError("Reference text cannot be empty")
+        # Validate inputs using clone mode
+        self.clone_mode.validate_inputs(text, ref_audio, ref_text)
 
         if not self.model_loader.is_loaded():
             raise RuntimeError("Model not loaded")
