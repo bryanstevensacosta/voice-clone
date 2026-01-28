@@ -5,10 +5,25 @@ Infrastructure adapters (e.g., Qwen3Adapter) must implement this interface.
 """
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from ..models.voice_profile import VoiceProfile
+
+
+@dataclass
+class EngineCapabilities:
+    """Capabilities and limitations of a TTS engine.
+
+    Used by the UI to enforce appropriate limits.
+    """
+
+    max_text_length: int  # Maximum characters per generation
+    recommended_text_length: int  # Recommended for best quality
+    supports_streaming: bool = False  # Future: streaming generation
+    min_sample_duration: float = 3.0  # Minimum seconds per sample
+    max_sample_duration: float = 30.0  # Maximum seconds per sample
 
 
 class TTSEngine(ABC):
@@ -17,6 +32,15 @@ class TTSEngine(ABC):
     This port defines the contract that all TTS engine adapters must implement.
     Examples: Qwen3Adapter, XTTSAdapter, etc.
     """
+
+    @abstractmethod
+    def get_capabilities(self) -> EngineCapabilities:
+        """Get engine capabilities and limitations.
+
+        Returns:
+            EngineCapabilities describing what this engine can do
+        """
+        ...
 
     @abstractmethod
     def get_supported_modes(self) -> list[str]:
