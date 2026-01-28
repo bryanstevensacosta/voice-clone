@@ -6,7 +6,7 @@ Infrastructure adapters (e.g., FileProfileRepository) must implement this interf
 
 from abc import ABC, abstractmethod
 
-from apps.core.src.domain.models.voice_profile import VoiceProfile
+from ..models.voice_profile import VoiceProfile
 
 
 class ProfileRepository(ABC):

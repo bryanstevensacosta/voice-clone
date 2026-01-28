@@ -7,7 +7,7 @@ Infrastructure adapters (e.g., Qwen3Adapter) must implement this interface.
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from apps.core.src.domain.models.voice_profile import VoiceProfile
+from ..models.voice_profile import VoiceProfile
 
 
 class TTSEngine(ABC):

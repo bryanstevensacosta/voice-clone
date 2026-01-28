@@ -7,7 +7,7 @@ Infrastructure adapters (e.g., LibrosaAudioProcessor) must implement this interf
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from apps.core.src.domain.models.audio_sample import AudioSample
+from ..models.audio_sample import AudioSample
 
 
 class AudioProcessor(ABC):

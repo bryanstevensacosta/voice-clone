@@ -5,8 +5,8 @@ Contains business logic for creating voice profiles from audio samples.
 
 from pathlib import Path
 
-from apps.core.src.domain.models.voice_profile import VoiceProfile
-from apps.core.src.domain.ports.audio_processor import AudioProcessor
+from ..models.voice_profile import VoiceProfile
+from ..ports.audio_processor import AudioProcessor
 
 
 class VoiceCloningService:
