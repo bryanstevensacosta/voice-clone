@@ -4,9 +4,8 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-
-from src.domain.models.audio_sample import AudioSample
-from src.domain.models.voice_profile import VoiceProfile
+from domain.models.audio_sample import AudioSample
+from domain.models.voice_profile import VoiceProfile
 
 
 @pytest.fixture

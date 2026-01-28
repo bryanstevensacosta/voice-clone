@@ -4,11 +4,10 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
-
-from src.domain.models.audio_sample import AudioSample
-from src.domain.models.voice_profile import VoiceProfile
-from src.domain.ports.tts_engine import EngineCapabilities, TTSEngine
-from src.domain.services.audio_generation import AudioGenerationService
+from domain.models.audio_sample import AudioSample
+from domain.models.voice_profile import VoiceProfile
+from domain.ports.tts_engine import EngineCapabilities, TTSEngine
+from domain.services.audio_generation import AudioGenerationService
 
 
 @pytest.fixture
