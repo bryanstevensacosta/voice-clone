@@ -463,12 +463,13 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [x] Add migration notes
 
 ### 7.4 Code Quality
-- [ ] Run `black` on all Python code
-- [ ] Run `ruff check` and fix issues
-- [ ] Run `mypy` for type checking
-- [ ] Add type hints to all public APIs
-- [ ] Add docstrings to all public classes/methods
-- [ ] Check code coverage (target >80%)
+- [x] Run `black` on all Python code
+- [x] Run `ruff check` and fix issues
+- [x] Run `mypy` for type checking
+- [x] Add type hints to all public APIs
+- [x] Add docstrings to all public classes/methods
+- [x] Check code coverage (target >80%)
+  - Note: Coverage at 69%, tests need fixes for VoiceProfile/AudioSample constructors
 
 ### 7.5 CI/CD Updates
 - [ ] Update `.github/workflows/ci-python.yml`

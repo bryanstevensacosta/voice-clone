@@ -102,7 +102,7 @@ class LibrosaAudioProcessor(AudioProcessor):
             return AudioSample(
                 path=sample_path,
                 duration=duration,
-                sample_rate=sr,
+                sample_rate=int(sr),  # Convert to int for type safety
                 channels=info.channels,
                 bit_depth=bit_depth,
             )
