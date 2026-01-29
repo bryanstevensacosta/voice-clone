@@ -7,6 +7,9 @@ set -e
 
 echo "🔍 Checking code formatting before push..."
 
+# Change to apps/core directory
+cd apps/core
+
 # Check if black would reformat any files
 if ! black --check src/ tests/ 2>&1 | grep -q "would be left unchanged"; then
     echo ""
@@ -16,6 +19,7 @@ if ! black --check src/ tests/ 2>&1 | grep -q "would be left unchanged"; then
     black --check src/ tests/ 2>&1 | grep "would reformat" || true
     echo ""
     echo "💡 To fix this, run:"
+    echo "   cd apps/core"
     echo "   black src/ tests/"
     echo ""
     echo "Or run all pre-commit hooks:"
@@ -30,6 +34,7 @@ if ! ruff check src/ tests/ --exit-zero > /dev/null 2>&1; then
     echo "⚠️  Warning: Ruff found issues that can be auto-fixed"
     echo ""
     echo "💡 To fix this, run:"
+    echo "   cd apps/core"
     echo "   ruff check src/ tests/ --fix"
     echo ""
     echo "Or run all pre-commit hooks:"
