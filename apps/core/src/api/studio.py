@@ -15,6 +15,7 @@ from app.use_cases.generate_audio import GenerateAudioUseCase
 from app.use_cases.list_voice_profiles import ListVoiceProfilesUseCase
 from app.use_cases.process_batch import ProcessBatchUseCase
 from app.use_cases.validate_audio_samples import ValidateAudioSamplesUseCase
+from domain.ports.config_provider import ConfigProvider
 from infra.audio.processor_adapter import LibrosaAudioProcessor
 from infra.config.yaml_config import YAMLConfigProvider
 from infra.engines.qwen3.adapter import Qwen3Adapter
@@ -40,16 +41,23 @@ class TTSStudio:
         >>> print(result["status"])  # "success"
     """
 
-    def __init__(self, config_path: Path | None = None):
+    _config: ConfigProvider  # Type annotation for mypy
+
+    def __init__(
+        self,
+        config_path: Path | None = None,
+        config_dict: dict[str, Any] | None = None,
+    ):
         """Initialize TTS Studio API.
 
         Args:
             config_path: Optional path to config file. If None, uses default config.
+            config_dict: Optional config dictionary (for testing, bypasses file loading).
         """
         logger.info("Initializing TTS Studio API")
 
         # Initialize configuration
-        self._init_config(config_path)
+        self._init_config(config_path, config_dict)
 
         # Initialize infrastructure adapters
         self._init_adapters()
@@ -59,12 +67,23 @@ class TTSStudio:
 
         logger.info("TTS Studio API initialized successfully")
 
-    def _init_config(self, config_path: Path | None) -> None:
+    def _init_config(
+        self, config_path: Path | None, config_dict: dict[str, Any] | None
+    ) -> None:
         """Initialize configuration provider.
 
         Args:
             config_path: Optional path to config file
+            config_dict: Optional config dictionary (for testing)
         """
+        # If config_dict provided, use DictConfigProvider (for testing)
+        if config_dict is not None:
+            from infra.config.dict_config import DictConfigProvider
+
+            self._config = DictConfigProvider(config_dict)
+            logger.debug("Configuration loaded from dictionary")
+            return
+
         # Default config paths
         default_config = (
             Path(__file__).parent.parent.parent.parent / "config" / "default.yaml"
