@@ -4,6 +4,7 @@ Property-based tests for use cases.
 Tests use case properties and idempotency using Hypothesis.
 """
 
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -30,7 +31,7 @@ class TestCreateVoiceProfileProperties:
         processor = Mock(spec=AudioProcessor)
         processor.validate_sample.return_value = True
         processor.process_sample.return_value = AudioSample(
-            file_path=Path("test.wav"),
+            path=Path("test.wav"),
             duration=10.0,
             sample_rate=12000,
             channels=1,
@@ -120,11 +121,10 @@ class TestGenerateAudioProperties:
             id="test-id",
             name="test",
             samples=[],
-            created_at="2024-01-01T00:00:00",
-            total_duration=10.0,
+            created_at=datetime.now(),
             language="es",
         )
-        repository.find_by_name.return_value = profile
+        repository.find_by_id.return_value = profile
         return repository
 
     @given(
@@ -189,7 +189,7 @@ class TestGenerateAudioProperties:
         use_case.execute(profile_name="test", text=text, temperature=0.75, speed=1.0)
 
         # Should have called find_by_name exactly once
-        assert mock_repository.find_by_name.call_count == 1
+        assert mock_repository.find_by_id.call_count == 1
 
 
 class TestListVoiceProfilesProperties:
@@ -206,8 +206,7 @@ class TestListVoiceProfilesProperties:
                 id=f"test-id-{i}",
                 name=f"test-{i}",
                 samples=[],
-                created_at="2024-01-01T00:00:00",
-                total_duration=10.0,
+                created_at=datetime.now(),
                 language="es",
             )
             profiles.append(profile)
@@ -234,8 +233,7 @@ class TestListVoiceProfilesProperties:
                 id=f"test-id-{i}",
                 name=name,
                 samples=[],
-                created_at="2024-01-01T00:00:00",
-                total_duration=10.0,
+                created_at=datetime.now(),
                 language="es",
             )
             profiles.append(profile)
@@ -265,8 +263,7 @@ class TestUseCaseIdempotency:
             id="test-id",
             name=name,
             samples=[],
-            created_at="2024-01-01T00:00:00",
-            total_duration=10.0,
+            created_at=datetime.now(),
             language="es",
         )
         repository.list_all.return_value = [profile]
@@ -297,7 +294,7 @@ class TestUseCaseErrorHandling:
         """Property: Generating with nonexistent profile should raise error."""
         engine = Mock(spec=TTSEngine)
         repository = Mock(spec=ProfileRepository)
-        repository.find_by_name.return_value = None  # Profile not found
+        repository.find_by_id.return_value = None  # Profile not found
 
         use_case = GenerateAudioUseCase(
             tts_engine=engine, profile_repository=repository
@@ -344,11 +341,10 @@ class TestParameterBoundaries:
             id="test-id",
             name="test",
             samples=[],
-            created_at="2024-01-01T00:00:00",
-            total_duration=10.0,
+            created_at=datetime.now(),
             language="es",
         )
-        repository.find_by_name.return_value = profile
+        repository.find_by_id.return_value = profile
         return repository
 
     @given(temperature=st.floats(min_value=0.5, max_value=1.0))
