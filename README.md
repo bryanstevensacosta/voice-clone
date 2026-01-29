@@ -1,22 +1,26 @@
-# TTS Studio - AI Voice Cloning Library
+# TTS Studio - AI Voice Cloning
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/bryanstevensacosta/tts-studio/workflows/CI/badge.svg)](https://github.com/bryanstevensacosta/tts-studio/actions)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Professional voice cloning and text-to-speech library with hexagonal architecture, powered by Qwen3-TTS. Clone any voice with just a few audio samples and generate natural-sounding speech from text.
+Professional voice cloning and text-to-speech system with hexagonal architecture, powered by Qwen3-TTS. Clone any voice with just a few audio samples and generate natural-sounding speech from text.
+
+**Desktop application coming soon!** The core Python library is production-ready and can be integrated into your applications today.
 
 ## Features
 
 - 🎤 **Voice Cloning**: Clone any voice using 1-3 audio samples
 - 🗣️ **Text-to-Speech**: Generate speech from text in the cloned voice
 - 🎯 **High Quality**: Powered by Qwen3-TTS for natural-sounding results
-- ⚡ **Fast Processing**: Optimized for quick voice cloning and synthesis
+- ⚡ **Fast Processing**: Optimized for Apple Silicon (MPS) and CUDA GPUs
 - 📦 **Batch Processing**: Process multiple text segments at once
 - 🏗️ **Hexagonal Architecture**: Clean, testable, maintainable code
-- 🖥️ **Desktop App**: Native desktop application (coming soon)
 - 🔧 **Python API**: Easy-to-use Python library for integration
+- 🖥️ **Desktop App**: Native Tauri desktop application (coming soon)
+- 📥 **Model Management**: Download and manage TTS models on-demand
+- 🔒 **Privacy-First**: Everything runs locally, no cloud required
 
 ## Architecture
 
@@ -26,6 +30,13 @@ TTS Studio uses a **monorepo structure** with **hexagonal architecture** (Ports 
 tts-studio/
 ├── apps/
 │   ├── core/          # Python core library (hexagonal architecture)
+│   │   ├── src/
+│   │   │   ├── domain/      # Business logic (pure, no dependencies)
+│   │   │   ├── app/         # Use cases and orchestration
+│   │   │   ├── infra/       # Adapters (Qwen3, audio, storage)
+│   │   │   ├── api/         # Python API entry point
+│   │   │   └── shared/      # Shared utilities
+│   │   └── tests/           # Comprehensive test suite
 │   └── desktop/       # Tauri desktop app (coming soon)
 ├── config/            # Shared configuration
 ├── data/              # Data directory (gitignored)
@@ -34,18 +45,35 @@ tts-studio/
 
 ### Hexagonal Architecture
 
-The core library follows hexagonal architecture principles:
+The core library follows hexagonal architecture principles for maximum flexibility and testability:
 
-- **Domain Layer**: Pure business logic, no external dependencies
-- **Application Layer**: Use cases and orchestration
-- **Infrastructure Layer**: Adapters for TTS engines, audio processing, storage
-- **API Layer**: Python API for desktop app integration
+- **Domain Layer**: Pure business logic with zero external dependencies
+  - Entities (VoiceProfile, AudioSample)
+  - Ports (interfaces for TTS engines, audio processors, storage)
+  - Domain services (voice cloning logic)
+
+- **Application Layer**: Use cases that orchestrate domain logic
+  - CreateVoiceProfile, GenerateAudio, ValidateSamples
+  - DTOs for data transfer
+  - No business logic, only coordination
+
+- **Infrastructure Layer**: Concrete implementations (adapters)
+  - Qwen3 TTS engine adapter
+  - Librosa audio processor adapter
+  - File-based profile repository
+  - YAML configuration provider
+
+- **API Layer**: Entry point for external consumers
+  - TTSStudio class (main Python API)
+  - Dependency injection and wiring
 
 This architecture makes the code:
-- ✅ Easy to test (domain logic testable without infrastructure)
-- ✅ Easy to maintain (clear separation of concerns)
-- ✅ Easy to extend (swap TTS engines without changing business logic)
-- ✅ Easy to understand (follows SOLID principles)
+- ✅ **Easy to test**: Domain logic testable without infrastructure
+- ✅ **Easy to maintain**: Clear separation of concerns
+- ✅ **Easy to extend**: Swap TTS engines without changing business logic
+- ✅ **Easy to understand**: Follows SOLID principles
+
+See [docs/HEXAGONAL_ARCHITECTURE.md](docs/HEXAGONAL_ARCHITECTURE.md) for detailed architecture documentation.
 
 ## Quick Start
 
@@ -67,6 +95,29 @@ The setup script will:
 - Create a Python virtual environment
 - Install all dependencies
 - Set up pre-commit hooks for development
+
+### Model Download
+
+TTS Studio uses an on-demand model download system. Models are **not** included in the installation to keep the package size small.
+
+**First-time setup:**
+
+```python
+from api.studio import TTSStudio
+
+# Initialize the API (will prompt for model download if needed)
+studio = TTSStudio()
+
+# The Qwen3-TTS model (~3.4GB) will download automatically on first use
+# This happens once and takes 10-15 minutes depending on your connection
+```
+
+**Model storage locations:**
+- macOS: `~/Library/Application Support/TTS Studio/models/`
+- Windows: `%LOCALAPPDATA%\TTS Studio\models\`
+- Linux: `~/.local/share/tts-studio/models/`
+
+You can delete models anytime to free disk space and re-download them later.
 
 ### Python API Usage
 
@@ -310,13 +361,22 @@ tts-studio/
 
 **Import errors**: Make sure you've activated the virtual environment:
 ```bash
-source venv/bin/activate
+source venv/bin/activate  # macOS/Linux
+# or
+venv\Scripts\activate  # Windows
 ```
 
 **Model download fails**: The Qwen3-TTS model (~3.4GB) downloads automatically on first use. Ensure you have:
 - Stable internet connection
 - At least 10GB free disk space
 - Patience (first download takes 10-15 minutes)
+
+**Model storage**: Models are stored in OS-specific directories:
+- macOS: `~/Library/Application Support/TTS Studio/models/`
+- Windows: `%LOCALAPPDATA%\TTS Studio\models\`
+- Linux: `~/.local/share/tts-studio/models/`
+
+You can delete models to free space and re-download them later.
 
 **Audio quality issues**: Ensure your input samples are:
 - 12000 Hz sample rate (or will be converted)
@@ -327,9 +387,10 @@ source venv/bin/activate
 - At least 1 sample (1-3 recommended)
 
 **Generation is slow**:
-- First generation is slower (model loading)
-- CPU-only mode is significantly slower than MPS
+- First generation is slower (model loading ~30-60 seconds)
+- CPU-only mode is significantly slower than GPU
 - For M1/M2 Mac: Ensure PyTorch has MPS support and dtype is set to float32
+- For NVIDIA GPU: Ensure CUDA is properly installed
 
 **Voice sounds robotic**:
 - Add more samples with emotional variety
@@ -341,7 +402,7 @@ source venv/bin/activate
 - Close other applications
 - Reduce batch size
 - Use shorter text chunks
-- Consider upgrading RAM
+- Consider upgrading RAM (16GB recommended)
 
 ### Getting Help
 
@@ -376,13 +437,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] Audio validation and conversion
 - [x] Batch processing for scripts
 - [x] Voice profile management
-- [ ] Tauri desktop application
+- [x] Comprehensive test suite (206 tests, 99% passing)
+- [ ] **Model management system** (download models on-demand)
+- [ ] **Tauri desktop application** (native UI for all platforms)
 - [ ] Post-processing (normalization, fade effects)
 - [ ] Format export (MP3, AAC, platform-specific)
-- [ ] Integration tests
 - [ ] Streaming audio generation
 - [ ] Real-time voice conversion (future)
 - [ ] Multi-speaker support (future)
+- [ ] Additional TTS engines (XTTS, ElevenLabs)
 
 ---
 
