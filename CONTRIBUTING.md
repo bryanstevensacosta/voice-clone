@@ -21,7 +21,7 @@ This project adheres to a Code of Conduct that all contributors are expected to 
 
 ### Reporting Bugs
 
-Before creating a bug report, please check the [issue tracker](https://github.com/yourusername/voice-clone-cli/issues) to avoid duplicates.
+Before creating a bug report, please check the [issue tracker](https://github.com/bryanstevensacosta/voice-clone-cli/issues) to avoid duplicates.
 
 When creating a bug report, include:
 
@@ -89,7 +89,7 @@ git clone https://github.com/YOUR_USERNAME/voice-clone-cli.git
 cd voice-clone-cli
 
 # Add upstream remote
-git remote add upstream https://github.com/yourusername/voice-clone-cli.git
+git remote add upstream https://github.com/bryanstevensacosta/voice-clone-cli.git
 
 # Run automated setup
 ./setup.sh
@@ -532,8 +532,8 @@ When making changes, update relevant documentation:
 
 ## Questions?
 
-- 💬 Open a [Discussion](https://github.com/yourusername/voice-clone-cli/discussions)
-- 🐛 Create an [Issue](https://github.com/yourusername/voice-clone-cli/issues)
+- 💬 Open a [Discussion](https://github.com/bryanstevensacosta/voice-clone-cli/discussions)
+- 🐛 Create an [Issue](https://github.com/bryanstevensacosta/voice-clone-cli/issues)
 - 📧 Email: bryanstevensacosta@gmail.com
 
 ## Recognition
