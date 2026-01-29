@@ -58,6 +58,9 @@ data/models/
 data/cache/
 data/profiles/
 
+# Monorepo - Core Library Data (models, cache, outputs)
+apps/core/data/
+
 # Configuration (personal)
 config/config.yaml
 .env
