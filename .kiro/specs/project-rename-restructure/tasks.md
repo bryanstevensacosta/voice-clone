@@ -322,16 +322,7 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [x] Add logging
   - [x] Add `get_config()` and `reload_config()` helper methods
 
-### 5.2 CLI Interface for Subprocess (Tauri Bridge)
-- [ ] Create `apps/core/src/api/cli.py`
-  - [ ] Add argparse CLI for subprocess calls
-  - [ ] Add `generate` command
-  - [ ] Add `list-profiles` command
-  - [ ] Add `create-profile` command
-  - [ ] Output JSON for Tauri to parse
-  - [ ] Add `if __name__ == '__main__'` block
-
-### 5.3 API Tests
+### 5.2 API Tests
 - [ ] Create `apps/core/tests/api/test_python_api.py`
   - [ ] Test API initialization
   - [ ] Test `create_voice_profile()` with real adapters
@@ -343,20 +334,17 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [ ] Test JSON output
   - [ ] Test subprocess invocation
 
-### 5.4 Example Usage
+### 5.3 Example Usage
 - [ ] Create `examples/api_usage.py`
   - [ ] Show basic API usage
   - [ ] Show profile creation
   - [ ] Show audio generation
   - [ ] Show error handling
-- [ ] Create `examples/subprocess_usage.py`
-  - [ ] Show how Tauri will call Python
 
-### 5.5 Validation
+### 5.4 Validation
 - [ ] API can be called from Python
 - [ ] API returns proper JSON responses
 - [ ] `pytest apps/core/tests/api/` passes
-- [ ] CLI subprocess calls work
 - [ ] Examples run successfully
 
 ---
@@ -548,6 +536,87 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 
 ---
 
+## Phase 8.5: Python-Tauri Bridge (Week 8 continuation)
+
+### 8.7 Decide Python Integration Strategy
+**Decision Point**: Choose how Tauri will communicate with Python core library
+
+**Options to evaluate**:
+1. **Subprocess CLI Bridge** (simple, portable)
+   - Tauri spawns Python process
+   - Communication via stdin/stdout JSON
+   - Easy to debug and test
+
+2. **PyO3 Direct Calls** (faster, more complex)
+   - Python embedded in Rust
+   - Direct function calls
+   - Better performance
+
+3. **HTTP Local Server** (flexible, familiar)
+   - Python FastAPI server
+   - Tauri makes HTTP requests
+   - Standard REST patterns
+
+4. **IPC** (Inter-Process Communication)
+   - Named pipes or sockets
+   - Bidirectional communication
+   - More complex setup
+
+- [ ] Evaluate options based on:
+  - [ ] Performance requirements
+  - [ ] Development complexity
+  - [ ] Debugging ease
+  - [ ] Cross-platform compatibility
+- [ ] Document decision and rationale
+- [ ] Proceed with chosen approach
+
+### 8.8 CLI Interface for Subprocess (if chosen)
+**Note**: Only implement if subprocess approach is chosen in 8.7
+
+- [ ] Create `apps/core/src/api/cli.py`
+  - [ ] Add argparse CLI for subprocess calls
+  - [ ] Add `create-profile` command
+  - [ ] Add `generate` command
+  - [ ] Add `list-profiles` command
+  - [ ] Add `delete-profile` command
+  - [ ] Add `validate-samples` command
+  - [ ] Output JSON for Tauri to parse
+  - [ ] Add `if __name__ == '__main__'` block
+  - [ ] Add error handling with JSON error responses
+- [ ] Create `apps/core/tests/api/test_cli.py`
+  - [ ] Test CLI commands
+  - [ ] Test JSON output format
+  - [ ] Test error handling
+  - [ ] Test subprocess invocation
+
+### 8.9 PyO3 Integration (if chosen)
+**Note**: Only implement if PyO3 approach is chosen in 8.7
+
+- [ ] Add PyO3 to Tauri dependencies
+- [ ] Create Python module wrapper
+- [ ] Implement direct function calls
+- [ ] Add error handling
+- [ ] Test integration
+
+### 8.10 HTTP Server (if chosen)
+**Note**: Only implement if HTTP approach is chosen in 8.7
+
+- [ ] Add FastAPI to core dependencies
+- [ ] Create HTTP server wrapper around TTSStudio
+- [ ] Implement REST endpoints
+- [ ] Add CORS for local access
+- [ ] Test server integration
+
+### 8.11 Validation (Bridge Implementation)
+- [ ] Chosen integration approach works
+- [ ] Tauri can call Python successfully
+- [ ] JSON serialization works correctly
+- [ ] Error handling is robust
+- [ ] Performance is acceptable
+- [ ] Cross-platform compatibility verified
+
+---
+
 ## Phase 9: Release (Week 9)
 
 ### 9.1 Final Testing
@@ -614,13 +683,14 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 | 2 | Week 2 | 6 | Domain layer (pure business logic) |
 | 3 | Week 3 | 6 | Infrastructure adapters (Qwen3, audio, persistence) |
 | 4 | Week 4 | 5 | Application layer (use cases, DTOs) |
-| 5 | Week 5 | 5 | API layer (Python API for Tauri) |
+| 5 | Week 5 | 4 | API layer (Python API for Tauri) |
 | 6 | Week 6 | 6 | Delete CLI/Gradio, update docs |
 | 7 | Week 7 | 6 | Testing, documentation, CI/CD |
-| 8 | Week 8 | 6 | Tauri setup, Python bridge |
+| 8 | Week 8 | 6 | Tauri setup, Python bridge decision |
+| 8.5 | Week 8 | 5 | Python-Tauri bridge implementation |
 | 9 | Week 9 | 8 | Release v1.0.0 |
 
-**Total**: 55 task groups across 9 weeks
+**Total**: 59 task groups across 9 weeks
 
 ---
 
@@ -630,8 +700,9 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 2. **Phase 3** must be completed before Phase 4 (adapters before use cases)
 3. **Phase 4** must be completed before Phase 5 (use cases before API)
 4. **Phase 5** must be completed before Phase 8 (API before Tauri integration)
-5. **Phase 6-7** can run in parallel with Phase 8
-6. **Phase 9** requires all previous phases complete
+5. **Phase 8** must be completed before Phase 8.5 (Tauri setup before bridge decision)
+6. **Phase 6-7** can run in parallel with Phase 8
+7. **Phase 9** requires all previous phases complete
 
 ---
 
