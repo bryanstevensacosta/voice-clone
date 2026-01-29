@@ -423,14 +423,14 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 ## Phase 7: Testing & Documentation (Week 7)
 
 ### 7.1 Integration Tests
-- [ ] Create `apps/core/tests/integration/test_end_to_end.py`
-  - [ ] Test complete workflow: create profile → generate audio
-  - [ ] Test with real infrastructure (Qwen3, librosa, files)
-  - [ ] Test error scenarios
-- [ ] Create `apps/core/tests/integration/test_hexagonal_architecture.py`
-  - [ ] Test dependency inversion
-  - [ ] Test adapter swapping
-  - [ ] Test port implementations
+- [x] Create `apps/core/tests/integration/test_end_to_end.py`
+  - [x] Test complete workflow: create profile → generate audio
+  - [x] Test with real infrastructure (Qwen3, librosa, files)
+  - [x] Test error scenarios
+- [x] Create `apps/core/tests/integration/test_hexagonal_architecture.py`
+  - [x] Test dependency inversion
+  - [x] Test adapter swapping
+  - [x] Test port implementations
 
 ### 7.2 Property-Based Tests
 - [ ] Create `apps/core/tests/properties/test_domain_properties.py`
