@@ -60,6 +60,7 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 - [x] Add monorepo-specific ignores
 - [x] Update paths for `apps/core/`
 - [x] Add `apps/desktop/` ignores
+- [x] Add `apps/core/data/` to ignore downloaded models and cache
 
 ### 1.7 Validation
 - [x] Verify directory structure matches design
