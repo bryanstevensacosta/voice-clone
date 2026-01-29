@@ -1,0 +1,77 @@
+name: CI - Rust (Tauri Backend)
+
+on:
+  push:
+    branches: [master, main, develop]
+    paths:
+      - 'apps/desktop/src-tauri/**'
+      - '.github/workflows/ci-rust.yml'
+  pull_request:
+    branches: [master, main, develop]
+    paths:
+      - 'apps/desktop/src-tauri/**'
+      - '.github/workflows/ci-rust.yml'
+
+jobs:
+  lint:
+    name: Rust Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          override: true
+
+      - name: Check formatting
+        run: |
+          cd apps/desktop/src-tauri
+          cargo fmt -- --check
+
+      - name: Clippy
+        run: |
+          cd apps/desktop/src-tauri
+          cargo clippy -- -D warnings
+
+  test:
+    name: Rust Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Run tests
+        run: |
+          cd apps/desktop/src-tauri
+          cargo test
+
+  build:
+    name: Rust Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build
+        run: |
+          cd apps/desktop/src-tauri
+          cargo build --release
+
+# Note: This workflow is a placeholder for Phase 8 (Tauri Desktop App Setup)
+# It will be activated once apps/desktop/src-tauri/ is created

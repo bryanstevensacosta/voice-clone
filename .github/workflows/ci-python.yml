@@ -73,13 +73,18 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          cd apps/core
           pip install -e ".[dev]"
 
       - name: Check code formatting with Black
-        run: black --check src/ tests/
+        run: |
+          cd apps/core
+          black --check src/ tests/
 
       - name: Lint with Ruff
-        run: ruff check src/ tests/
+        run: |
+          cd apps/core
+          ruff check src/ tests/
 
   type-check:
     name: type-check
@@ -104,10 +109,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          cd apps/core
           pip install -e ".[dev]"
 
       - name: Type check with MyPy
-        run: mypy src/
+        run: |
+          cd apps/core
+          mypy src/
 
   test:
     name: test
@@ -137,15 +145,18 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          cd apps/core
           pip install -e ".[dev]"
 
       - name: Run tests with pytest
-        run: pytest tests/ --cov=voice_clone --cov-report=xml --cov-report=term-missing
+        run: |
+          cd apps/core
+          pytest tests/ --cov=src --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          file: ./coverage.xml
+          file: ./apps/core/coverage.xml
           fail_ci_if_error: false
 
   # Job to notify when CI is waiting for approval
