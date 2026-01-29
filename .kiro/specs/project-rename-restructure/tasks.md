@@ -433,13 +433,13 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [x] Test port implementations
 
 ### 7.2 Property-Based Tests
-- [ ] Create `apps/core/tests/properties/test_domain_properties.py`
-  - [ ] Test domain invariants
-  - [ ] Test voice profile properties
-  - [ ] Test audio sample properties
-- [ ] Create `apps/core/tests/properties/test_use_case_properties.py`
-  - [ ] Test use case properties
-  - [ ] Test idempotency where applicable
+- [x] Create `apps/core/tests/pbt/test_domain_properties.py`
+  - [x] Test domain invariants
+  - [x] Test voice profile properties
+  - [x] Test audio sample properties
+- [x] Create `apps/core/tests/pbt/test_use_case_properties.py`
+  - [x] Test use case properties
+  - [x] Test idempotency where applicable
 
 ### 7.3 Documentation
 - [ ] Create `docs/MIGRATION.md`
