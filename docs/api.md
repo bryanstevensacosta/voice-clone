@@ -1,34 +1,35 @@
 # API Documentation
 
-This document provides API reference for Voice Clone CLI's Python modules and functions.
+This document provides API reference for TTS Studio's Python API and hexagonal architecture.
 
 ## Overview
 
-Voice Clone CLI is organized into modular components:
+TTS Studio follows **hexagonal architecture** (Ports & Adapters) with clear separation of concerns:
 
-- **cli.py** - Command-line interface and argument parsing
-- **audio.py** - Audio processing and manipulation utilities
-- **model.py** - Model management and loading
-- **synthesizer.py** - Text-to-speech synthesis logic
+- **API Layer** (`api/`) - Main entry point for external consumers
+- **Application Layer** (`app/`) - Use cases and orchestration
+- **Domain Layer** (`domain/`) - Pure business logic
+- **Infrastructure Layer** (`infra/`) - Adapters for external systems
 
-## Module: voice_clone.cli
+## Quick Start
 
-Command-line interface implementation.
-
-### Functions
-
-#### `cli()`
-
-Main CLI entry point using Click framework.
-
-**Returns**: None
-
-**Example**:
 ```python
-from voice_clone.cli import cli
+from api.studio import TTSStudio
 
-if __name__ == "__main__":
-    cli()
+# Initialize the API
+studio = TTSStudio()
+
+# Create a voice profile
+profile = studio.create_voice_profile(
+    name="my_voice",
+    sample_paths=["sample1.wav", "sample2.wav"]
+)
+
+# Generate audio
+result = studio.generate_audio(
+    profile_id=profile["profile"]["id"],
+    text="Hello, world!"
+)
 ```
 
 ---

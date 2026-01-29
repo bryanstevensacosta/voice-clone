@@ -53,7 +53,7 @@ This architecture makes the code:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/tts-studio.git
+git clone https://github.com/bryanstevensacosta/tts-studio.git
 cd tts-studio
 
 # Navigate to core library
@@ -249,7 +249,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ```bash
 # Clone and setup
-git clone https://github.com/yourusername/tts-studio.git
+git clone https://github.com/bryanstevensacosta/tts-studio.git
 cd tts-studio/apps/core
 ./setup.sh
 
@@ -365,8 +365,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 - 📖 [Documentation](docs/)
-- 🐛 [Issue Tracker](https://github.com/yourusername/tts-studio/issues)
-- 💬 [Discussions](https://github.com/yourusername/tts-studio/discussions)
+- 🐛 [Issue Tracker](https://github.com/bryanstevensacosta/tts-studio/issues)
+- 💬 [Discussions](https://github.com/bryanstevensacosta/tts-studio/discussions)
 
 ## Roadmap
 

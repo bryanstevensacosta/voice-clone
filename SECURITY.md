@@ -175,7 +175,7 @@ We recognize security researchers who help improve our security:
 If you have questions about this security policy, please contact:
 
 - **Email**: bryanstevensacosta@gmail.com
-- **GitHub Discussions**: [Security Category](https://github.com/yourusername/voice-clone-cli/discussions/categories/security)
+- **GitHub Discussions**: [Security Category](https://github.com/bryanstevensacosta/voice-clone-cli/discussions/categories/security)
 
 ## Additional Resources
 

@@ -130,6 +130,6 @@ When releasing a new version:
 
 ## Links
 
-[Unreleased]: https://github.com/yourusername/voice-clone-cli/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/yourusername/voice-clone-cli/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/yourusername/voice-clone-cli/releases/tag/v0.1.0
+[Unreleased]: https://github.com/bryanstevensacosta/voice-clone-cli/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/bryanstevensacosta/voice-clone-cli/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/bryanstevensacosta/voice-clone-cli/releases/tag/v0.1.0
