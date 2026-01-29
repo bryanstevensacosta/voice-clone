@@ -4,6 +4,7 @@ Integration tests for hexagonal architecture validation.
 Tests dependency inversion, adapter swapping, and port implementations.
 """
 
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -27,7 +28,7 @@ class TestDependencyInversion:
         mock_processor = Mock(spec=AudioProcessor)
         mock_processor.validate_sample.return_value = True
         mock_processor.process_sample.return_value = AudioSample(
-            file_path=Path("test.wav"),
+            path=Path("test.wav"),
             duration=10.0,
             sample_rate=12000,
             channels=1,
@@ -71,7 +72,7 @@ class TestAdapterSwapping:
         processor = Mock(spec=AudioProcessor)
         processor.validate_sample.return_value = True
         processor.process_sample.return_value = AudioSample(
-            file_path=Path("test.wav"),
+            path=Path("test.wav"),
             duration=10.0,
             sample_rate=12000,
             channels=1,
@@ -129,8 +130,7 @@ class TestAdapterSwapping:
             id="test-id",
             name="test_profile",
             samples=[],
-            created_at="2024-01-01T00:00:00",
-            total_duration=0.0,
+            created_at=datetime.now(),
             language="es",
         )
 
@@ -284,8 +284,7 @@ class TestAdapterIsolation:
             id="test-id",
             name="test",
             samples=[],
-            created_at="2024-01-01T00:00:00",
-            total_duration=0.0,
+            created_at=datetime.now(),
             language="es",
         )
 
