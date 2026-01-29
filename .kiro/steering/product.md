@@ -21,6 +21,12 @@ Desktop application for voice cloning and text-to-speech synthesis using Qwen3-T
 5. **Generation**: Convert text to audio using cloned voice via desktop UI
 6. **Export**: Download generated audio for video editing
 
+## Architecture
+- **Monorepo**: Separate apps for core library and desktop UI
+- **Core Library**: Python library with hexagonal architecture (ports & adapters)
+- **Desktop App**: Tauri desktop app (React + TypeScript + Rust)
+- **Python API**: Core library exposes Python API for Tauri backend integration
+
 ## Key Features
 
 ### Desktop Application (Tauri + React)
@@ -38,7 +44,7 @@ Desktop application for voice cloning and text-to-speech synthesis using Qwen3-T
 - **Multiple Engines**: Support for Qwen3-TTS (more engines in future)
 - **Audio Processing**: Validation, normalization, format conversion
 - **Batch Processing**: Efficient processing of multiple segments
-- **Python API**: Can be used as library for advanced users
+- **Python API**: Exposes `TTSStudio` class for Tauri backend integration
 
 ### Quality Requirements
 - **Language**: Full support for Spanish (Latin American and Castilian)
@@ -70,7 +76,8 @@ Desktop application for voice cloning and text-to-speech synthesis using Qwen3-T
 - ❌ Authentication/Login/Registration
 - ❌ REST API or GraphQL
 - ❌ Web UI (browser-based)
-- ❌ CLI (command-line interface)
+- ❌ CLI (command-line interface) - Removed in Phase 6
+- ❌ Gradio UI - Removed in Phase 6
 - ❌ Database (uses SQLite locally)
 - ❌ Multi-user support
 - ❌ Cloud deployment

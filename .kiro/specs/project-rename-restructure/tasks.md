@@ -372,46 +372,51 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [x] Add Python API usage
   - [x] Add Tauri desktop app reference
   - [x] Update architecture description
-- [ ] Update `docs/usage.md`
-  - [ ] Remove CLI commands
-  - [ ] Add Python API examples
-  - [ ] Add desktop app usage
-- [ ] Update `docs/installation.md`
-  - [ ] Remove CLI installation
-  - [ ] Add Python library installation
-  - [ ] Add desktop app installation
-- [ ] Update `docs/api.md`
-  - [ ] Document new Python API
-  - [ ] Document hexagonal architecture
-  - [ ] Add adapter examples
+- [x] Update `docs/usage.md`
+  - [x] Remove CLI commands
+  - [x] Add Python API examples
+  - [x] Add desktop app usage
+- [x] Update `docs/installation.md`
+  - [x] Remove CLI installation
+  - [x] Add Python library installation
+  - [x] Add desktop app installation
+- [x] Update `docs/api.md`
+  - [x] Document new Python API
+  - [x] Document hexagonal architecture
+  - [x] Add adapter examples
+- [x] Replace all `yourusername` with `bryanstevensacosta`
 
 ### 6.4 Update Steering Files
-- [ ] Update `.kiro/steering/product.md`
-  - [ ] Remove CLI/Gradio references
-  - [ ] Add desktop app features
-  - [ ] Update architecture description
-- [ ] Update `.kiro/steering/tech.md`
-  - [ ] Add hexagonal architecture
-  - [ ] Remove CLI/Gradio tech
-  - [ ] Add Tauri tech stack
-- [ ] Update `.kiro/steering/structure.md`
-  - [ ] Document monorepo structure
-  - [ ] Document hexagonal layers
-  - [ ] Update file organization
+- [x] Update `.kiro/steering/product.md`
+  - [x] Remove CLI/Gradio references
+  - [x] Add desktop app features
+  - [x] Update architecture description
+- [x] Update `.kiro/steering/tech.md`
+  - [x] Add hexagonal architecture
+  - [x] Remove CLI/Gradio tech
+  - [x] Add Tauri tech stack
+- [x] Update `.kiro/steering/structure.md`
+  - [x] Document monorepo structure
+  - [x] Document hexagonal layers
+  - [x] Update file organization
+- Note: `.kiro/` directory is gitignored (steering files are workspace-specific)
 
 ### 6.5 Clean Up Tests
-- [ ] Remove CLI test imports
-- [ ] Remove Gradio test imports
-- [ ] Fix any broken test imports
-- [ ] Update test fixtures
-- [ ] Update conftest.py
+- [x] Remove CLI test imports (none found)
+- [x] Remove Gradio test imports (none found)
+- [x] Fix any broken test imports (none found)
+- [x] Update test fixtures (not needed)
+- [x] Update conftest.py (already clean)
 
 ### 6.6 Validation
-- [ ] No CLI or Gradio code remains
-- [ ] All remaining tests pass
-- [ ] No broken imports
-- [ ] Documentation is consistent
-- [ ] `pytest apps/core/` passes
+- [x] No CLI or Gradio code remains
+- [x] All remaining tests pass
+- [x] No broken imports
+- [x] Documentation is consistent
+- [x] `pytest apps/core/` passes
+- [x] Deprecated docs/ui-guide.md (replaced with API usage)
+- [x] Deprecated docs/SVELTE_UI_SPECIFICATION.md (Tauri chosen instead)
+- [x] Updated apps/core/Makefile (removed CLI/Gradio targets)
 
 ---
 

@@ -1,5 +1,15 @@
 # Svelte UI Specification - Voice Clone Tool
 
+> **⚠️ DEPRECATED**: This specification is no longer valid. The project has moved to a **Tauri desktop application** (React + TypeScript + Rust) instead of Svelte + Django web UI.
+>
+> **Current Architecture**: See `.kiro/steering/product.md` and `.kiro/steering/tech.md` for the current Tauri-based architecture.
+>
+> **Reason for Change**: Desktop-first approach with offline capabilities, better performance, and native OS integration.
+>
+> **Date Deprecated**: 2026-01-29
+
+---
+
 ## Document Overview
 
 This document provides a comprehensive specification for replacing the current Gradio UI with a modern Svelte + Django frontend. It includes:

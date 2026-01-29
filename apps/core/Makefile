@@ -120,11 +120,7 @@ activate:  ## Show activation command
 
 dev:  ## Run in development mode
 	@echo "🔧 Starting development mode..."
-	@python -m voice_clone.cli --help
-
-ui:  ## Launch Gradio web interface
-	@echo "🌐 Starting Gradio UI..."
-	@echo "📍 Opening at http://localhost:7860"
-	@python -m gradio_ui.app
+	@echo "💡 Use Python API: from api.studio import TTSStudio"
+	@python -c "from api.studio import TTSStudio; print('✅ API available')"
 
 .DEFAULT_GOAL := help
