@@ -308,18 +308,19 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 ## Phase 5: API Layer (Week 5)
 
 ### 5.1 Python API Implementation
-- [ ] Create `apps/core/src/api/__init__.py`
-- [ ] Create `apps/core/src/api/python_api.py`
-  - [ ] Define `TTSStudioAPI` class
-  - [ ] Initialize all adapters in `__init__()`
-  - [ ] Initialize all use cases
-  - [ ] Implement `create_voice_profile()` method
-  - [ ] Implement `generate_audio()` method
-  - [ ] Implement `list_voice_profiles()` method
-  - [ ] Implement `delete_voice_profile()` method
-  - [ ] Implement `validate_samples()` method
-  - [ ] Add error handling (try/except with status dict)
-  - [ ] Add logging
+- [x] Create `apps/core/src/api/__init__.py`
+- [x] Create `apps/core/src/api/studio.py` (renamed from `python_api.py` for clarity)
+  - [x] Define `TTSStudio` class (main API entry point)
+  - [x] Initialize all adapters in `__init__()` (dependency injection)
+  - [x] Initialize all use cases
+  - [x] Implement `create_voice_profile()` method
+  - [x] Implement `generate_audio()` method
+  - [x] Implement `list_voice_profiles()` method
+  - [x] Implement `delete_voice_profile()` method
+  - [x] Implement `validate_samples()` method
+  - [x] Add error handling (try/except with status dict)
+  - [x] Add logging
+  - [x] Add `get_config()` and `reload_config()` helper methods
 
 ### 5.2 CLI Interface for Subprocess (Tauri Bridge)
 - [ ] Create `apps/core/src/api/cli.py`
