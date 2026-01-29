@@ -1,22 +1,51 @@
-# Voice Clone - AI Voice Cloning Tool
+# TTS Studio - AI Voice Cloning Library
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/bryanstevensacosta/voice-clone/workflows/CI/badge.svg)](https://github.com/bryanstevensacosta/voice-clone/actions)
+[![CI](https://github.com/bryanstevensacosta/tts-studio/workflows/CI/badge.svg)](https://github.com/bryanstevensacosta/tts-studio/actions)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-AI voice cloning tool with modern web interface and CLI, powered by Qwen3-TTS. Clone any voice with just a few audio samples and generate natural-sounding speech from text.
+Professional voice cloning and text-to-speech library with hexagonal architecture, powered by Qwen3-TTS. Clone any voice with just a few audio samples and generate natural-sounding speech from text.
 
 ## Features
 
-- 🌐 **Web Interface**: Modern, intuitive UI built with Gradio
 - 🎤 **Voice Cloning**: Clone any voice using 1-3 audio samples
 - 🗣️ **Text-to-Speech**: Generate speech from text in the cloned voice
 - 🎯 **High Quality**: Powered by Qwen3-TTS for natural-sounding results
 - ⚡ **Fast Processing**: Optimized for quick voice cloning and synthesis
 - 📦 **Batch Processing**: Process multiple text segments at once
-- 🖥️ **CLI Interface**: Command-line interface for advanced users
-- 🔧 **Configurable**: Flexible configuration options
+- 🏗️ **Hexagonal Architecture**: Clean, testable, maintainable code
+- 🖥️ **Desktop App**: Native desktop application (coming soon)
+- 🔧 **Python API**: Easy-to-use Python library for integration
+
+## Architecture
+
+TTS Studio uses a **monorepo structure** with **hexagonal architecture** (Ports & Adapters):
+
+```
+tts-studio/
+├── apps/
+│   ├── core/          # Python core library (hexagonal architecture)
+│   └── desktop/       # Tauri desktop app (coming soon)
+├── config/            # Shared configuration
+├── data/              # Data directory (gitignored)
+└── docs/              # Documentation
+```
+
+### Hexagonal Architecture
+
+The core library follows hexagonal architecture principles:
+
+- **Domain Layer**: Pure business logic, no external dependencies
+- **Application Layer**: Use cases and orchestration
+- **Infrastructure Layer**: Adapters for TTS engines, audio processing, storage
+- **API Layer**: Python API for desktop app integration
+
+This architecture makes the code:
+- ✅ Easy to test (domain logic testable without infrastructure)
+- ✅ Easy to maintain (clear separation of concerns)
+- ✅ Easy to extend (swap TTS engines without changing business logic)
+- ✅ Easy to understand (follows SOLID principles)
 
 ## Quick Start
 
@@ -24,8 +53,11 @@ AI voice cloning tool with modern web interface and CLI, powered by Qwen3-TTS. C
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/voice-clone.git
-cd voice-clone
+git clone https://github.com/yourusername/tts-studio.git
+cd tts-studio
+
+# Navigate to core library
+cd apps/core
 
 # Run the automated setup script
 ./setup.sh
@@ -33,67 +65,59 @@ cd voice-clone
 
 The setup script will:
 - Create a Python virtual environment
-- Install all dependencies (including Gradio)
+- Install all dependencies
 - Set up pre-commit hooks for development
 
-### Web Interface (Recommended)
+### Python API Usage
 
-```bash
-# Activate the virtual environment
-source venv/bin/activate
+```python
+from api.studio import TTSStudio
 
-# Launch the web interface
-voice-clone ui
+# Initialize the API
+studio = TTSStudio()
 
-# Open your browser at: http://localhost:7860
+# 1. Validate audio samples
+validation = studio.validate_samples(
+    sample_paths=["./data/samples/neutral_01.wav", "./data/samples/happy_01.wav"]
+)
+
+if validation["all_valid"]:
+    # 2. Create voice profile
+    profile = studio.create_voice_profile(
+        name="my_voice",
+        sample_paths=["./data/samples/neutral_01.wav", "./data/samples/happy_01.wav"],
+        language="es"
+    )
+
+    if profile["status"] == "success":
+        # 3. Generate audio from text
+        result = studio.generate_audio(
+            profile_id=profile["profile"]["id"],
+            text="Hola, esta es una prueba de mi voz clonada.",
+            temperature=0.75,
+            speed=1.0
+        )
+
+        if result["status"] == "success":
+            print(f"Audio generated: {result['output_path']}")
 ```
 
-The web interface provides an intuitive way to:
-1. **Upload and validate** audio samples
-2. **Create voice profiles** with a few clicks
-3. **Generate audio** from text interactively
-4. **Process batches** of text segments
-5. **Download results** directly from the browser
-
-### CLI Usage (Advanced)
-
-For advanced users and automation, the CLI is still available:
-
-```bash
-# Activate the virtual environment
-source venv/bin/activate
-
-# 1. Validate your audio samples
-voice-clone validate-samples --dir ./data/samples
-
-# 2. Create a voice profile
-voice-clone prepare \
-  --samples ./data/samples \
-  --ref-text "Hola, esta es una muestra de mi voz para clonación." \
-  --output ./data/voice_profile.json \
-  --name "my_voice"
-
-# 3. Generate speech from text
-voice-clone generate \
-  --profile ./data/voice_profile.json \
-  --text "Hola, esta es una prueba de mi voz clonada." \
-  --output ./output.wav
-
-# 4. Quick test
-voice-clone test --profile ./data/voice_profile.json
-```
+See [examples/api_usage.py](examples/api_usage.py) for complete examples.
 
 ## Installation Options
 
 ### Option 1: Automated Setup (Recommended)
 
 ```bash
+cd apps/core
 ./setup.sh
 ```
 
 ### Option 2: Manual Setup
 
 ```bash
+cd apps/core
+
 # Create virtual environment
 python3.10 -m venv venv
 source venv/bin/activate
@@ -108,136 +132,55 @@ pre-commit install --hook-type commit-msg
 pre-commit install --hook-type pre-push
 ```
 
-## Usage Examples
+## Python API Reference
 
-### Web Interface
+### TTSStudio Class
 
-The easiest way to use Voice Clone is through the web interface:
+Main API entry point for TTS Studio.
 
-1. **Launch the UI**:
-   ```bash
-   voice-clone ui
-   ```
+#### Methods
 
-2. **Open your browser** at `http://localhost:7860`
+**`create_voice_profile(name, sample_paths, language="es", reference_text="")`**
+- Creates a voice profile from audio samples
+- Returns: `{"status": "success|error", "profile": {...}, "error": None|str}`
 
-3. **Follow the tabs**:
-   - **Tab 1**: Upload samples and create voice profile
-   - **Tab 2**: Generate audio from text
-   - **Tab 3**: Process batch scripts
+**`generate_audio(profile_id, text, temperature=0.75, speed=1.0, mode="clone")`**
+- Generates audio from text using a voice profile
+- Returns: `{"status": "success|error", "output_path": str, "duration": float, ...}`
 
-### CLI Examples
+**`list_voice_profiles()`**
+- Lists all available voice profiles
+- Returns: `{"status": "success|error", "profiles": [...], "count": int, ...}`
 
-For automation and advanced usage:
+**`delete_voice_profile(profile_id)`**
+- Deletes a voice profile
+- Returns: `{"status": "success|error", "deleted": bool, ...}`
 
-### Preparing Voice Samples
+**`validate_samples(sample_paths)`**
+- Validates audio samples for quality
+- Returns: `{"status": "success|error", "results": [...], "all_valid": bool, ...}`
 
-First, record 6-10 audio samples of your voice (10-20 seconds each):
+See [docs/api.md](docs/api.md) for complete API documentation.
 
-```bash
-# Samples should be:
-# - WAV format, 12000 Hz, mono, 16-bit
-# - Clear speech, no background noise
-# - Different emotions/tones
-# - Named: neutral_01.wav, happy_01.wav, serious_01.wav, etc.
+## Audio Sample Requirements
 
-# Place samples in data/samples/
-data/samples/
-├── neutral_01.wav
-├── neutral_02.wav
-├── happy_01.wav
-├── serious_01.wav
-└── calm_01.wav
-```
+For best results, your audio samples should be:
 
-### Validating Samples
+- **Format**: WAV, 12000 Hz, mono, 16-bit
+- **Duration**: 3-30 seconds per sample
+- **Quantity**: 1-3 samples (Qwen3-TTS requires fewer samples)
+- **Quality**: Clear speech, no background noise
+- **Variety**: Different emotions and tones
+- **Content**: Natural speech, complete sentences
 
-```bash
-# Validate all samples in a directory
-voice-clone validate-samples --dir ./data/samples
+### Sample Recording Tips
 
-# Output shows:
-# ✓ neutral_01.wav - Valid
-# ✓ happy_01.wav - Valid
-# ✗ serious_01.wav - ERROR: Stereo (must be mono)
-```
-
-### Creating Voice Profile
-
-```bash
-# Create profile from validated samples
-voice-clone prepare \
-  --samples ./data/samples \
-  --ref-text "Hola, esta es una muestra de mi voz para clonación." \
-  --output ./data/voice_profile.json \
-  --name "my_voice"
-
-# Output:
-# ✓ Voice profile created successfully!
-# Samples: 8
-# Duration: 127.3s
-# Language: es
-```
-
-### Generating Speech
-
-```bash
-# Generate from text
-voice-clone generate \
-  --profile ./data/voice_profile.json \
-  --text "Bienvenidos a este tutorial sobre inteligencia artificial." \
-  --output ./intro.wav
-
-# Generate from longer text (auto-chunking)
-voice-clone generate \
-  --profile ./data/voice_profile.json \
-  --text "$(cat script.txt)" \
-  --output ./narration.wav
-```
-
-### Batch Processing
-
-```bash
-# Create a script file with markers
-cat > script.txt << 'EOF'
-[INTRO]
-Hola a todos, bienvenidos a este nuevo video.
-
-[SECTION_1]
-Hoy vamos a hablar sobre inteligencia artificial.
-
-[OUTRO]
-Gracias por ver este video.
-EOF
-
-# Process entire script
-voice-clone batch \
-  --profile ./data/voice_profile.json \
-  --input ./script.txt \
-  --output-dir ./data/outputs/video_001
-
-# Output:
-# ✓ Batch processing complete!
-# Total segments: 3
-# Successful: 3
-# Failed: 0
-```
-
-### Quick Testing
-
-```bash
-# Test with default Spanish phrase
-voice-clone test --profile ./data/voice_profile.json
-
-# Test with custom text
-voice-clone test \
-  --profile ./data/voice_profile.json \
-  --text "Esta es una prueba personalizada" \
-  --output ./test.wav
-
-# Play the result (macOS)
-afplay ./test.wav
-```
+1. **Environment**: Record in a quiet room
+2. **Microphone**: Use a decent quality mic (built-in MacBook mic is acceptable)
+3. **Distance**: 15-20cm from microphone
+4. **Volume**: Natural speaking volume (not whispering or shouting)
+5. **Emotions**: Include neutral, happy, serious, calm tones
+6. **Avoid**: Background noise, echo, mouth clicks, breathing sounds
 
 ## Configuration
 
@@ -267,19 +210,8 @@ audio:
 paths:
   samples: "./data/samples"
   outputs: "./data/outputs"
+  profiles: "./data/profiles"
   models: "./data/models"
-```
-
-### Environment Variables
-
-Create a `.env` file for sensitive settings:
-
-```bash
-# Optional: Custom models directory
-QWEN_TTS_MODELS_DIR=/path/to/models
-
-# Optional: Logging level
-LOG_LEVEL=INFO
 ```
 
 ## Documentation
@@ -290,6 +222,7 @@ For detailed documentation, see:
 - [Usage Guide](docs/usage.md) - Comprehensive usage examples
 - [Development Guide](docs/development.md) - Contributing and development setup
 - [API Documentation](docs/api.md) - API reference and integration guide
+- [Hexagonal Architecture](docs/HEXAGONAL_ARCHITECTURE.md) - Architecture overview
 
 ## Requirements
 
@@ -308,26 +241,6 @@ For detailed documentation, see:
 | RTX 3060 (12GB) | ~10-20s per minute | CUDA acceleration |
 | Intel i7 (CPU) | ~2-3 min per minute | CPU-only, slower |
 
-## Audio Sample Requirements
-
-For best results, your audio samples should be:
-
-- **Format**: WAV, 12000 Hz, mono, 16-bit
-- **Duration**: 3-30 seconds per sample
-- **Quantity**: 1-3 samples (Qwen3-TTS requires fewer samples)
-- **Quality**: Clear speech, no background noise
-- **Variety**: Different emotions and tones
-- **Content**: Natural speech, complete sentences
-
-### Sample Recording Tips
-
-1. **Environment**: Record in a quiet room
-2. **Microphone**: Use a decent quality mic (built-in MacBook mic is acceptable)
-3. **Distance**: 15-20cm from microphone
-4. **Volume**: Natural speaking volume (not whispering or shouting)
-5. **Emotions**: Include neutral, happy, serious, calm tones
-6. **Avoid**: Background noise, echo, mouth clicks, breathing sounds
-
 ## Development
 
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
@@ -336,8 +249,8 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ```bash
 # Clone and setup
-git clone https://github.com/yourusername/voice-clone-cli.git
-cd voice-clone-cli
+git clone https://github.com/yourusername/tts-studio.git
+cd tts-studio/apps/core
 ./setup.sh
 
 # Run tests
@@ -363,142 +276,32 @@ All checks run automatically via pre-commit hooks.
 
 ### Git Workflow
 
-This project enforces a strict rebase workflow to maintain a clean, linear history:
-
-#### Branch Protection
-
-The following branches are protected: `master`, `main`, `develop`
-- ❌ No direct pushes allowed
-- ❌ No force pushes allowed
-- ✅ All changes must go through Pull Requests
-- ✅ CI checks must pass before merge
-- ✅ Only rebase merge is allowed (linear history)
-
-#### Development Workflow
-
-```bash
-# 1. Create a feature branch
-git checkout -b feature/my-feature
-
-# 2. Make your changes and commit
-git add .
-git commit -m "feat: add new feature"
-
-# 3. Before pushing, ensure you're up to date
-make sync                    # Fetch latest changes
-make rebase-master          # Rebase on master (or main/develop)
-
-# 4. Push your branch
-git push origin feature/my-feature
-
-# 5. Create a Pull Request on GitHub
-# The CI will run automatically
-
-# 6. After PR approval, merge via GitHub
-# (GitHub will automatically rebase and merge)
-```
-
-#### Pre-Push Hooks
-
-The pre-push hook automatically checks:
-- ✅ Your branch is up to date (rebased)
-- ✅ You're not pushing to protected branches
-- ✅ All tests pass
-- ✅ Code coverage is above 70%
-
-If your branch is behind, you'll see:
-```
-❌ Error: Your branch is not up to date with origin/master
-To fix this, run:
-  git fetch origin
-  git rebase origin/master
-```
-
-#### Useful Commands
-
-```bash
-make sync              # Fetch and show status
-make rebase-master     # Rebase on master
-make rebase-main       # Rebase on main
-make rebase-develop    # Rebase on develop
-make check-branch      # Check if rebase is needed
-```
-
-#### Commit Message Convention
-
-This project uses [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer]
-```
-
-Types:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
-- `perf`: Performance improvements
-- `ci`: CI/CD changes
-- `build`: Build system changes
-
-Examples:
-```bash
-git commit -m "feat: add voice cloning feature"
-git commit -m "fix: resolve audio processing bug"
-git commit -m "docs: update installation guide"
-git commit -m "test: add unit tests for synthesizer"
-```
-
-The commit-msg hook will validate your commit messages automatically.
+This project enforces a strict rebase workflow to maintain a clean, linear history. See [docs/git-workflow.md](docs/git-workflow.md) for details.
 
 ## Project Structure
 
 ```
-voice-clone/
-├── src/
-│   ├── voice_clone/        # Backend package
-│   │   ├── cli.py         # CLI interface
-│   │   ├── config.py      # Configuration management
-│   │   ├── audio/         # Audio processing
-│   │   │   ├── processor.py   # Audio validation & conversion
-│   │   │   └── validator.py   # Validation results
-│   │   ├── model/         # Model management
-│   │   │   ├── manager.py     # Model loading & caching
-│   │   │   ├── generator.py   # TTS generation
-│   │   │   └── profile.py     # Voice profile data
-│   │   ├── batch/         # Batch processing
-│   │   │   └── processor.py   # Script processing
-│   │   └── utils/         # Utilities
-│   │       ├── logger.py      # Logging setup
-│   │       └── helpers.py     # Helper functions
-│   └── gradio_ui/          # Web interface (NEW)
-│       ├── app.py         # Gradio application
-│       ├── components/    # UI components
-│       ├── handlers/      # Event handlers
-│       └── utils/         # UI utilities
-├── tests/                 # Test suite
-│   ├── unit/             # Unit tests
-│   ├── property/         # Property-based tests
-│   └── gradio_ui/        # UI tests
-├── docs/                  # Documentation
-├── data/                  # Data directory (gitignored)
-│   ├── samples/          # Audio samples
-│   ├── profiles/         # Voice profiles
-│   ├── models/           # Cached models
-│   ├── outputs/          # Generated audio
-│   └── scripts/          # Example scripts
-├── config/                # Configuration files
-│   ├── default.yaml      # Default config
-│   └── config.yaml.example  # Example custom config
-└── .kiro/                 # Project steering guides
-    └── steering/         # Workflow documentation
+tts-studio/
+├── apps/
+│   ├── core/                    # Python core library
+│   │   ├── src/
+│   │   │   ├── domain/         # Domain layer (business logic)
+│   │   │   ├── app/            # Application layer (use cases)
+│   │   │   ├── infra/          # Infrastructure layer (adapters)
+│   │   │   ├── api/            # API layer (entry points)
+│   │   │   └── shared/         # Shared utilities
+│   │   ├── tests/              # Test suite
+│   │   ├── setup.py            # Package setup
+│   │   └── requirements.txt    # Dependencies
+│   └── desktop/                 # Tauri desktop app (coming soon)
+├── config/                      # Configuration files
+├── data/                        # Data directory (gitignored)
+│   ├── samples/                # Audio samples
+│   ├── profiles/               # Voice profiles
+│   ├── models/                 # Cached models
+│   └── outputs/                # Generated audio
+├── docs/                        # Documentation
+└── examples/                    # Usage examples
 ```
 
 ## Troubleshooting
@@ -527,7 +330,6 @@ source venv/bin/activate
 - First generation is slower (model loading)
 - CPU-only mode is significantly slower than MPS
 - For M1/M2 Mac: Ensure PyTorch has MPS support and dtype is set to float32
-- CUDA is not supported by Qwen3-TTS
 
 **Voice sounds robotic**:
 - Add more samples with emotional variety
@@ -563,26 +365,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 - 📖 [Documentation](docs/)
-- 🐛 [Issue Tracker](https://github.com/yourusername/voice-clone-cli/issues)
-- 💬 [Discussions](https://github.com/yourusername/voice-clone-cli/discussions)
+- 🐛 [Issue Tracker](https://github.com/yourusername/tts-studio/issues)
+- 💬 [Discussions](https://github.com/yourusername/tts-studio/discussions)
 
 ## Roadmap
 
 - [x] Core voice cloning with Qwen3-TTS
-- [x] CLI interface with all commands
+- [x] Hexagonal architecture implementation
+- [x] Python API for integration
 - [x] Audio validation and conversion
 - [x] Batch processing for scripts
 - [x] Voice profile management
-- [x] Migration from XTTS-v2 to Qwen3-TTS
-- [x] Web interface with Gradio
+- [ ] Tauri desktop application
 - [ ] Post-processing (normalization, fade effects)
 - [ ] Format export (MP3, AAC, platform-specific)
 - [ ] Integration tests
-- [ ] Manual testing with real samples
 - [ ] Streaming audio generation
 - [ ] Real-time voice conversion (future)
 - [ ] Multi-speaker support (future)
-- [ ] Hugging Face Spaces deployment (future)
 
 ---
 

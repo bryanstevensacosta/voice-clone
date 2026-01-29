@@ -323,53 +323,54 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [x] Add `get_config()` and `reload_config()` helper methods
 
 ### 5.2 API Tests
-- [ ] Create `apps/core/tests/api/test_python_api.py`
-  - [ ] Test API initialization
-  - [ ] Test `create_voice_profile()` with real adapters
-  - [ ] Test `generate_audio()` with real adapters
-  - [ ] Test error handling
-  - [ ] Test JSON response format
-- [ ] Create `apps/core/tests/api/test_cli.py`
-  - [ ] Test CLI commands
-  - [ ] Test JSON output
-  - [ ] Test subprocess invocation
+- [x] Create `apps/core/tests/api/test_python_api.py`
+  - [x] Test API initialization
+  - [x] Test `create_voice_profile()` with real adapters
+  - [x] Test `generate_audio()` with real adapters
+  - [x] Test error handling
+  - [x] Test JSON response format
+- [x] Create `apps/core/tests/api/test_cli.py` (SKIPPED - CLI removed in Phase 6)
+  - [x] Test CLI commands (SKIPPED)
+  - [x] Test JSON output (SKIPPED)
+  - [x] Test subprocess invocation (SKIPPED)
 
 ### 5.3 Example Usage
-- [ ] Create `examples/api_usage.py`
-  - [ ] Show basic API usage
-  - [ ] Show profile creation
-  - [ ] Show audio generation
-  - [ ] Show error handling
+- [x] Create `examples/api_usage.py`
+  - [x] Show basic API usage
+  - [x] Show profile creation
+  - [x] Show audio generation
+  - [x] Show error handling
 
 ### 5.4 Validation
-- [ ] API can be called from Python
-- [ ] API returns proper JSON responses
-- [ ] `pytest apps/core/tests/api/` passes
-- [ ] Examples run successfully
+- [x] API can be called from Python
+- [x] API returns proper JSON responses
+- [x] `pytest apps/core/tests/api/` passes
+- [x] Examples run successfully
 
 ---
 
 ## Phase 6: Delete CLI and Gradio (Week 6)
 
 ### 6.1 Delete CLI Code
-- [ ] Delete `src/cli/` directory completely
-- [ ] Delete `tests/cli/` directory completely
-- [ ] Delete `examples/test_validation_handler.py`
-- [ ] Remove CLI entry points from `apps/core/setup.py`
-- [ ] Remove `click` from `apps/core/requirements.txt`
+- [x] Delete `src/cli/` directory completely
+- [x] Delete `tests/cli/` directory completely
+- [x] Delete `examples/test_validation_handler.py`
+- [x] Remove CLI entry points from `apps/core/setup.py`
+- [x] Remove `click` from `apps/core/requirements.txt`
 
 ### 6.2 Delete Gradio Code
-- [ ] Delete `src/gradio_ui/` directory completely
-- [ ] Delete `tests/gradio_ui/` directory completely
-- [ ] Remove `gradio` from `apps/core/requirements.txt`
-- [ ] Remove any Gradio-related dependencies
+- [x] Delete `src/gradio_ui/` directory completely
+- [x] Delete `tests/gradio_ui/` directory completely
+- [x] Remove `gradio` from `apps/core/requirements.txt`
+- [x] Remove any Gradio-related dependencies
 
 ### 6.3 Update Documentation
-- [ ] Update `README.md`
-  - [ ] Remove CLI usage examples
-  - [ ] Remove Gradio UI references
-  - [ ] Add Python API usage
-  - [ ] Add Tauri desktop app reference
+- [x] Update `README.md`
+  - [x] Remove CLI usage examples
+  - [x] Remove Gradio UI references
+  - [x] Add Python API usage
+  - [x] Add Tauri desktop app reference
+  - [x] Update architecture description
 - [ ] Update `docs/usage.md`
   - [ ] Remove CLI commands
   - [ ] Add Python API examples
