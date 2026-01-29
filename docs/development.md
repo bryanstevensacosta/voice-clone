@@ -1,15 +1,71 @@
 # Development Guide
 
-This guide covers the development setup and workflow for the Voice Clone CLI project.
+This guide covers the development setup and workflow for TTS Studio.
 
 ## Table of Contents
 
+- [Project Structure](#project-structure)
 - [Environment Setup](#environment-setup)
 - [Development Workflow](#development-workflow)
 - [Code Quality Tools](#code-quality-tools)
 - [Testing](#testing)
 - [Git Workflow](#git-workflow)
 - [Troubleshooting](#troubleshooting)
+
+## Project Structure
+
+TTS Studio uses a **monorepo** structure with **hexagonal architecture**:
+
+```
+tts-studio/
+├── apps/
+│   ├── core/              # Python library (hexagonal architecture)
+│   │   ├── src/
+│   │   │   ├── domain/    # Business logic (NO external dependencies)
+│   │   │   ├── app/       # Use cases (orchestration)
+│   │   │   ├── infra/     # Adapters (implementations)
+│   │   │   └── api/       # Python API (entry point)
+│   │   ├── tests/
+│   │   │   ├── domain/    # Domain tests (mocks only)
+│   │   │   ├── app/       # Application tests (mocked ports)
+│   │   │   ├── infra/     # Infrastructure tests (real adapters)
+│   │   │   ├── integration/  # End-to-end tests
+│   │   │   └── pbt/       # Property-based tests
+│   │   ├── setup.py
+│   │   ├── pyproject.toml
+│   │   └── requirements.txt
+│   └── desktop/           # Tauri desktop app (coming soon)
+├── config/                # Configuration files
+├── data/                  # Data directory (gitignored)
+├── docs/                  # Documentation
+└── examples/              # Usage examples
+```
+
+### Hexagonal Architecture Layers
+
+**Domain Layer** (`apps/core/src/domain/`):
+- Pure business logic
+- NO external dependencies
+- Defines ports (interfaces)
+- Contains models, services, exceptions
+
+**Application Layer** (`apps/core/src/app/`):
+- Use cases (orchestration)
+- DTOs (data transfer objects)
+- Uses ports, NOT adapters
+
+**Infrastructure Layer** (`apps/core/src/infra/`):
+- Adapters (implementations)
+- TTS engines (Qwen3, XTTS, etc.)
+- Audio processing (librosa)
+- Storage (files, databases)
+
+**API Layer** (`apps/core/src/api/`):
+- Entry points
+- Dependency injection
+- Python API for Tauri backend
+
+For more details, see [HEXAGONAL_ARCHITECTURE.md](HEXAGONAL_ARCHITECTURE.md).
 
 ## Environment Setup
 
@@ -49,7 +105,13 @@ This script will:
 
 If you prefer to set up manually or need more control:
 
-#### 1. Create Virtual Environment
+#### 1. Navigate to Core Library
+
+```bash
+cd apps/core
+```
+
+#### 2. Create Virtual Environment
 
 ```bash
 # Using Python 3.10 (recommended)
@@ -59,7 +121,7 @@ python3.10 -m venv venv
 python3 -m venv venv
 ```
 
-#### 2. Activate Virtual Environment
+#### 3. Activate Virtual Environment
 
 **On macOS/Linux:**
 ```bash
@@ -73,25 +135,29 @@ venv\Scripts\activate
 
 You should see `(venv)` in your terminal prompt.
 
-#### 3. Upgrade pip
+#### 4. Upgrade pip
 
 ```bash
 pip install --upgrade pip
 ```
 
-#### 4. Install Development Dependencies
+#### 5. Install Development Dependencies
 
 ```bash
-# Core development tools
-pip install pre-commit black ruff mypy pytest pytest-cov
+# Install from requirements.txt
+pip install -r requirements.txt
 
-# Install project in editable mode (when available)
-pip install -e ".[dev]"
+# Install project in editable mode
+pip install -e .
 ```
 
-#### 5. Install Pre-commit Hooks
+#### 6. Install Pre-commit Hooks
 
 ```bash
+# Navigate back to repo root
+cd ../..
+
+# Install hooks
 pre-commit install
 pre-commit install --hook-type commit-msg
 pre-commit install --hook-type pre-push
@@ -108,6 +174,10 @@ pip list
 
 # Test pre-commit
 pre-commit run --all-files
+
+# Run tests
+cd apps/core
+pytest tests/ -v
 ```
 
 ## Development Workflow
@@ -262,53 +332,203 @@ git commit --no-verify
 
 ## Testing
 
+### Test Structure
+
+Tests are organized by hexagonal architecture layers:
+
+```
+apps/core/tests/
+├── domain/          # Domain tests (NO infrastructure)
+│   ├── models/      # Test entities and value objects
+│   └── services/    # Test domain services with mocks
+├── app/             # Application tests (mocked ports)
+│   └── use_cases/   # Test use cases with mocked adapters
+├── infra/           # Infrastructure tests (real adapters)
+│   ├── engines/     # Test TTS engine adapters
+│   ├── audio/       # Test audio processing adapters
+│   └── persistence/ # Test storage adapters
+├── integration/     # End-to-end tests
+│   ├── test_end_to_end.py
+│   └── test_hexagonal_architecture.py
+└── pbt/             # Property-based tests
+    ├── test_domain_properties.py
+    └── test_use_case_properties.py
+```
+
 ### Running Tests
 
 ```bash
+# Navigate to core library
+cd apps/core
+
 # Run all tests
 pytest
 
 # Run with coverage
-pytest --cov=voice_clone --cov-report=term-missing
+pytest --cov=src --cov-report=term-missing
+
+# Run specific layer
+pytest tests/domain/          # Domain tests only
+pytest tests/app/             # Application tests only
+pytest tests/infra/           # Infrastructure tests only
+pytest tests/integration/     # Integration tests only
+pytest tests/pbt/             # Property-based tests only
 
 # Run specific test file
-pytest tests/test_audio.py
+pytest tests/domain/models/test_voice_profile.py
 
 # Run specific test
-pytest tests/test_audio.py::test_load_audio
+pytest tests/domain/models/test_voice_profile.py::test_voice_profile_creation
 
 # Run with verbose output
 pytest -v
 
 # Run and stop on first failure
 pytest -x
+
+# Run tests matching pattern
+pytest -k "test_voice"
 ```
 
 ### Writing Tests
 
-Place tests in the `tests/` directory with the naming convention `test_*.py`.
+#### Domain Tests (Pure)
+
+Test business logic without infrastructure:
 
 ```python
-# tests/test_example.py
-import pytest
-from voice_clone.example import example_function
+# tests/domain/services/test_voice_cloning.py
+from unittest.mock import Mock
+from domain.ports.audio_processor import AudioProcessor
+from domain.services.voice_cloning import VoiceCloningService
 
-def test_example_function():
-    """Test that example_function works correctly."""
-    result = example_function("input")
-    assert result == "expected_output"
+def test_create_profile_from_samples():
+    """Test domain service with mocked port."""
+    # Mock the audio processor port
+    mock_processor = Mock(spec=AudioProcessor)
+    mock_processor.validate_sample.return_value = True
+    mock_processor.process_sample.return_value = AudioSample(...)
 
-def test_example_function_error():
-    """Test that example_function raises error on invalid input."""
-    with pytest.raises(ValueError):
-        example_function(None)
+    # Test domain service
+    service = VoiceCloningService(mock_processor)
+    profile = service.create_profile_from_samples("test", [Path("sample.wav")])
+
+    assert profile.name == "test"
+    assert len(profile.samples) == 1
+```
+
+#### Application Tests (Mocked Ports)
+
+Test use cases with mocked adapters:
+
+```python
+# tests/app/use_cases/test_create_voice_profile.py
+from unittest.mock import Mock
+from app.use_cases.create_voice_profile import CreateVoiceProfileUseCase
+
+def test_create_voice_profile_use_case():
+    """Test use case with mocked ports."""
+    mock_processor = Mock(spec=AudioProcessor)
+    mock_repository = Mock(spec=ProfileRepository)
+
+    uc = CreateVoiceProfileUseCase(mock_processor, mock_repository)
+    result = uc.execute("test", [Path("sample.wav")])
+
+    assert result.name == "test"
+    mock_repository.save.assert_called_once()
+```
+
+#### Infrastructure Tests (Real Adapters)
+
+Test adapters with real implementations:
+
+```python
+# tests/infra/engines/test_qwen3_adapter.py
+from infra.engines.qwen3.adapter import Qwen3Adapter
+
+def test_qwen3_adapter_generates_audio():
+    """Test adapter with real Qwen3."""
+    config = {'model_name': 'Qwen/Qwen3-TTS-12Hz-1.7B-Base'}
+    adapter = Qwen3Adapter(config)
+
+    output = adapter.generate_audio(
+        text="Hello world",
+        profile_id="test_profile",
+        output_path=Path("test_output.wav")
+    )
+
+    assert output.exists()
+    assert output.stat().st_size > 0
+```
+
+#### Integration Tests (End-to-End)
+
+Test complete workflows:
+
+```python
+# tests/integration/test_end_to_end.py
+from api.studio import TTSStudio
+
+def test_create_profile_and_generate_audio():
+    """Test complete workflow."""
+    studio = TTSStudio()
+
+    # Create profile
+    profile_result = studio.create_voice_profile(
+        name='test_voice',
+        sample_paths=['data/samples/sample1.wav']
+    )
+    assert profile_result['status'] == 'success'
+
+    # Generate audio
+    audio_result = studio.generate_audio(
+        profile_id='test_voice',
+        text='Hello world',
+        output_path='output.wav'
+    )
+    assert audio_result['status'] == 'success'
+```
+
+#### Property-Based Tests
+
+Test properties that should always hold:
+
+```python
+# tests/pbt/test_domain_properties.py
+from hypothesis import given, strategies as st
+from domain.models.voice_profile import VoiceProfile
+
+@given(st.text(min_size=1, max_size=50))
+def test_voice_profile_name_preserved(name):
+    """Test that profile name is always preserved."""
+    profile = VoiceProfile(id=name, name=name, samples=[])
+    assert profile.name == name
+
+@given(st.lists(st.floats(min_value=0.1, max_value=30.0), min_size=1, max_size=10))
+def test_voice_profile_duration_sum(durations):
+    """Test that total duration equals sum of sample durations."""
+    samples = [AudioSample(duration=d, ...) for d in durations]
+    profile = VoiceProfile(id="test", name="test", samples=samples)
+    assert abs(profile.total_duration - sum(durations)) < 0.01
 ```
 
 ### Coverage Requirements
 
-- Minimum coverage: 70%
+- Minimum coverage: 80%
 - Pre-push hook will fail if coverage is below threshold
-- View coverage report: `open htmlcov/index.html`
+- View coverage report: `pytest --cov=src --cov-report=html && open htmlcov/index.html`
+
+### Testing Best Practices
+
+1. **Domain tests**: Use mocks for all ports, test pure business logic
+2. **Application tests**: Mock infrastructure, test orchestration
+3. **Infrastructure tests**: Use real implementations, test integration
+4. **Integration tests**: Test complete workflows end-to-end
+5. **Property-based tests**: Test invariants that should always hold
+6. **Test naming**: Use descriptive names that explain what is being tested
+7. **Test isolation**: Each test should be independent
+8. **Test data**: Use fixtures for common test data
+9. **Test coverage**: Aim for >80% coverage, but focus on critical paths
 
 ## Git Workflow
 

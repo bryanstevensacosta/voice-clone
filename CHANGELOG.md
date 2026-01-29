@@ -19,6 +19,109 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.0] - 2026-01-29
+
+### Added
+- **Hexagonal Architecture**: Clean architecture with ports & adapters pattern
+- **Monorepo Structure**: Separate apps for core library (`apps/core/`) and desktop app (`apps/desktop/`)
+- **Python API**: Programmatic access via `TTSStudio` class
+- **Domain Layer**: Pure business logic with no external dependencies
+- **Application Layer**: Use cases for orchestrating workflows
+- **Infrastructure Layer**: Adapters for TTS engines, audio processing, and storage
+- **API Layer**: Entry point with dependency injection
+- **Integration Tests**: End-to-end workflow tests
+- **Property-Based Tests**: Hypothesis-based tests for domain invariants
+- **Hexagonal Architecture Tests**: Verify architectural boundaries
+- **Documentation**:
+  - `MIGRATION.md` - Migration guide from v0.x to v1.0.0
+  - `HEXAGONAL_ARCHITECTURE.md` - Architecture guide
+  - Updated `development.md` with monorepo and testing guidelines
+- **DTOs**: Data transfer objects for clean API boundaries
+- **Ports**: Interfaces for TTS engines, audio processors, and repositories
+- **Adapters**: Qwen3 TTS engine, librosa audio processor, file repository
+
+### Changed
+- **BREAKING**: Removed CLI (`voice-clone` commands)
+- **BREAKING**: Removed Gradio UI
+- **BREAKING**: Package structure changed to monorepo
+- **BREAKING**: Import paths changed (use `api.studio.TTSStudio`)
+- **BREAKING**: Configuration structure updated for hexagonal architecture
+- Project renamed from `voice-clone-cli` to `tts-studio`
+- All business logic moved to domain layer
+- All infrastructure moved to adapters
+- Test structure reorganized by architecture layers
+- Documentation updated for Python API usage
+- Steering files updated with hexagonal architecture
+
+### Deprecated
+- `docs/ui-guide.md` - Replaced with Python API usage
+- `docs/SVELTE_UI_SPECIFICATION.md` - Tauri chosen instead
+
+### Removed
+- **CLI**: All `voice-clone` commands removed
+- **Gradio UI**: Web interface removed
+- `src/cli/` directory and all CLI code
+- `src/gradio_ui/` directory and all Gradio code
+- `click` dependency (CLI framework)
+- `gradio` dependency (UI framework)
+- CLI entry points from `setup.py`
+- Old test files for CLI and Gradio
+
+### Fixed
+- Improved testability with dependency inversion
+- Better separation of concerns
+- Cleaner error handling with domain exceptions
+- More maintainable codebase with hexagonal architecture
+
+### Security
+- Domain layer isolated from external dependencies
+- Better validation with domain services
+- Cleaner boundaries between layers
+
+### Migration Notes
+
+**From v0.x to v1.0.0**:
+
+1. **Uninstall old package**:
+   ```bash
+   pip uninstall voice-clone-cli
+   ```
+
+2. **Install new package**:
+   ```bash
+   cd apps/core
+   pip install -e .
+   ```
+
+3. **Update code to use Python API**:
+   ```python
+   from api.studio import TTSStudio
+
+   studio = TTSStudio()
+   result = studio.create_voice_profile(
+       name='my_voice',
+       sample_paths=['./data/samples/sample1.wav']
+   )
+   ```
+
+4. **See `docs/MIGRATION.md` for detailed migration guide**
+
+### Architecture
+
+**Hexagonal Architecture Layers**:
+- **Domain**: Pure business logic (NO external dependencies)
+- **Application**: Use cases (orchestration)
+- **Infrastructure**: Adapters (implementations)
+- **API**: Entry points (dependency injection)
+
+**Benefits**:
+- Easy to test (mock adapters)
+- Easy to swap implementations (Qwen3 → XTTS)
+- Easy to extend (add new engines, processors, storage)
+- Clean, maintainable codebase
+
+**See `docs/HEXAGONAL_ARCHITECTURE.md` for detailed architecture guide**
+
 ## [0.2.0] - 2026-01-24
 
 ### Added
@@ -130,6 +233,7 @@ When releasing a new version:
 
 ## Links
 
-[Unreleased]: https://github.com/bryanstevensacosta/voice-clone-cli/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/bryanstevensacosta/voice-clone-cli/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/bryanstevensacosta/voice-clone-cli/releases/tag/v0.1.0
+[Unreleased]: https://github.com/bryanstevensacosta/tts-studio/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/bryanstevensacosta/tts-studio/compare/v0.2.0...v1.0.0
+[0.2.0]: https://github.com/bryanstevensacosta/tts-studio/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/bryanstevensacosta/tts-studio/releases/tag/v0.1.0
