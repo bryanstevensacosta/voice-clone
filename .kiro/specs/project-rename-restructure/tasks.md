@@ -442,25 +442,25 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [x] Test idempotency where applicable
 
 ### 7.3 Documentation
-- [ ] Create `docs/MIGRATION.md`
-  - [ ] Document Python API migration
-  - [ ] Show before/after code examples
-  - [ ] Document hexagonal architecture
-  - [ ] Add FAQ section
-- [ ] Create `docs/HEXAGONAL_ARCHITECTURE.md`
-  - [ ] Explain hexagonal architecture
-  - [ ] Document layers (domain, application, infrastructure, API)
-  - [ ] Show dependency flow
-  - [ ] Add diagrams
-  - [ ] Explain ports & adapters pattern
-- [ ] Update `docs/development.md`
-  - [ ] Document monorepo structure
-  - [ ] Add development workflow
-  - [ ] Add testing guidelines
-- [ ] Update `CHANGELOG.md`
-  - [ ] Document breaking changes
-  - [ ] List new features
-  - [ ] Add migration notes
+- [x] Create `docs/MIGRATION.md`
+  - [x] Document Python API migration
+  - [x] Show before/after code examples
+  - [x] Document hexagonal architecture
+  - [x] Add FAQ section
+- [x] Create `docs/HEXAGONAL_ARCHITECTURE.md`
+  - [x] Explain hexagonal architecture
+  - [x] Document layers (domain, application, infrastructure, API)
+  - [x] Show dependency flow
+  - [x] Add diagrams
+  - [x] Explain ports & adapters pattern
+- [x] Update `docs/development.md`
+  - [x] Document monorepo structure
+  - [x] Add development workflow
+  - [x] Add testing guidelines
+- [x] Update `CHANGELOG.md`
+  - [x] Document breaking changes
+  - [x] List new features
+  - [x] Add migration notes
 
 ### 7.4 Code Quality
 - [ ] Run `black` on all Python code
