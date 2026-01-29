@@ -23,22 +23,22 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [x] Create `apps/core/src/domain/models/`
   - [x] Create `apps/core/src/domain/ports/`
   - [x] Create `apps/core/src/domain/services/`
-- [x] Create `apps/core/src/application/` layer
-  - [x] Create `apps/core/src/application/use_cases/`
-  - [x] Create `apps/core/src/application/dto/`
-  - [x] Create `apps/core/src/application/services/`
-- [x] Create `apps/core/src/infrastructure/` layer
-  - [x] Create `apps/core/src/infrastructure/engines/qwen3/`
-  - [x] Create `apps/core/src/infrastructure/audio/`
-  - [x] Create `apps/core/src/infrastructure/persistence/`
-  - [x] Create `apps/core/src/infrastructure/config/`
+- [x] Create `apps/core/src/app/` layer
+  - [x] Create `apps/core/src/app/use_cases/`
+  - [x] Create `apps/core/src/app/dto/`
+  - [x] Create `apps/core/src/app/services/`
+- [x] Create `apps/core/src/infra/` layer
+  - [x] Create `apps/core/src/infra/engines/qwen3/`
+  - [x] Create `apps/core/src/infra/audio/`
+  - [x] Create `apps/core/src/infra/persistence/`
+  - [x] Create `apps/core/src/infra/config/`
 - [x] Create `apps/core/src/api/` layer
 - [x] Create `apps/core/src/shared/` utilities
 
 ### 1.3 Create Test Structure
 - [x] Create `apps/core/tests/domain/`
-- [x] Create `apps/core/tests/application/`
-- [x] Create `apps/core/tests/infrastructure/`
+- [x] Create `apps/core/tests/app/` (matches `src/app/`)
+- [x] Create `apps/core/tests/infra/` (matches `src/infra/`)
 - [x] Create `apps/core/tests/integration/`
 - [x] Create `apps/core/tests/properties/`
 
@@ -70,7 +70,7 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 
 ## Phase 2: Domain Layer Implementation (Week 2)
 
-**Note**: Domain models contain ONLY pure business concepts that exist independently of application use cases. Request/Result objects are DTOs and belong in the Application layer (Phase 4).
+**Note**: Domain models contain ONLY pure business concepts that exist independently of app use cases. Request/Result objects are DTOs and belong in the App layer (Phase 4).
 
 ### 2.1 Domain Models
 - [x] Create `apps/core/src/domain/models/__init__.py`
@@ -137,18 +137,18 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 - [x] Verify domain tests pass without infrastructure
 
 ### 2.6 Validation
-- [x] Domain layer has ZERO infrastructure dependencies
+- [x] Domain layer has ZERO infra dependencies
 - [x] All domain tests pass with mocks only
 - [x] `pytest apps/core/tests/domain/` passes
-- [x] No imports from `infrastructure/` in domain
+- [x] No imports from `infra/` in domain
 
 ---
 
 ## Phase 3: Infrastructure Adapters (Week 3)
 
 ### 3.1 Qwen3 TTS Engine Adapter
-- [x] Create `apps/core/src/infrastructure/engines/qwen3/__init__.py`
-- [x] Create `apps/core/src/infrastructure/engines/qwen3/adapter.py`
+- [x] Create `apps/core/src/infra/engines/qwen3/__init__.py`
+- [x] Create `apps/core/src/infra/engines/qwen3/adapter.py`
   - [x] Define `Qwen3Adapter` class implementing `TTSEngine` port
   - [x] Implement `get_supported_modes()` method
   - [x] Implement `generate_audio()` method
@@ -157,15 +157,15 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [x] Move `qwen3_manager.py` → `model_loader.py`
   - [x] Move `qwen3_generator.py` → `inference.py`
   - [x] Refactor to work with adapter pattern
-- [x] Create `apps/core/src/infrastructure/engines/qwen3/modes/`
+- [x] Create `apps/core/src/infra/engines/qwen3/modes/`
   - [x] Move clone mode implementation
   - [x] Move custom voice mode implementation
   - [x] Move voice design mode implementation
-- [x] Create `apps/core/src/infrastructure/engines/qwen3/config.py`
+- [x] Create `apps/core/src/infra/engines/qwen3/config.py`
 
 ### 3.2 Audio Processor Adapter
-- [x] Create `apps/core/src/infrastructure/audio/__init__.py`
-- [x] Create `apps/core/src/infrastructure/audio/processor_adapter.py`
+- [x] Create `apps/core/src/infra/audio/__init__.py`
+- [x] Create `apps/core/src/infra/audio/processor_adapter.py`
   - [x] Define `LibrosaAudioProcessor` implementing `AudioProcessor` port
   - [x] Implement `validate_sample()` method
   - [x] Implement `process_sample()` method
@@ -173,47 +173,47 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 - [x] Move existing audio code from `src/voice_clone/audio/`
   - [x] Move `processor.py` logic to adapter
   - [x] Move `validator.py` logic to adapter
-- [x] Create `apps/core/src/infrastructure/audio/converter.py`
-- [x] Create `apps/core/src/infrastructure/audio/effects.py`
+- [x] Create `apps/core/src/infra/audio/converter.py`
+- [x] Create `apps/core/src/infra/audio/effects.py`
 
 ### 3.3 Profile Repository Adapter
-- [x] Create `apps/core/src/infrastructure/persistence/__init__.py`
-- [x] Create `apps/core/src/infrastructure/persistence/file_profile_repository.py`
+- [x] Create `apps/core/src/infra/persistence/__init__.py`
+- [x] Create `apps/core/src/infra/persistence/file_profile_repository.py`
   - [x] Define `FileProfileRepository` implementing `ProfileRepository` port
   - [x] Implement `save()` method (JSON serialization)
   - [x] Implement `find_by_id()` method
   - [x] Implement `list_all()` method
   - [x] Implement `delete()` method
-- [ ] Create `apps/core/src/infrastructure/persistence/json_serializer.py`
+- [ ] Create `apps/core/src/infra/persistence/json_serializer.py`
   - [x] Implement serialization logic
   - [x] Implement deserialization logic
 
 ### 3.4 Config Provider Adapter
-- [x] Create `apps/core/src/infrastructure/config/__init__.py`
-- [x] Create `apps/core/src/infrastructure/config/yaml_config.py`
+- [x] Create `apps/core/src/infra/config/__init__.py`
+- [x] Create `apps/core/src/infra/config/yaml_config.py`
   - [x] Define `YAMLConfigProvider` implementing `ConfigProvider` port
   - [x] Implement config loading from YAML
   - [x] Implement config merging (defaults + user)
-- [x] Create `apps/core/src/infrastructure/config/env_config.py`
+- [x] Create `apps/core/src/infra/config/env_config.py`
   - [x] Support environment variables
 
 ### 3.5 Infrastructure Tests
-- [x] Create `apps/core/tests/infrastructure/engines/test_qwen3_adapter.py`
+- [x] Create `apps/core/tests/infra/engines/test_qwen3_adapter.py`
   - [x] Test adapter implements port correctly
   - [x] Test `generate_audio()` with real Qwen3
   - [x] Test mode switching
-- [x] Create `apps/core/tests/infrastructure/audio/test_processor_adapter.py`
+- [x] Create `apps/core/tests/infra/audio/test_processor_adapter.py`
   - [x] Test audio validation
   - [x] Test audio processing
   - [x] Test normalization
-- [x] Create `apps/core/tests/infrastructure/persistence/test_file_repository.py`
+- [x] Create `apps/core/tests/infra/persistence/test_file_repository.py`
   - [x] Test save/load profiles
   - [x] Test JSON serialization
   - [x] Test file operations
 
 ### 3.6 Validation
 - [x] All adapters implement their respective ports
-- [x] `pytest apps/core/tests/infrastructure/` passes
+- [x] `pytest apps/core/tests/infra/` passes
 - [x] Qwen3 adapter can generate audio
 - [x] Audio processor can validate samples
 - [x] Repository can save/load profiles
@@ -223,41 +223,41 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 ## Phase 4: Application Layer (Week 4)
 
 ### 4.1 DTOs (Data Transfer Objects)
-- [x] Create `apps/core/src/application/dto/__init__.py`
-- [x] Create `apps/core/src/application/dto/voice_profile_dto.py`
+- [x] Create `apps/core/src/app/dto/__init__.py`
+- [x] Create `apps/core/src/app/dto/voice_profile_dto.py`
   - [x] Define `VoiceProfileDTO` dataclass
   - [x] Add `from_entity()` class method
   - [x] Add `to_dict()` method
-- [x] Create `apps/core/src/application/dto/generation_dto.py`
+- [x] Create `apps/core/src/app/dto/generation_dto.py`
   - [x] Define `GenerationRequestDTO` dataclass
   - [x] Define `GenerationResultDTO` dataclass
   - [x] Add serialization methods
-- [x] Create `apps/core/src/application/dto/batch_dto.py`
+- [x] Create `apps/core/src/app/dto/batch_dto.py`
   - [x] Define `BatchRequestDTO` dataclass
   - [x] Define `BatchResultDTO` dataclass
 
 ### 4.2 Use Cases
-- [x] Create `apps/core/src/application/use_cases/__init__.py`
-- [x] Create `apps/core/src/application/use_cases/create_voice_profile.py`
+- [x] Create `apps/core/src/app/use_cases/__init__.py`
+- [x] Create `apps/core/src/app/use_cases/create_voice_profile.py`
   - [x] Define `CreateVoiceProfileUseCase` class
   - [x] Inject `AudioProcessor` and `ProfileRepository` ports
   - [x] Implement `execute()` method
   - [x] Use `VoiceCloningService` from domain
   - [x] Return `VoiceProfileDTO`
-- [x] Create `apps/core/src/application/use_cases/generate_audio.py`
+- [x] Create `apps/core/src/app/use_cases/generate_audio.py`
   - [x] Define `GenerateAudioUseCase` class
   - [x] Inject `TTSEngine` and `ProfileRepository` ports
   - [x] Implement `execute()` method
   - [x] Return `GenerationResultDTO`
-- [x] Create `apps/core/src/application/use_cases/list_voice_profiles.py`
+- [x] Create `apps/core/src/app/use_cases/list_voice_profiles.py`
   - [x] Define `ListVoiceProfilesUseCase` class
   - [x] Inject `ProfileRepository` port
   - [x] Implement `execute()` method
-- [x] Create `apps/core/src/application/use_cases/validate_audio_samples.py`
+- [x] Create `apps/core/src/app/use_cases/validate_audio_samples.py`
   - [x] Define `ValidateAudioSamplesUseCase` class
   - [x] Inject `AudioProcessor` port
   - [x] Implement `execute()` method
-- [x] Create `apps/core/src/application/use_cases/process_batch.py`
+- [x] Create `apps/core/src/app/use_cases/process_batch.py`
   - [x] Define `ProcessBatchUseCase` class
   - [x] Inject necessary ports
   - [x] Implement batch processing logic
@@ -299,7 +299,7 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 
 ### 4.5 Validation
 - [x] Use cases orchestrate domain and infrastructure correctly
-- [x] `pytest apps/core/tests/application/` passes
+- [x] `pytest apps/core/tests/app/` passes
 - [x] Use cases work with mocked adapters
 - [x] DTOs serialize/deserialize correctly
 
@@ -648,7 +648,7 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 ## Hexagonal Architecture Validation Checklist
 
 After each phase, verify:
-- [ ] Domain layer has NO infrastructure dependencies
+- [ ] Domain layer has NO infra dependencies
 - [ ] All ports (interfaces) are defined in domain
 - [ ] All adapters implement their respective ports
 - [ ] Use cases only depend on ports, not adapters
