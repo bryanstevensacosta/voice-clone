@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+from app.dto.generation_dto import GenerationRequestDTO
 from app.use_cases.create_voice_profile import CreateVoiceProfileUseCase
 from app.use_cases.generate_audio import GenerateAudioUseCase
 from app.use_cases.list_voice_profiles import ListVoiceProfilesUseCase
@@ -18,7 +19,7 @@ from domain.models.voice_profile import VoiceProfile
 from domain.ports.audio_processor import AudioProcessor
 from domain.ports.profile_repository import ProfileRepository
 from domain.ports.tts_engine import TTSEngine
-from hypothesis import given
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 
@@ -48,10 +49,20 @@ class TestCreateVoiceProfileProperties:
 
     @given(
         name=st.text(
-            min_size=1, max_size=50, alphabet=st.characters(blacklist_characters="\x00")
-        ),
+            min_size=1,
+            max_size=50,
+            alphabet=st.characters(
+                blacklist_characters="\x00",
+                blacklist_categories=(
+                    "Cc",
+                    "Cs",
+                    "Cn",
+                ),  # Control, surrogate, unassigned
+            ),
+        ).filter(lambda x: x.strip()),  # Ensure name is not just whitespace
         sample_count=st.integers(min_value=1, max_value=5),
     )
+    @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
     def test_create_profile_preserves_name(
         self, mock_audio_processor, mock_repository, name, sample_count
     ):
@@ -67,6 +78,7 @@ class TestCreateVoiceProfileProperties:
         assert result.name == name
 
     @given(sample_count=st.integers(min_value=1, max_value=10))
+    @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
     def test_create_profile_sample_count_matches(
         self, mock_audio_processor, mock_repository, sample_count
     ):
@@ -79,18 +91,32 @@ class TestCreateVoiceProfileProperties:
 
         result = use_case.execute(name="test", sample_paths=sample_paths)
 
-        assert result.samples == sample_count
+        # result.samples is a list of sample dicts, not a count
+        assert len(result.samples) == sample_count
 
     @given(
         name=st.text(
-            min_size=1, max_size=50, alphabet=st.characters(blacklist_characters="\x00")
-        ),
+            min_size=1,
+            max_size=50,
+            alphabet=st.characters(
+                blacklist_characters="\x00",
+                blacklist_categories=(
+                    "Cc",
+                    "Cs",
+                    "Cn",
+                ),  # Control, surrogate, unassigned
+            ),
+        ).filter(lambda x: x.strip()),  # Ensure name is not just whitespace
         sample_count=st.integers(min_value=1, max_value=5),
     )
+    @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
     def test_create_profile_calls_repository_save(
         self, mock_audio_processor, mock_repository, name, sample_count
     ):
         """Property: Creating profile should always call repository.save()."""
+        # Reset mock to ensure clean state for each Hypothesis example
+        mock_repository.save.reset_mock()
+
         use_case = CreateVoiceProfileUseCase(
             audio_processor=mock_audio_processor, profile_repository=mock_repository
         )
@@ -111,16 +137,25 @@ class TestGenerateAudioProperties:
         """Create a mock TTS engine."""
         engine = Mock(spec=TTSEngine)
         engine.generate_audio.return_value = Path("output.wav")
+        engine.validate_profile.return_value = True
         return engine
 
     @pytest.fixture
     def mock_repository(self):
         """Create a mock repository."""
         repository = Mock(spec=ProfileRepository)
+        # Create a valid profile with samples for generation
+        sample = AudioSample(
+            path=Path("test.wav"),
+            duration=10.0,
+            sample_rate=12000,
+            channels=1,
+            bit_depth=16,
+        )
         profile = VoiceProfile(
             id="test-id",
             name="test",
-            samples=[],
+            samples=[sample],
             created_at=datetime.now(),
             language="es",
         )
@@ -136,6 +171,7 @@ class TestGenerateAudioProperties:
         temperature=st.floats(min_value=0.5, max_value=1.0),
         speed=st.floats(min_value=0.8, max_value=1.2),
     )
+    @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
     def test_generate_audio_with_valid_parameters(
         self, mock_tts_engine, mock_repository, text, temperature, speed
     ):
@@ -144,12 +180,18 @@ class TestGenerateAudioProperties:
             tts_engine=mock_tts_engine, profile_repository=mock_repository
         )
 
-        result = use_case.execute(
-            profile_name="test", text=text, temperature=temperature, speed=speed
+        # Create request DTO
+        request = GenerationRequestDTO(
+            profile_id="test-id",
+            text=text,
+            temperature=temperature,
+            speed=speed,
         )
 
-        assert result.audio_path == Path("output.wav")
-        assert result.text == text
+        result = use_case.execute(request)
+
+        assert result.success
+        assert result.output_path == Path("output.wav")
 
     @given(
         text=st.text(
@@ -158,15 +200,27 @@ class TestGenerateAudioProperties:
             alphabet=st.characters(blacklist_categories=("Cc", "Cs")),
         )
     )
+    @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
     def test_generate_audio_calls_engine_once(
         self, mock_tts_engine, mock_repository, text
     ):
         """Property: Generate audio should call TTS engine exactly once."""
+        # Reset mock to ensure clean state for each Hypothesis example
+        mock_tts_engine.generate_audio.reset_mock()
+
         use_case = GenerateAudioUseCase(
             tts_engine=mock_tts_engine, profile_repository=mock_repository
         )
 
-        use_case.execute(profile_name="test", text=text, temperature=0.75, speed=1.0)
+        # Create request DTO
+        request = GenerationRequestDTO(
+            profile_id="test-id",
+            text=text,
+            temperature=0.75,
+            speed=1.0,
+        )
+
+        use_case.execute(request)
 
         # Should have called generate_audio exactly once
         assert mock_tts_engine.generate_audio.call_count == 1
@@ -178,17 +232,29 @@ class TestGenerateAudioProperties:
             alphabet=st.characters(blacklist_categories=("Cc", "Cs")),
         )
     )
+    @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
     def test_generate_audio_loads_profile_once(
         self, mock_tts_engine, mock_repository, text
     ):
         """Property: Generate audio should load profile exactly once."""
+        # Reset mock to ensure clean state for each Hypothesis example
+        mock_repository.find_by_id.reset_mock()
+
         use_case = GenerateAudioUseCase(
             tts_engine=mock_tts_engine, profile_repository=mock_repository
         )
 
-        use_case.execute(profile_name="test", text=text, temperature=0.75, speed=1.0)
+        # Create request DTO
+        request = GenerationRequestDTO(
+            profile_id="test-id",
+            text=text,
+            temperature=0.75,
+            speed=1.0,
+        )
 
-        # Should have called find_by_name exactly once
+        use_case.execute(request)
+
+        # Should have called find_by_id exactly once
         assert mock_repository.find_by_id.call_count == 1
 
 
@@ -300,10 +366,18 @@ class TestUseCaseErrorHandling:
             tts_engine=engine, profile_repository=repository
         )
 
-        with pytest.raises((ValueError, KeyError, AttributeError)):
-            use_case.execute(
-                profile_name="nonexistent", text=text, temperature=0.75, speed=1.0
-            )
+        # Create request DTO
+        request = GenerationRequestDTO(
+            profile_id="nonexistent",
+            text=text,
+            temperature=0.75,
+            speed=1.0,
+        )
+
+        # Should return error result, not raise exception
+        result = use_case.execute(request)
+        assert not result.success
+        assert "not found" in result.error.lower()
 
     @given(sample_count=st.integers(min_value=1, max_value=5))
     def test_create_profile_with_invalid_samples_raises_error(self, sample_count):
@@ -331,16 +405,25 @@ class TestParameterBoundaries:
         """Create a mock TTS engine."""
         engine = Mock(spec=TTSEngine)
         engine.generate_audio.return_value = Path("output.wav")
+        engine.validate_profile.return_value = True
         return engine
 
     @pytest.fixture
     def mock_repository(self):
         """Create a mock repository."""
         repository = Mock(spec=ProfileRepository)
+        # Create a valid profile with samples
+        sample = AudioSample(
+            path=Path("test.wav"),
+            duration=10.0,
+            sample_rate=12000,
+            channels=1,
+            bit_depth=16,
+        )
         profile = VoiceProfile(
             id="test-id",
             name="test",
-            samples=[],
+            samples=[sample],
             created_at=datetime.now(),
             language="es",
         )
@@ -348,6 +431,7 @@ class TestParameterBoundaries:
         return repository
 
     @given(temperature=st.floats(min_value=0.5, max_value=1.0))
+    @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
     def test_temperature_within_valid_range(
         self, mock_tts_engine, mock_repository, temperature
     ):
@@ -356,21 +440,36 @@ class TestParameterBoundaries:
             tts_engine=mock_tts_engine, profile_repository=mock_repository
         )
 
-        result = use_case.execute(
-            profile_name="test", text="test", temperature=temperature, speed=1.0
+        # Create request DTO
+        request = GenerationRequestDTO(
+            profile_id="test-id",
+            text="test",
+            temperature=temperature,
+            speed=1.0,
         )
 
-        assert result.audio_path == Path("output.wav")
+        result = use_case.execute(request)
+
+        assert result.success
+        assert result.output_path == Path("output.wav")
 
     @given(speed=st.floats(min_value=0.8, max_value=1.2))
+    @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
     def test_speed_within_valid_range(self, mock_tts_engine, mock_repository, speed):
         """Property: Speed within 0.8-1.2 should be accepted."""
         use_case = GenerateAudioUseCase(
             tts_engine=mock_tts_engine, profile_repository=mock_repository
         )
 
-        result = use_case.execute(
-            profile_name="test", text="test", temperature=0.75, speed=speed
+        # Create request DTO
+        request = GenerationRequestDTO(
+            profile_id="test-id",
+            text="test",
+            temperature=0.75,
+            speed=speed,
         )
 
-        assert result.audio_path == Path("output.wav")
+        result = use_case.execute(request)
+
+        assert result.success
+        assert result.output_path == Path("output.wav")

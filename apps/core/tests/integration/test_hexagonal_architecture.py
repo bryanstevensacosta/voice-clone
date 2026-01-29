@@ -94,7 +94,9 @@ class TestAdapterSwapping:
         import soundfile as sf
 
         sample_path = tmp_path / "test.wav"
-        audio_data = np.sin(2 * np.pi * 440 * np.linspace(0, 2, 24000))
+        # Create 10 seconds of audio (120000 samples at 12000 Hz)
+        # Normalize to 0.5 to prevent clipping
+        audio_data = 0.5 * np.sin(2 * np.pi * 440 * np.linspace(0, 10, 120000))
         sf.write(sample_path, audio_data, 12000)
 
         # Test with mock processor
@@ -125,11 +127,21 @@ class TestAdapterSwapping:
         repo1 = FileProfileRepository(profiles_dir=tmp_path / "repo1")
         repo2 = FileProfileRepository(profiles_dir=tmp_path / "repo2")
 
-        # Create a profile
+        # Create a valid profile with samples
+        from domain.models.audio_sample import AudioSample
+
+        sample = AudioSample(
+            path=Path("test.wav"),
+            duration=10.0,
+            sample_rate=12000,
+            channels=1,
+            bit_depth=16,
+        )
+
         profile = VoiceProfile(
             id="test-id",
             name="test_profile",
-            samples=[],
+            samples=[sample],
             created_at=datetime.now(),
             language="es",
         )
@@ -279,11 +291,18 @@ class TestAdapterIsolation:
         # Create a working repository
         repository = FileProfileRepository(profiles_dir=tmp_path)
 
-        # Repository should still work
+        # Repository should still work - create valid profile with samples
+        sample = AudioSample(
+            path=Path("test.wav"),
+            duration=10.0,
+            sample_rate=12000,
+            channels=1,
+            bit_depth=16,
+        )
         profile = VoiceProfile(
             id="test-id",
             name="test",
-            samples=[],
+            samples=[sample],
             created_at=datetime.now(),
             language="es",
         )
