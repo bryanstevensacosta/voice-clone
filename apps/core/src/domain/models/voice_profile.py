@@ -82,8 +82,7 @@ class VoiceProfile:
             # Rollback
             self.samples.remove(sample)
             raise ValueError(
-                f"Adding sample would make profile invalid: "
-                f"{self.validation_errors()}"
+                f"Adding sample would make profile invalid: {self.validation_errors()}"
             )
 
     def remove_sample(self, sample_path: Path) -> bool:
@@ -149,18 +148,16 @@ class VoiceProfile:
         # Must have at most 10 samples
         if len(self.samples) > 10:
             errors.append(
-                f"Profile has {len(self.samples)} samples. " f"Maximum is 10 samples."
+                f"Profile has {len(self.samples)} samples. Maximum is 10 samples."
             )
 
         # Total duration must be between 10 and 300 seconds
         total_dur = self.total_duration
         if total_dur < 10.0:
-            errors.append(
-                f"Total duration is {total_dur:.1f}s. " f"Minimum is 10 seconds."
-            )
+            errors.append(f"Total duration is {total_dur:.1f}s. Minimum is 10 seconds.")
         if total_dur > 300.0:
             errors.append(
-                f"Total duration is {total_dur:.1f}s. " f"Maximum is 300 seconds."
+                f"Total duration is {total_dur:.1f}s. Maximum is 300 seconds."
             )
 
         # Name must not be empty
@@ -170,10 +167,12 @@ class VoiceProfile:
         # All samples must be valid
         for i, sample in enumerate(self.samples):
             if not sample.is_valid_duration():
-                errors.append(f"Sample {i+1} ({sample.path.name}) has invalid duration")
+                errors.append(
+                    f"Sample {i + 1} ({sample.path.name}) has invalid duration"
+                )
             if not sample.is_valid_sample_rate():
                 errors.append(
-                    f"Sample {i+1} ({sample.path.name}) has invalid sample rate"
+                    f"Sample {i + 1} ({sample.path.name}) has invalid sample rate"
                 )
 
         return errors

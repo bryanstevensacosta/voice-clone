@@ -27,8 +27,7 @@ class AudioSample:
         """Validate audio sample on creation."""
         if not self.is_valid_duration():
             raise ValueError(
-                f"Invalid duration: {self.duration}s. "
-                f"Must be between 3 and 30 seconds."
+                f"Invalid duration: {self.duration}s. Must be between 3 and 30 seconds."
             )
 
         if not self.is_valid_sample_rate():
@@ -39,13 +38,11 @@ class AudioSample:
 
         if self.channels != 1:
             raise ValueError(
-                f"Invalid channels: {self.channels}. " f"Must be mono (1 channel)."
+                f"Invalid channels: {self.channels}. Must be mono (1 channel)."
             )
 
         if self.bit_depth != 16:
-            raise ValueError(
-                f"Invalid bit depth: {self.bit_depth}. " f"Must be 16-bit."
-            )
+            raise ValueError(f"Invalid bit depth: {self.bit_depth}. Must be 16-bit.")
 
     def is_valid_duration(self) -> bool:
         """Check if duration is within acceptable range.
