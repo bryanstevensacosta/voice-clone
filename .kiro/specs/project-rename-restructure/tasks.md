@@ -15,7 +15,6 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 ### 1.1 Create Monorepo Directory Structure
 - [x] Create `apps/` root directory
 - [x] Create `apps/core/` for Python library
-- [x] Create `apps/desktop/` for Tauri app (placeholder)
 - [x] Create `packages/` for shared code (optional)
 
 ### 1.2 Create Hexagonal Layer Structure
@@ -59,7 +58,6 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 ### 1.6 Update .gitignore
 - [x] Add monorepo-specific ignores
 - [x] Update paths for `apps/core/`
-- [x] Add `apps/desktop/` ignores
 - [x] Add `apps/core/data/` to ignore downloaded models and cache
 
 ### 1.7 Validation
@@ -370,16 +368,13 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [x] Remove CLI usage examples
   - [x] Remove Gradio UI references
   - [x] Add Python API usage
-  - [x] Add Tauri desktop app reference
   - [x] Update architecture description
 - [x] Update `docs/usage.md`
   - [x] Remove CLI commands
   - [x] Add Python API examples
-  - [x] Add desktop app usage
 - [x] Update `docs/installation.md`
   - [x] Remove CLI installation
   - [x] Add Python library installation
-  - [x] Add desktop app installation
 - [x] Update `docs/api.md`
   - [x] Document new Python API
   - [x] Document hexagonal architecture
@@ -389,12 +384,10 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 ### 6.4 Update Steering Files
 - [x] Update `.kiro/steering/product.md`
   - [x] Remove CLI/Gradio references
-  - [x] Add desktop app features
   - [x] Update architecture description
 - [x] Update `.kiro/steering/tech.md`
   - [x] Add hexagonal architecture
   - [x] Remove CLI/Gradio tech
-  - [x] Add Tauri tech stack
 - [x] Update `.kiro/steering/structure.md`
   - [x] Document monorepo structure
   - [x] Document hexagonal layers
@@ -415,7 +408,6 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 - [x] Documentation is consistent
 - [x] `pytest apps/core/` passes
 - [x] Deprecated docs/ui-guide.md (replaced with API usage)
-- [x] Deprecated docs/SVELTE_UI_SPECIFICATION.md (Tauri chosen instead)
 - [x] Updated apps/core/Makefile (removed CLI/Gradio targets)
 
 ---
@@ -476,8 +468,6 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
   - [x] Update paths to `apps/core/`
   - [x] Add hexagonal architecture validation
   - [x] Test on Python 3.10, 3.11
-- [x] Create `.github/workflows/ci-rust.yml` (placeholder for Tauri)
-- [x] Create `.github/workflows/ci-typescript.yml` (placeholder for Tauri)
 - [x] Update pre-commit hooks for monorepo
 
 ### 7.6 Validation
@@ -494,147 +484,52 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 
 ---
 
-## Phase 8: Tauri Desktop App Setup (Week 8)
+## Phase 8: Documentation Updates (Week 8)
 
-### 8.1 Create Tauri Structure
-- [ ] `cd apps/desktop`
-- [ ] Run `npm create tauri-app@latest`
-- [ ] Configure project name: "TTS Studio"
-- [ ] Select React + TypeScript + Vite
+### 8.1 Update README.md
+- [x] Update project description
+- [x] Add model management features (download on-demand)
+- [x] Expand architecture section with detailed hexagonal layers
+- [x] Add model storage locations for all platforms
+- [x] Update troubleshooting section with model management tips
+- [x] Update roadmap with completed items and upcoming features
+- [x] Remove all CLI references (CLI was removed in Phase 6)
+- [x] Emphasize privacy-first, offline-first approach
+- [x] Add comprehensive model download instructions
+- [x] Commit changes: `73bd02a`
+- [x] Push to trigger CI
 
-### 8.2 Configure Tauri Backend
-- [ ] Update `apps/desktop/src-tauri/Cargo.toml`
-  - [ ] Add dependencies (serde, tokio, rusqlite)
-- [ ] Update `apps/desktop/src-tauri/tauri.conf.json`
-  - [ ] Configure app name, version
-  - [ ] Configure window settings
-  - [ ] Configure permissions
+### 8.2 Update Other Documentation
+- [ ] Update `docs/installation.md`
+  - [ ] Remove CLI installation instructions
+  - [ ] Add Python library installation
+- [ ] Update `docs/usage.md`
+  - [ ] Remove CLI usage examples
+  - [ ] Add Python API usage examples
+- [ ] Update `docs/development.md`
+  - [ ] Document monorepo structure
+  - [ ] Add development workflow for core library
+  - [ ] Add testing guidelines
+- [ ] Update `CHANGELOG.md`
+  - [ ] Document v1.0.0 changes
+  - [ ] List breaking changes (CLI removed)
+  - [ ] Add migration notes
 
-### 8.3 Python Bridge Implementation
-- [ ] Create `apps/desktop/src-tauri/src/python_bridge.rs`
-  - [ ] Implement subprocess management
-  - [ ] Add `call_python_api()` function
-  - [ ] Add error handling
-  - [ ] Add JSON parsing
-- [ ] Create `apps/desktop/src-tauri/src/commands/`
-  - [ ] Create `profiles.rs` (profile commands)
-  - [ ] Create `generation.rs` (generation commands)
-  - [ ] Create `samples.rs` (sample commands)
-  - [ ] Create `models.rs` (model management commands)
-
-### 8.4 Tauri Commands
-- [ ] Implement `create_voice_profile` command
-- [ ] Implement `list_voice_profiles` command
-- [ ] Implement `generate_audio` command
-- [ ] Implement `validate_samples` command
-- [ ] Implement `download_model` command
-- [ ] Implement `list_installed_models` command
-
-### 8.5 Test Integration
-- [ ] Test Tauri can launch
-- [ ] Test Python subprocess communication
-- [ ] Test Tauri commands call Python API
-- [ ] Test JSON response parsing
-- [ ] Test error handling
-
-### 8.6 Validation
-- [ ] Tauri app launches successfully
-- [ ] Can call Python API from Rust
-- [ ] Communication works bidirectionally
-- [ ] Error handling works
-- [ ] JSON serialization works
-
-**Note**: Full Tauri UI implementation is in separate spec (`tauri-desktop-ui`)
+### 8.3 Validation
+- [ ] All documentation is consistent
+- [ ] No CLI references remain
+- [ ] Links work correctly
+- [ ] Examples are accurate
 
 ---
 
-## Phase 8.5: Python-Tauri Bridge (Week 8 continuation)
+## Phase 9: Release Preparation (Week 9)
 
-### 8.7 Decide Python Integration Strategy
-**Decision Point**: Choose how Tauri will communicate with Python core library
-
-**Options to evaluate**:
-1. **Subprocess CLI Bridge** (simple, portable)
-   - Tauri spawns Python process
-   - Communication via stdin/stdout JSON
-   - Easy to debug and test
-
-2. **PyO3 Direct Calls** (faster, more complex)
-   - Python embedded in Rust
-   - Direct function calls
-   - Better performance
-
-3. **HTTP Local Server** (flexible, familiar)
-   - Python FastAPI server
-   - Tauri makes HTTP requests
-   - Standard REST patterns
-
-4. **IPC** (Inter-Process Communication)
-   - Named pipes or sockets
-   - Bidirectional communication
-   - More complex setup
-
-- [ ] Evaluate options based on:
-  - [ ] Performance requirements
-  - [ ] Development complexity
-  - [ ] Debugging ease
-  - [ ] Cross-platform compatibility
-- [ ] Document decision and rationale
-- [ ] Proceed with chosen approach
-
-### 8.8 CLI Interface for Subprocess (if chosen)
-**Note**: Only implement if subprocess approach is chosen in 8.7
-
-- [ ] Create `apps/core/src/api/cli.py`
-  - [ ] Add argparse CLI for subprocess calls
-  - [ ] Add `create-profile` command
-  - [ ] Add `generate` command
-  - [ ] Add `list-profiles` command
-  - [ ] Add `delete-profile` command
-  - [ ] Add `validate-samples` command
-  - [ ] Output JSON for Tauri to parse
-  - [ ] Add `if __name__ == '__main__'` block
-  - [ ] Add error handling with JSON error responses
-- [ ] Create `apps/core/tests/api/test_cli.py`
-  - [ ] Test CLI commands
-  - [ ] Test JSON output format
-  - [ ] Test error handling
-  - [ ] Test subprocess invocation
-
-### 8.9 PyO3 Integration (if chosen)
-**Note**: Only implement if PyO3 approach is chosen in 8.7
-
-- [ ] Add PyO3 to Tauri dependencies
-- [ ] Create Python module wrapper
-- [ ] Implement direct function calls
-- [ ] Add error handling
-- [ ] Test integration
-
-### 8.10 HTTP Server (if chosen)
-**Note**: Only implement if HTTP approach is chosen in 8.7
-
-- [ ] Add FastAPI to core dependencies
-- [ ] Create HTTP server wrapper around TTSStudio
-- [ ] Implement REST endpoints
-- [ ] Add CORS for local access
-- [ ] Test server integration
-
-### 8.11 Validation (Bridge Implementation)
-- [ ] Chosen integration approach works
-- [ ] Tauri can call Python successfully
-- [ ] JSON serialization works correctly
-- [ ] Error handling is robust
-- [ ] Performance is acceptable
-- [ ] Cross-platform compatibility verified
-
----
-
-## Phase 9: Release (Week 9)
+**Note**: Desktop app implementation is covered in a separate spec (`.kiro/specs/tauri-desktop-ui/`). This phase focuses on releasing the Python core library v1.0.0.
 
 ### 9.1 Final Testing
 - [ ] Run full test suite: `pytest apps/core/`
 - [ ] Manual testing of Python API
-- [ ] Manual testing of Tauri integration
 - [ ] Performance testing (generation speed)
 - [ ] Memory usage testing
 - [ ] Test on different platforms (macOS, Linux)
@@ -695,14 +590,15 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 | 2 | Week 2 | 6 | Domain layer (pure business logic) |
 | 3 | Week 3 | 6 | Infrastructure adapters (Qwen3, audio, persistence) |
 | 4 | Week 4 | 5 | Application layer (use cases, DTOs) |
-| 5 | Week 5 | 4 | API layer (Python API for Tauri) |
+| 5 | Week 5 | 4 | API layer (Python API) |
 | 6 | Week 6 | 6 | Delete CLI/Gradio, update docs |
 | 7 | Week 7 | 6 | Testing, documentation, CI/CD |
-| 8 | Week 8 | 6 | Tauri setup, Python bridge decision |
-| 8.5 | Week 8 | 5 | Python-Tauri bridge implementation |
-| 9 | Week 9 | 8 | Release v1.0.0 |
+| 8 | Week 8 | 3 | Documentation updates |
+| 9 | Week 9 | 8 | Release v1.0.0 to PyPI |
 
-**Total**: 59 task groups across 9 weeks
+**Total**: 51 task groups across 9 weeks
+
+**Note**: Desktop app implementation is covered separately in `.kiro/specs/tauri-desktop-ui/`
 
 ---
 
@@ -711,10 +607,11 @@ Implementation tasks for migrating to TTS Studio with hexagonal architecture and
 1. **Phase 1-2** must be completed before Phase 3 (domain before infrastructure)
 2. **Phase 3** must be completed before Phase 4 (adapters before use cases)
 3. **Phase 4** must be completed before Phase 5 (use cases before API)
-4. **Phase 5** must be completed before Phase 8 (API before Tauri integration)
-5. **Phase 8** must be completed before Phase 8.5 (Tauri setup before bridge decision)
-6. **Phase 6-7** can run in parallel with Phase 8
-7. **Phase 9** requires all previous phases complete
+4. **Phase 6-7** can run in parallel with Phase 8
+5. **Phase 8** must be completed before Phase 9 (documentation before release)
+6. **Phase 9** requires all previous phases complete
+
+**Desktop App**: Separate implementation timeline in `.kiro/specs/tauri-desktop-ui/tasks.md`
 
 ---
 
