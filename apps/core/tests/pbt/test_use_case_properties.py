@@ -59,9 +59,7 @@ class TestCreateVoiceProfileProperties:
                     "Cn",
                 ),  # Control, surrogate, unassigned
             ),
-        ).filter(
-            lambda x: x.strip()
-        ),  # Ensure name is not just whitespace
+        ).filter(lambda x: x.strip()),  # Ensure name is not just whitespace
         sample_count=st.integers(min_value=1, max_value=5),
     )
     @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
@@ -108,9 +106,7 @@ class TestCreateVoiceProfileProperties:
                     "Cn",
                 ),  # Control, surrogate, unassigned
             ),
-        ).filter(
-            lambda x: x.strip()
-        ),  # Ensure name is not just whitespace
+        ).filter(lambda x: x.strip()),  # Ensure name is not just whitespace
         sample_count=st.integers(min_value=1, max_value=5),
     )
     @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
