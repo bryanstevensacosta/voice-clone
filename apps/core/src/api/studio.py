@@ -85,12 +85,8 @@ class TTSStudio:
             return
 
         # Default config paths (relative to apps/core/)
-        default_config = (
-            Path(__file__).parent.parent.parent / "config" / "default.yaml"
-        )
-        user_config = (
-            Path(__file__).parent.parent.parent / "config" / "config.yaml"
-        )
+        default_config = Path(__file__).parent.parent.parent / "config" / "default.yaml"
+        user_config = Path(__file__).parent.parent.parent / "config" / "config.yaml"
 
         if config_path:
             user_config = config_path
