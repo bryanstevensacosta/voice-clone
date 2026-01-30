@@ -36,10 +36,11 @@ tts-studio/
 │   │   │   ├── infra/       # Adapters (Qwen3, audio, storage)
 │   │   │   ├── api/         # Python API entry point
 │   │   │   └── shared/      # Shared utilities
-│   │   └── tests/           # Comprehensive test suite
+│   │   ├── tests/           # Comprehensive test suite
+│   │   ├── config/          # Configuration files
+│   │   ├── data/            # Data directory (gitignored)
+│   │   └── .env.example     # Environment variables template
 │   └── desktop/       # Tauri desktop app (coming soon)
-├── config/            # Shared configuration
-├── data/              # Data directory (gitignored)
 └── docs/              # Documentation
 ```
 
@@ -129,14 +130,14 @@ studio = TTSStudio()
 
 # 1. Validate audio samples
 validation = studio.validate_samples(
-    sample_paths=["./data/samples/neutral_01.wav", "./data/samples/happy_01.wav"]
+    sample_paths=["./apps/core/data/samples/neutral_01.wav", "./apps/core/data/samples/happy_01.wav"]
 )
 
 if validation["all_valid"]:
     # 2. Create voice profile
     profile = studio.create_voice_profile(
         name="my_voice",
-        sample_paths=["./data/samples/neutral_01.wav", "./data/samples/happy_01.wav"],
+        sample_paths=["./apps/core/data/samples/neutral_01.wav", "./apps/core/data/samples/happy_01.wav"],
         language="es"
     )
 
@@ -171,7 +172,9 @@ cd apps/core
 
 # Create virtual environment
 python3.10 -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # macOS/Linux
+# or
+venv\Scripts\activate  # Windows
 
 # Install dependencies
 pip install --upgrade pip
@@ -235,7 +238,7 @@ For best results, your audio samples should be:
 
 ## Configuration
 
-Create a `config/config.yaml` file to customize settings (see `config/config.yaml.example`):
+Create a `apps/core/config/config.yaml` file to customize settings (see `apps/core/config/config.yaml.example`):
 
 ```yaml
 # Model configuration
@@ -304,8 +307,12 @@ git clone https://github.com/bryanstevensacosta/tts-studio.git
 cd tts-studio/apps/core
 ./setup.sh
 
-# Run tests
-make test
+# Run tests from core library
+cd apps/core
+pytest
+
+# Or from root
+pytest apps/core/
 
 # Run linting and formatting
 make pre-commit
@@ -342,15 +349,16 @@ tts-studio/
 │   │   │   ├── api/            # API layer (entry points)
 │   │   │   └── shared/         # Shared utilities
 │   │   ├── tests/              # Test suite
+│   │   ├── config/             # Configuration files
+│   │   ├── data/               # Data directory (gitignored)
+│   │   │   ├── samples/        # Audio samples
+│   │   │   ├── profiles/       # Voice profiles
+│   │   │   ├── models/         # Cached models
+│   │   │   └── outputs/        # Generated audio
+│   │   ├── .env.example        # Environment variables template
 │   │   ├── setup.py            # Package setup
 │   │   └── requirements.txt    # Dependencies
 │   └── desktop/                 # Tauri desktop app (coming soon)
-├── config/                      # Configuration files
-├── data/                        # Data directory (gitignored)
-│   ├── samples/                # Audio samples
-│   ├── profiles/               # Voice profiles
-│   ├── models/                 # Cached models
-│   └── outputs/                # Generated audio
 ├── docs/                        # Documentation
 └── examples/                    # Usage examples
 ```
@@ -361,6 +369,7 @@ tts-studio/
 
 **Import errors**: Make sure you've activated the virtual environment:
 ```bash
+cd apps/core
 source venv/bin/activate  # macOS/Linux
 # or
 venv\Scripts\activate  # Windows
