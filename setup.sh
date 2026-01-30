@@ -1,9 +1,10 @@
 #!/bin/bash
-# Setup script for voice-clone-cli development environment
+# Setup script for TTS Studio development environment (Monorepo)
 
 set -e  # Exit on error
 
-echo "🚀 Setting up voice-clone-cli development environment..."
+echo "🚀 Setting up TTS Studio development environment..."
+echo ""
 
 # Check Python version
 echo "📋 Checking Python version..."
@@ -18,8 +19,12 @@ if [ "$PYTHON_VERSION" != "3.10" ]; then
     echo "⚠️  Warning: Python 3.10 is recommended, but found $PYTHON_VERSION"
 fi
 
+# Navigate to core library
+echo "📂 Navigating to apps/core/..."
+cd apps/core
+
 # Create virtual environment
-echo "📦 Creating virtual environment..."
+echo "📦 Creating virtual environment in apps/core/venv/..."
 if [ -d "venv" ]; then
     echo "⚠️  Virtual environment already exists. Skipping creation."
 else
@@ -35,23 +40,34 @@ source venv/bin/activate
 echo "⬆️  Upgrading pip..."
 pip install --upgrade pip
 
-# Install development dependencies
-echo "📚 Installing development dependencies..."
-pip install pre-commit black ruff mypy pytest pytest-cov
+# Install package in development mode
+echo "📚 Installing TTS Studio core library..."
+pip install -e ".[dev]"
 
-# Install pre-commit hooks
+# Navigate back to root for pre-commit hooks
+cd ../..
+
+# Install pre-commit hooks (repository-wide)
 echo "🪝 Installing pre-commit hooks..."
 pre-commit install
 pre-commit install --hook-type commit-msg
 pre-commit install --hook-type pre-push
+pre-commit install --hook-type pre-merge-commit
 
 echo ""
 echo "✅ Setup complete!"
 echo ""
+echo "📍 Virtual environment location: apps/core/venv/"
+echo ""
 echo "To activate the virtual environment, run:"
+echo "  cd apps/core"
 echo "  source venv/bin/activate"
 echo ""
-echo "To deactivate, run:"
+echo "To run tests:"
+echo "  cd apps/core"
+echo "  pytest"
+echo ""
+echo "To deactivate:"
 echo "  deactivate"
 echo ""
 echo "Happy coding! 🎉"

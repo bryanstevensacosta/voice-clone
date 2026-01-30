@@ -103,3 +103,6 @@ recordings-from-iphone
 *.bak
 *.swp
 *~
+
+# Backups (cleanup backups)
+backups/

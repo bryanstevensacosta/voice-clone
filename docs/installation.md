@@ -130,7 +130,7 @@ For Apple Silicon Macs, MPS (Metal Performance Shaders) is automatically support
    print(f"MPS available: {torch.backends.mps.is_available()}")
    ```
 
-2. **Configure for MPS** in `config/config.yaml`:
+2. **Configure for MPS** in `apps/core/config/config.yaml`:
    ```yaml
    model:
      device: "mps"  # or "auto" for automatic detection
@@ -159,7 +159,7 @@ To enable GPU acceleration with CUDA (Linux/Windows):
    print(f"GPU: {torch.cuda.get_device_name(0)}")
    ```
 
-4. **Configure for CUDA** in `config/config.yaml`:
+4. **Configure for CUDA** in `apps/core/config/config.yaml`:
    ```yaml
    model:
      device: "cuda"  # or "auto"
@@ -171,7 +171,7 @@ To enable GPU acceleration with CUDA (Linux/Windows):
 If no GPU is available, TTS Studio will automatically use CPU:
 
 ```yaml
-# config/config.yaml
+# apps/core/config/config.yaml
 model:
   device: "cpu"
   dtype: "float32"
