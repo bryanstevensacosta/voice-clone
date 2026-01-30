@@ -1,203 +1,366 @@
-# Pre-commit Hooks Best Practices
+# Pre-commit Hooks Configuration Guide
 
 ## Overview
-Este documento describe las mejores prácticas para configurar pre-commit hooks que auto-corrijan problemas en lugar de solo detectarlos.
+This document describes the complete pre-commit and pre-push hooks configuration for the TTS Studio monorepo, including solutions to common issues with Mypy, pytest, and formatting tools.
 
-## Problema Común: Hooks que Fallan Después de Corregir
+## Architecture
 
-### Síntoma
-Los pre-commit hooks detectan problemas, los corrigen automáticamente, pero luego **fallan** el commit, requiriendo que el desarrollador haga commit nuevamente.
+### Hook Types
+- **Pre-commit hooks**: Run before each commit (fast checks, auto-fixes)
+- **Pre-push hooks**: Run before pushing to remote (slower checks like tests)
 
-### Causa Raíz
-Uso incorrecto del flag `--exit-non-zero-on-fix` en herramientas como Ruff.
+### Monorepo Considerations
+- Hooks are scoped to `apps/core/` (Python library)
+- Hooks run in the project's virtualenv (not pre-commit's isolated env)
+- Configuration is consistent between local and CI/CD
 
-### Ejemplo Incorrecto ❌
+## Complete Configuration
+
+### .pre-commit-config.yaml
 
 ```yaml
-# .pre-commit-config.yaml
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.1.9
-  hooks:
-    - id: ruff
-      args: ['--fix', '--exit-non-zero-on-fix']  # ❌ MALO
+repos:
+  # Ruff - Fast linting, import sorting, and formatting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      - id: ruff
+        args: ['--fix', '--exit-non-zero-on-fix']  # Fail if fixes needed
+        files: ^apps/core/
+      - id: ruff-format
+        files: ^apps/core/
+
+  # Mypy - Type checking (custom local hook for monorepo)
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: bash -c 'cd apps/core && if [ -d "venv" ]; then source venv/bin/activate; elif [ -d ".venv" ]; then source .venv/bin/activate; fi && python -m mypy src --config-file=pyproject.toml'
+        language: system
+        types: [python]
+        files: ^apps/core/src/
+        exclude: '^apps/core/src/domain/'
+        pass_filenames: false
+        require_serial: true
+
+  # Pytest - Run tests on pre-push
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: pytest
+        entry: bash -c 'cd apps/core && if [ -d "venv" ]; then source venv/bin/activate; elif [ -d ".venv" ]; then source .venv/bin/activate; fi && python -m pytest tests/domain tests/app -q --tb=short'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
+  # Pre-commit hooks for common issues
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Branch protection hooks
+  - repo: local
+    hooks:
+      - id: check-branch-before-commit
+        name: Check branch before commit
+        entry: bash scripts/check-branch-before-commit.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      - id: check-merge-to-protected
+        name: Check merge to protected branch
+        entry: bash scripts/check-merge-to-protected.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+# Configuration
+default_language_version:
+  python: python3.11
+
+default_install_hook_types: [pre-commit, pre-push]
+default_stages: [pre-commit, pre-push]
+fail_fast: true
+minimum_pre_commit_version: '3.0.0'
 ```
 
-**Comportamiento**:
-1. Ruff detecta imports desordenados
-2. Ruff los corrige automáticamente
-3. Ruff retorna exit code 1 (fallo)
-4. Pre-commit hook falla
-5. Desarrollador debe hacer `git add` y `git commit` nuevamente
+### apps/core/pyproject.toml (Mypy Configuration)
 
-**Resultado**: Fricción innecesaria, los problemas no se detectan hasta CI.
+```toml
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+explicit_package_bases = true
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src"  # Relative to config file
+namespace_packages = true
+warn_unused_ignores = false
 
-### Ejemplo Correcto ✅
+[[tool.mypy.overrides]]
+module = ["tests.*", "examples.*"]
+ignore_errors = true
 
-```yaml
-# .pre-commit-config.yaml
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.1.9
-  hooks:
-    - id: ruff
-      args: ['--fix']  # ✅ BUENO
+[[tool.mypy.overrides]]
+module = ["qwen_tts.*", "librosa.*", "numpy.*", "soundfile.*", "torch.*"]
+ignore_missing_imports = true
 ```
 
-**Comportamiento**:
-1. Ruff detecta imports desordenados
-2. Ruff los corrige automáticamente
-3. Ruff retorna exit code 0 (éxito)
-4. Pre-commit hook continúa
-5. Commit se completa con código corregido
+## Key Design Decisions
 
-**Resultado**: Experiencia fluida, código siempre formateado correctamente.
+### 1. Custom Local Hooks for Mypy and Pytest
 
-## Filosofía de Auto-corrección
+**Problem**: Pre-commit runs hooks in isolated virtualenvs that don't have access to local packages (domain, app, infra).
 
-### Principio
-> **Los hooks deben corregir problemas automáticamente, no solo detectarlos.**
+**Solution**: Use `language: system` with custom bash scripts that:
+- Change to the correct directory (`apps/core/`)
+- Activate the project's virtualenv (checks for `venv` or `.venv`)
+- Run the tool with the project's Python interpreter
 
-### Razones
-1. **Mejor experiencia de desarrollador**: No interrumpe el flujo de trabajo
-2. **Prevención temprana**: Los problemas se corrigen antes de llegar a CI
-3. **Consistencia**: Todo el código pasa por el mismo proceso de corrección
-4. **Menos fricción**: No requiere intervención manual repetitiva
+**Why this works**:
+- Mypy can resolve local imports (domain, app, infra)
+- Pytest can import test dependencies (soundfile, librosa, etc.)
+- Works consistently across different developer setups
 
-## Configuración Recomendada
+### 2. Mypy Path Configuration
 
-### Black (Formatter)
-```yaml
-- repo: https://github.com/psf/black
-  rev: 24.1.1
-  hooks:
-    - id: black
-      language_version: python3.11
-      args: ['--config=pyproject.toml']
-```
+**Problem**: Mypy couldn't find local modules when run from repository root.
 
-**Comportamiento**: Formatea código automáticamente sin fallar.
+**Solution**: Use `$MYPY_CONFIG_FILE_DIR/src` in `mypy_path`:
+- `$MYPY_CONFIG_FILE_DIR` expands to the directory containing `pyproject.toml`
+- Makes paths relative to the config file, not the working directory
+- Works both locally and in CI
 
-### Ruff (Linter + Import Sorter)
-```yaml
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.1.9
-  hooks:
-    - id: ruff
-      args: ['--fix']  # Auto-fix sin fallar
-    - id: ruff-format  # Formateo adicional
-```
+### 3. Virtualenv Detection
 
-**Comportamiento**: Corrige imports, linting issues, y formatea sin fallar.
+**Problem**: Different developers use different virtualenv names (`venv`, `.venv`, etc.).
 
-### Prettier (JavaScript/TypeScript)
-```yaml
-- repo: https://github.com/pre-commit/mirrors-prettier
-  rev: v3.1.0
-  hooks:
-    - id: prettier
-      types_or: [javascript, jsx, ts, tsx, json, yaml, markdown]
-```
-
-**Comportamiento**: Formatea archivos automáticamente sin fallar.
-
-## Cuándo Usar Exit-Non-Zero
-
-### Casos Válidos
-Solo usar `--exit-non-zero-on-fix` en **pre-push hooks** o **CI**, nunca en pre-commit:
-
-```yaml
-# Pre-push hook (scripts/pre-push-format-check.sh)
-#!/bin/bash
-# Verificar que no haya cambios pendientes de formato
-black --check src/ tests/
-ruff check src/ tests/  # Sin --fix, solo check
-
-if [ $? -ne 0 ]; then
-  echo "❌ Code is not formatted. Run: black src/ tests/ && ruff check --fix src/ tests/"
-  exit 1
+**Solution**: Check for common virtualenv locations:
+```bash
+if [ -d "venv" ]; then
+  source venv/bin/activate
+elif [ -d ".venv" ]; then
+  source .venv/bin/activate
 fi
 ```
 
-**Razón**: En pre-push queremos **detectar** si algo se escapó, no corregirlo.
+**Fallback**: If no virtualenv is found, uses system Python (works in CI where dependencies are installed globally).
 
-## Lecciones Aprendidas - PR #7
+### 4. Ruff Configuration
 
-### Problema
-- Imports desordenados no se corregían localmente
-- Pasaban pre-commit pero fallaban en CI
-- Desarrolladores tenían que hacer múltiples commits
+**Why `--exit-non-zero-on-fix`**:
+- Ensures that if Ruff fixes issues, the hook fails
+- Forces developer to review and commit the fixes
+- Prevents auto-fixed code from being committed without review
+- Consistent with strict pre-commit philosophy
 
-### Causa
+**Alternative approach** (auto-fix without failing):
 ```yaml
-# Configuración incorrecta
 - id: ruff
-  args: ['--fix', '--exit-non-zero-on-fix']  # ❌
+  args: ['--fix']  # Auto-fix without failing
+```
+Use this if you prefer seamless auto-correction.
+
+## Common Issues and Solutions
+
+### Issue 1: Mypy "import-not-found" Errors
+
+**Symptom**:
+```
+error: Cannot find implementation or library stub for module named "domain"
+error: Cannot find implementation or library stub for module named "app"
 ```
 
-### Solución
+**Cause**: Mypy running in isolated environment without access to local packages.
+
+**Solution**: Use custom local hook with `language: system` (see configuration above).
+
+### Issue 2: Pytest "ModuleNotFoundError"
+
+**Symptom**:
+```
+ModuleNotFoundError: No module named 'soundfile'
+```
+
+**Cause**: Pytest running with system Python that doesn't have project dependencies.
+
+**Solution**: Activate virtualenv before running pytest (see configuration above).
+
+### Issue 3: Hooks Pass Locally but Fail in CI
+
+**Symptom**: All hooks pass locally, but CI fails with lint/type-check errors.
+
+**Cause**: Inconsistent configuration between local hooks and CI workflows.
+
+**Solution**: Ensure CI workflows match local hook configuration:
+
 ```yaml
-# Configuración correcta
-- id: ruff
-  args: ['--fix']  # ✅
+# .github/workflows/ci-python.yml
+- name: Lint and format with Ruff
+  run: |
+    cd apps/core
+    ruff check src/ tests/ --exit-non-zero-on-fix
+    ruff format --check src/ tests/
+
+- name: Type check with MyPy
+  run: |
+    cd apps/core
+    mypy src --config-file=pyproject.toml
 ```
 
-### Resultado
-- Imports se corrigen automáticamente en cada commit
-- No más fallos en CI por imports desordenados
-- Mejor experiencia de desarrollador
+### Issue 4: Hooks Too Slow
 
-## Checklist de Configuración
+**Symptom**: Pre-commit hooks take >10 seconds to run.
 
-Al configurar pre-commit hooks:
+**Cause**: Running too many checks or checking too many files.
 
-- [ ] Hooks formatean/corrigen automáticamente
-- [ ] Hooks NO fallan después de aplicar correcciones
-- [ ] Hooks son rápidos (<5 segundos para cambios típicos)
-- [ ] Configuración es idéntica entre local y CI
-- [ ] Documentación explica qué hace cada hook
+**Solution**:
+- Move slow checks (pytest) to pre-push hooks
+- Use `files:` patterns to limit scope
+- Use `pass_filenames: false` for tools that check entire codebase
 
-## Testing de Hooks
+## Testing Hooks
 
-### Verificar Comportamiento
+### Test All Pre-commit Hooks
 ```bash
-# 1. Crear archivo con problema intencional
-echo "import sys\nimport os" > test_imports.py
-
-# 2. Agregar al staging
-git add test_imports.py
-
-# 3. Intentar commit
-git commit -m "test: verify hook behavior"
-
-# 4. Verificar resultado
-# ✅ Esperado: Commit exitoso, imports corregidos
-# ❌ Problema: Commit falla, requiere re-commit
+python3 -m pre_commit run --all-files
 ```
 
-### Verificar Correcciones
+### Test Pre-push Hooks
 ```bash
-# Ver qué cambió el hook
-git diff test_imports.py
-
-# Debería mostrar imports ordenados:
-# import os
-# import sys
+python3 -m pre_commit run --hook-stage pre-push --all-files
 ```
 
-## Referencias
+### Test Specific Hook
+```bash
+python3 -m pre_commit run mypy --all-files
+python3 -m pre_commit run pytest-check --all-files
+```
+
+### Reinstall Hooks
+```bash
+python3 -m pre_commit uninstall
+python3 -m pre_commit install --install-hooks
+```
+
+## CI/CD Integration
+
+### GitHub Actions Workflow
+
+Ensure CI workflows match local configuration:
+
+```yaml
+lint:
+  steps:
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        cd apps/core
+        pip install -e ".[dev]"
+
+    - name: Lint and format with Ruff
+      run: |
+        cd apps/core
+        ruff check src/ tests/ --exit-non-zero-on-fix
+        ruff format --check src/ tests/
+
+type-check:
+  steps:
+    - name: Type check with MyPy
+      run: |
+        cd apps/core
+        mypy src --config-file=pyproject.toml
+
+test:
+  steps:
+    - name: Run tests with pytest
+      run: |
+        cd apps/core
+        pytest tests/ --cov=src --cov-report=xml
+```
+
+## Best Practices
+
+### Do's ✅
+- Use `language: system` for hooks that need project dependencies
+- Activate virtualenv in custom hooks
+- Use `$MYPY_CONFIG_FILE_DIR` for relative paths in mypy config
+- Test hooks locally before pushing
+- Keep pre-commit hooks fast (<5 seconds)
+- Move slow checks to pre-push hooks
+- Ensure CI matches local configuration
+
+### Don'ts ❌
+- Don't use `language: python` for hooks that need local packages
+- Don't hardcode virtualenv paths (check for common names)
+- Don't use absolute paths in configuration
+- Don't skip testing hooks before committing
+- Don't run full test suite in pre-commit (use pre-push instead)
+- Don't have inconsistent configuration between local and CI
+
+## Troubleshooting
+
+### Hooks Not Running
+```bash
+# Check if hooks are installed
+ls -la .git/hooks/
+
+# Reinstall hooks
+python3 -m pre_commit install --install-hooks
+```
+
+### Mypy Still Can't Find Modules
+```bash
+# Test mypy directly
+cd apps/core
+source venv/bin/activate
+python -m mypy src --config-file=pyproject.toml
+
+# Check mypy_path
+python -c "import tomli; print(tomli.load(open('apps/core/pyproject.toml', 'rb'))['tool']['mypy']['mypy_path'])"
+```
+
+### Pytest Fails with Import Errors
+```bash
+# Test pytest directly
+cd apps/core
+source venv/bin/activate
+python -m pytest tests/domain tests/app -v
+
+# Check if dependencies are installed
+pip list | grep soundfile
+```
+
+## References
 
 - [Pre-commit Documentation](https://pre-commit.com/)
+- [Mypy Configuration](https://mypy.readthedocs.io/en/stable/config_file.html)
+- [Running Mypy in Pre-commit](https://jaredkhan.com/blog/mypy-pre-commit)
 - [Ruff Documentation](https://docs.astral.sh/ruff/)
-- [Black Documentation](https://black.readthedocs.io/)
-- [Git Workflow Guide](git-workflow.md)
 
-## Resumen
+## Summary
 
-**TL;DR**:
-- ✅ Usa `--fix` en pre-commit hooks para auto-corregir
-- ❌ NO uses `--exit-non-zero-on-fix` en pre-commit
-- ✅ Usa `--check` (sin fix) en pre-push/CI para detectar
-- 🎯 Objetivo: Código siempre correcto, sin fricción
+**Key Takeaways**:
+- ✅ Use custom local hooks for tools that need project dependencies
+- ✅ Activate virtualenv in custom hooks for consistent environment
+- ✅ Use `$MYPY_CONFIG_FILE_DIR` for relative paths in mypy config
+- ✅ Keep pre-commit fast, move slow checks to pre-push
+- ✅ Ensure CI configuration matches local hooks
+- 🎯 Goal: Strict, consistent checks that catch errors before they reach CI
 
 ---
 
-**Última actualización**: 28 de enero de 2026
+**Last Updated**: January 30, 2026
