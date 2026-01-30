@@ -240,17 +240,16 @@ Stay tuned for updates!
 
 ### Getting Help
 
-- Check the [FAQ](../README.md#faq) in the README
+- Check the [FAQ](../../README.md#faq) in the README
 - Search [existing issues](https://github.com/bryanstevensacosta/tts-studio/issues)
 - Open a [new issue](https://github.com/bryanstevensacosta/tts-studio/issues/new) with details
 
 ## Next Steps
 
 After installation, proceed to:
-- [Usage Guide](usage.md) - Learn how to use the Python API
-- [API Documentation](api.md) - Explore the API reference
-- [Development Guide](development.md) - Set up for development
-- [Examples](../examples/api_usage.py) - See complete usage examples
+- [Quick Start](02-quick-start.md) - Get started quickly
+- [Configuration](03-configuration.md) - Configure TTS Studio
+- [API Documentation](../04-api-reference/01-python-api.md) - Explore the API reference
 
 ## Uninstallation
 
