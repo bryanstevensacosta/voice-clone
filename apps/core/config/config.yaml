@@ -1,0 +1,16 @@
+# Personal configuration overrides
+# This file is git-ignored
+
+model:
+  device: "mps"  # Use MPS (Metal Performance Shaders) for Apple Silicon
+  dtype: "float32"  # Required for MPS compatibility with Qwen3-TTS
+
+performance:
+  use_gpu: true
+  dtype: "float32"  # MPS requires float32, not fp16
+
+# Parámetros de generación optimizados para mejor calidad
+generation:
+  temperature: 0.75        # 0.5-0.9: Menor = más consistente, Mayor = más variado
+  speed: 1.0               # 0.8-1.2: Velocidad de habla
+  max_new_tokens: 2048     # Maximum tokens for Qwen3-TTS

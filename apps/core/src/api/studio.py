@@ -84,12 +84,12 @@ class TTSStudio:
             logger.debug("Configuration loaded from dictionary")
             return
 
-        # Default config paths
+        # Default config paths (relative to apps/core/)
         default_config = (
-            Path(__file__).parent.parent.parent.parent / "config" / "default.yaml"
+            Path(__file__).parent.parent.parent / "config" / "default.yaml"
         )
         user_config = (
-            Path(__file__).parent.parent.parent.parent / "config" / "config.yaml"
+            Path(__file__).parent.parent.parent / "config" / "config.yaml"
         )
 
         if config_path:
