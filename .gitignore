@@ -34,22 +34,22 @@ apps/core/.mypy_cache/
 apps/core/.ruff_cache/
 apps/core/.hypothesis/
 
-# Monorepo - Desktop App (apps/desktop/)
-apps/desktop/node_modules/
-apps/desktop/dist/
-apps/desktop/.next/
-apps/desktop/.turbo/
-apps/desktop/out/
-apps/desktop/build/
-apps/desktop/.DS_Store
-apps/desktop/*.tsbuildinfo
-apps/desktop/npm-debug.log*
-apps/desktop/yarn-debug.log*
-apps/desktop/yarn-error.log*
+# Monorepo - Desktop App (apps/ui/)
+apps/ui/node_modules/
+apps/ui/dist/
+apps/ui/.next/
+apps/ui/.turbo/
+apps/ui/out/
+apps/ui/build/
+apps/ui/.DS_Store
+apps/ui/*.tsbuildinfo
+apps/ui/npm-debug.log*
+apps/ui/yarn-debug.log*
+apps/ui/yarn-error.log*
 
-# Monorepo - Tauri (apps/desktop/src-tauri/)
-apps/desktop/src-tauri/target/
-apps/desktop/src-tauri/Cargo.lock
+# Monorepo - Tauri (apps/ui/src-tauri/)
+apps/ui/src-tauri/target/
+apps/ui/src-tauri/Cargo.lock
 
 # Data (IMPORTANT: personal data)
 data/samples/
