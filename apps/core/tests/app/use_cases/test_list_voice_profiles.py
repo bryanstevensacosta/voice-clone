@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+
 from app.dto.voice_profile_dto import VoiceProfileDTO
 from app.use_cases.list_voice_profiles import ListVoiceProfilesUseCase
 from domain.models.audio_sample import AudioSample

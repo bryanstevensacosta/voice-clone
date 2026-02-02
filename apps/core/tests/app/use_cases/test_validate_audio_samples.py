@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+
 from app.use_cases.validate_audio_samples import (
     SampleValidationResult,
     ValidateAudioSamplesUseCase,

@@ -9,6 +9,9 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
+
 from app.dto.generation_dto import GenerationRequestDTO
 from app.use_cases.create_voice_profile import CreateVoiceProfileUseCase
 from app.use_cases.generate_audio import GenerateAudioUseCase
@@ -19,8 +22,6 @@ from domain.models.voice_profile import VoiceProfile
 from domain.ports.audio_processor import AudioProcessor
 from domain.ports.profile_repository import ProfileRepository
 from domain.ports.tts_engine import TTSEngine
-from hypothesis import HealthCheck, given, settings
-from hypothesis import strategies as st
 
 
 class TestCreateVoiceProfileProperties:

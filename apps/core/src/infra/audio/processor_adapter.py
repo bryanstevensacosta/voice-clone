@@ -8,6 +8,7 @@ from pathlib import Path
 
 import librosa
 import soundfile as sf
+
 from domain.exceptions import InvalidSampleException
 from domain.models.audio_sample import AudioSample
 from domain.ports.audio_processor import AudioProcessor

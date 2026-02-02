@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
+
 from domain.exceptions import GenerationException
 from domain.models.audio_sample import AudioSample
 from domain.models.voice_profile import VoiceProfile
