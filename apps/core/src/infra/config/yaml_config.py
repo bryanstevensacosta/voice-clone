@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+
 from domain.ports.config_provider import ConfigProvider
 
 logger = logging.getLogger(__name__)

@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+
 from app.dto.batch_dto import BatchRequestDTO, BatchResultDTO, BatchSegment
 from app.use_cases.process_batch import ProcessBatchUseCase
 from domain.models.audio_sample import AudioSample

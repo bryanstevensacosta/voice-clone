@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+
 from domain.models.audio_sample import AudioSample
 from domain.models.voice_profile import VoiceProfile
 from domain.ports.audio_processor import AudioProcessor
@@ -234,9 +235,9 @@ class TestArchitecturalBoundaries:
 
         for source in [profile_source, service_source]:
             for forbidden in forbidden_imports:
-                assert (
-                    forbidden not in source
-                ), f"Domain layer should not import from infrastructure: {forbidden}"
+                assert forbidden not in source, (
+                    f"Domain layer should not import from infrastructure: {forbidden}"
+                )
 
     def test_domain_only_depends_on_ports(self):
         """Domain services should only depend on ports, not adapters."""
