@@ -8,7 +8,7 @@ inclusion: always
 
 ### Monorepo Structure
 - **Architecture**: Monorepo with separate apps
-- **Apps**: `apps/core/` (Python library), `apps/desktop/` (Tauri app)
+- **Apps**: `apps/core/` (Python library), `apps/ui/` (Tauri app)
 - **Build System**: Independent builds per app
 - **CI/CD**: Separate workflows per technology (Python, Rust, TypeScript)
 
@@ -63,7 +63,7 @@ mypy>=1.0.0              # Type checker
 pre-commit>=3.0.0        # Git hooks
 ```
 
-### Desktop App Technologies (`apps/desktop/`)
+### Desktop App Technologies (`apps/ui/`)
 
 #### Rust Backend (Tauri)
 ```toml
@@ -200,34 +200,34 @@ class TTSStudioAPI:
 
 ### Feature-Sliced Design Layers
 
-#### 1. App Layer (`apps/desktop/src/app/`)
+#### 1. App Layer (`apps/ui/src/app/`)
 - Application initialization
 - Global providers (theme, router, store)
 - Global styles
 - Root-level configuration
 
-#### 2. Pages Layer (`apps/desktop/src/pages/`)
+#### 2. Pages Layer (`apps/ui/src/pages/`)
 - Route components
 - Page-level layouts
 - Composition of widgets
 
-#### 3. Widgets Layer (`apps/desktop/src/widgets/`)
+#### 3. Widgets Layer (`apps/ui/src/widgets/`)
 - Complex, self-contained UI blocks
 - Combine multiple features and entities
 - Business logic for widget behavior
 
-#### 4. Features Layer (`apps/desktop/src/features/`)
+#### 4. Features Layer (`apps/ui/src/features/`)
 - User interactions (actions)
 - Business logic for specific features
 - Reusable across pages
 
-#### 5. Entities Layer (`apps/desktop/src/entities/`)
+#### 5. Entities Layer (`apps/ui/src/entities/`)
 - Business entities (Profile, Sample, Generation, Model)
 - Entity state management (Zustand)
 - Tauri API calls for entities
 - Entity UI components
 
-#### 6. Shared Layer (`apps/desktop/src/shared/`)
+#### 6. Shared Layer (`apps/ui/src/shared/`)
 - Reusable UI components (shadcn/ui)
 - Utilities, hooks, types
 - No business logic

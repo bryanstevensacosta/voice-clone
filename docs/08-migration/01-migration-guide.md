@@ -89,7 +89,7 @@ tts-studio/
 │   │   ├── infra/          # Adapters
 │   │   └── api/            # Python API
 │   └── tests/
-└── apps/desktop/           # Tauri app (coming soon)
+└── apps/ui/           # Tauri app (coming soon)
 ```
 
 ### 4. Import Paths Changed
@@ -342,7 +342,7 @@ if result['status'] == 'error':
 ```
 tts-studio/
 ├── apps/core/          # Python library
-├── apps/desktop/       # Tauri desktop app (coming soon)
+├── apps/ui/       # Tauri desktop app (coming soon)
 └── packages/           # Shared code (optional)
 ```
 
