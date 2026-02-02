@@ -130,7 +130,7 @@ For Apple Silicon Macs, MPS (Metal Performance Shaders) is automatically support
    print(f"MPS available: {torch.backends.mps.is_available()}")
    ```
 
-2. **Configure for MPS** in `config/config.yaml`:
+2. **Configure for MPS** in `apps/core/config/config.yaml`:
    ```yaml
    model:
      device: "mps"  # or "auto" for automatic detection
@@ -159,7 +159,7 @@ To enable GPU acceleration with CUDA (Linux/Windows):
    print(f"GPU: {torch.cuda.get_device_name(0)}")
    ```
 
-4. **Configure for CUDA** in `config/config.yaml`:
+4. **Configure for CUDA** in `apps/core/config/config.yaml`:
    ```yaml
    model:
      device: "cuda"  # or "auto"
@@ -171,7 +171,7 @@ To enable GPU acceleration with CUDA (Linux/Windows):
 If no GPU is available, TTS Studio will automatically use CPU:
 
 ```yaml
-# config/config.yaml
+# apps/core/config/config.yaml
 model:
   device: "cpu"
   dtype: "float32"
@@ -240,17 +240,16 @@ Stay tuned for updates!
 
 ### Getting Help
 
-- Check the [FAQ](../README.md#faq) in the README
+- Check the [FAQ](../../README.md#faq) in the README
 - Search [existing issues](https://github.com/bryanstevensacosta/tts-studio/issues)
 - Open a [new issue](https://github.com/bryanstevensacosta/tts-studio/issues/new) with details
 
 ## Next Steps
 
 After installation, proceed to:
-- [Usage Guide](usage.md) - Learn how to use the Python API
-- [API Documentation](api.md) - Explore the API reference
-- [Development Guide](development.md) - Set up for development
-- [Examples](../examples/api_usage.py) - See complete usage examples
+- [Quick Start](02-quick-start.md) - Get started quickly
+- [Configuration](03-configuration.md) - Configure TTS Studio
+- [API Documentation](../04-api-reference/01-python-api.md) - Explore the API reference
 
 ## Uninstallation
 
