@@ -8,10 +8,11 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-from domain.models.audio_sample import AudioSample
-from domain.models.voice_profile import VoiceProfile
 from hypothesis import given
 from hypothesis import strategies as st
+
+from domain.models.audio_sample import AudioSample
+from domain.models.voice_profile import VoiceProfile
 
 
 class TestVoiceProfileProperties:

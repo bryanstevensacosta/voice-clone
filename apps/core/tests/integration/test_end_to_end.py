@@ -7,6 +7,7 @@ Tests the entire flow: create profile → generate audio with real infrastructur
 from pathlib import Path
 
 import pytest
+
 from api.studio import TTSStudio
 
 

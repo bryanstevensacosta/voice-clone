@@ -6,6 +6,7 @@ Tests the main API entry point with real adapters (integration tests).
 import json
 
 import pytest
+
 from api import TTSStudio
 
 

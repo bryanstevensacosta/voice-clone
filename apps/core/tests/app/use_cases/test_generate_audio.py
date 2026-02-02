@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+
 from app.dto.generation_dto import GenerationRequestDTO, GenerationResultDTO
 from app.use_cases.generate_audio import GenerateAudioUseCase
 from domain.exceptions import GenerationException

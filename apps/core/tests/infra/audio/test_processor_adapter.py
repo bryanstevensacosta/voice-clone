@@ -6,6 +6,7 @@ Tests the librosa-based audio processor adapter implementation.
 from unittest.mock import Mock, patch
 
 import pytest
+
 from domain.exceptions import InvalidSampleException
 from domain.models.audio_sample import AudioSample
 from infra.audio.processor_adapter import LibrosaAudioProcessor

@@ -1,13 +1,13 @@
 repos:
   # Ruff - Fast linting, import sorting, and formatting (replaces black, isort, flake8)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.14.14  # Updated to match CI version
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']  # Fail if fixes are needed
-        files: ^apps/core/
+        files: ^apps/core/(src|tests)/.*\.py$
       - id: ruff-format
-        files: ^apps/core/
+        files: ^apps/core/(src|tests)/.*\.py$
 
   # Mypy - Type checking (custom local hook for monorepo)
   - repo: local
@@ -35,7 +35,7 @@ repos:
 
   # Pre-commit hooks for common issues
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
