@@ -57,7 +57,7 @@ Desktop application for voice cloning and text-to-speech synthesis using Qwen3-T
 
 ### Monorepo Structure
 - **apps/core/**: Python core library with hexagonal architecture
-- **apps/desktop/**: Tauri desktop app (React + TypeScript + Rust)
+- **apps/ui/**: Tauri desktop app (React + TypeScript + Rust)
 - **Separation**: Clear boundaries between core logic and UI
 
 ### Hexagonal Architecture (Core Library)
